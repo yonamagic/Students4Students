@@ -1,0 +1,45 @@
+{% extends "registeredLayout.html" %}
+
+{% block head %}
+    <title>{{user.name}}</title>
+{% endblock %}
+
+{% block body %}
+{{self_username}}
+{{username2}}
+<script>console.log({{self_username|tojson}})</script>
+<br>
+<button  onclick="changeURL('{{self_username}}','{{username2}}  ')"/>Start chat!</button>
+<!--<button  onclick="changeURL('+{{self_username|tojson}},{{username2|tojson}})"/>Start chat!</button>-->
+<script>
+    function changeURL(self_username, username2){
+        location.href = "http://localhost:5000/typingChatRoom?self_username=" + self_username + "&username2=" + username2;
+    }
+</script>
+
+<br>
+
+    <h1><font color="magenta">{{user.name}}</font></h1>
+
+    <h2><font color="green">Strong subjects:</font></h2>
+    {% for subject in user.strong_subjects %}
+        <h2>{{subject.name}} for: </h2>
+        {% for class in subject.classes %}
+            {{class}}th
+        {% endfor %}
+        grades.
+        <br>
+    {% endfor %}
+
+    <h2><font color="orange">Weak subjects:</font></h2>
+    {% for subject in user.weak_subjects %}
+        <h2>{{subject.name}} for: </h2>
+        {% for class in subject.classes %}
+            {{class}}th
+        {% endfor %}
+        grades.
+        <br>
+    {% endfor %}
+
+
+{% endblock %}

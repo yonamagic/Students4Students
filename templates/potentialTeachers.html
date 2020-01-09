@@ -1,0 +1,49 @@
+{% extends "registeredLayout.html" %}
+
+{% block head %}
+<title>Potential teachers</title>
+<h1>Potential teachers</h1>
+<h2>These users may fit you:</h2>
+{% endblock %}
+
+{% block body %}
+
+{% set teachers_by_subject = [] %}
+
+{% for subject in my_weak_subjects %}
+    <h2>{{subject}} - </h2>
+    {% for current_user in teachers %}
+        {% if current_user[0] == subject %}
+            {% for name in current_user[1] %}
+                {% set matching_classes = DataBaseFunctions.matching_classes([my_username,name],current_user[0]) %}
+                {% if matching_classes %}
+                    <a href="/profile?username={{name}}"><font size="5"><b>{{name}}</b></font></a> for classes: {{', '.join(matching_classes)}}
+                {% else %}
+                    {{ teachers_by_subject.append((current_user[0],name)) }}
+                                                    <!--A tuple of subject name and teacher name-->
+                    <!--<h3>{{name}} by subject but not by classes...</h3>-->
+                {% endif %}
+            {% endfor %}
+            <!--<h3><b>{{current_user}}</b></h3>-->
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+<h1>Didn't find what you were looking for? These are some teachers that match you by subject but not by classes:</h1>
+
+
+{% for subject in my_weak_subjects %}
+    <h2>{{subject}}:</h2>
+    {% for teacher in teachers_by_subject %}
+        {% if teacher[0] == subject %}
+            <a href="/profile?username={{teacher[1]}}"><font size="5"><b>{{teacher[1]}}</b></font></a>
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+<!--<h1>{{teachers_by_subject}}</h1>-->
+
+{% for teacher in teachers_by_subject %}
+    <!--<h2>{{teacher}}</h2>-->
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "registeredLayout.html" %}
+
+{% block head %}
+<title>Potential teachers</title>
+<h1>General potential teachers</h1>
+<h2>These users may fit you:</h2>
+{% endblock %}
+
+{% block body %}
+
+{% set teachers_by_subject = [] %}
+
+{% for subject in my_weak_subjects %}
+    <h2>{{subject}} - </h2>
+    {% for current_user in teachers %}
+        {% if current_user[0] == subject %}
+            {% for name in current_user[1] %}
+                {% set matching_classes = DataBaseFunctions.matching_classes([my_username,name],current_user[0]) %}
+                {% if matching_classes %}
+                    <h3><font size="6">{{name}}</font> for classes: {{matching_classes}}</h3>
+                {% else %}
+                    {{ teachers_by_subject.append(name) }}
+                    <!--<h3>{{name}} by subject but not by classes...</h3>-->
+                {% endif %}
+            {% endfor %}
+            <!--<h3><b>{{current_user}}</b></h3>-->
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+<form action="">
+    <button type="submit" class="btn btn-primary"><font color="green">Try searching more general teachers</font></button>
+</form>
+
+{{teachers_by_subject}}
+
+{% endblock %}

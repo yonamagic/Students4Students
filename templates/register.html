@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block head%}
+    <title>Index Title</title>
+{% endblock %}
+
+{% block body%}
+    <h1>Home Page</h1>
+<form method="post" action="/response">
+    Checkbox <input name="try" class="form-check-input" type="checkbox" value="1" id="try" >
+<button type="submit" value="Register"  class="btn btn-primary">Submit</button>
+
+</form>
+    <form action="/response" method="post">
+    {% for subject in subjects %}
+        <div class="form-check">
+            {% set subjectId = "subjectID" ~ (subjects.index(subject)|string) %}
+            <!--Example: first subject checkbox's ID is subjectID0-->
+            <h1>{{subject.name}}</h1>
+            {{subject.name}}<input type="checkbox" value="" id={{subjectId}} onclick="subjectCheckboxClicked()" {{subject.mode}}>
+            <!--<label >{{subject.name}}</label>-->
+
+
+            {% for j in range(3) %}
+                {% set currentMode = 'enabled' %}
+                {% set currentID = "currentID" ~ (subjects.index(subject)|string) ~ '_' ~  j|string %}
+                <h1>{{currentID}}</h1>
+
+                {{classes[j]}}<input name={{currentID}} class="form-check-input" type="checkbox" value="" id={{currentID}} {{currentMode}}>
+                <!--<label >{{classes[j]}}</label>-->
+                <script>
+                    function subjectCheckboxClicked(){
+                        console.log(document.getElementById("subjectID").checked);
+                        document.getElementById("currentID0").checked = !document.getElementById("currentID0").checked;
+                 }
+                </script>
+
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+              <button type="submit" value="Register"  class="btn btn-primary">Submit</button>
+</form>
+        <!--{%set list = "hello" %}-->
+<!--{% for i in list %}-->
+        <!--<h2>{{i}}</h2>-->
+    <!--{% endfor %}-->
+{% endblock %}

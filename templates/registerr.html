@@ -1,0 +1,48 @@
+{% extends "guestLayout.html" %}
+
+{% block head %}
+<title>Registration</title>
+{% endblock %}
+
+{% block body %}
+
+<h1>Enter your details to create your account!</h1>
+<form action="/checkRegistration" method="post">
+<input type="text" name="username" id="username" placeholder="username">
+    <script>document.getElementById("username").value="{{username}}"</script>
+     <small style="color:red">{{username_comment}}</small><br>
+
+<br>
+
+<input type="text" name="password" id="password" placeholder="password">
+    <script>document.getElementById("password").value="{{password}}"</script>
+    <small style="color:red">{{password_comment}}</small><br>
+
+
+<h2>Choose your strong subjects:</h2>
+{% for subject in subjects %}
+    <input type="checkbox" name="strong_{{subject}}"><font size="6">{{subject}}</font>
+    <input type="checkbox" name="strong_{{subject}}_class_10">Yod
+    <input type="checkbox" name="strong_{{subject}}_class_11">Yod Alef
+    <input type="checkbox" name="strong_{{subject}}_class_12">Yod Bet
+    <br><br>
+
+
+{% endfor %}
+
+<h2>Choose your weak subjects:</h2>
+{% for subject in subjects %}
+    <input type="checkbox" name="weak_{{subject}}"><font size="6">{{subject}}</font>
+    <input type="checkbox" name="weak_{{subject}}_class_10">Yod
+    <input type="checkbox" name="weak_{{subject}}_class_11">Yod Alef
+    <input type="checkbox" name="weak_{{subject}}_class_12">Yod Bet
+    <br><br>
+
+
+{% endfor %}
+
+
+<button type="submit" class="btn btn-primary"><font color="blue">Done</font></button>
+</form>
+
+{% endblock %}

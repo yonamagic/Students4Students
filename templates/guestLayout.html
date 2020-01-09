@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <form action="/" method="post">
+                <button type="submit" class="btn btn-primary"><font color="blue">HOME</font></button>
+        </form>
+        <br>
+        <form action="/loginPage" method="post">
+            <button type="submit" class="btn btn-primary"><font color="blue">Login!</font></button>
+        </form>
+        <br>
+        <form action="/register" method="post">
+            <button type="submit" class="btn btn-primary"><font color="blue">Sign Up!</font></button>
+        </form>
+
+        <!--<form action="/about" method="post">-->
+            <!--<button type="submit" class="btn btn-primary">About</button>-->
+
+        <!--</form>-->
+        {% block head%}{% endblock %}
+    </head>
+    <body>
+        {% block body%}{% endblock %}
+    </body>
+</html>

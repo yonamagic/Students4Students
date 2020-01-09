@@ -1,0 +1,34 @@
+{% extends "registeredLayout.html" %}
+
+{% block head %}
+    <title>{{user.name}}</title>
+        <h1>Yo YO this is a personal profile    This is my account, Im am connected!</h1>
+{% endblock %}
+
+{% block body %}
+<br>
+
+    <h1><font color="magenta">{{user.name}}</font></h1>
+
+    <h2><font color="green">Strong subjects:</font></h2>
+    {% for subject in user.strong_subjects %}
+        <h2>{{subject.name}} for: </h2>
+        {% for class in subject.classes %}
+            {{class}}th
+        {% endfor %}
+        grades.
+        <br>
+    {% endfor %}
+
+    <h2><font color="orange">Weak subjects:</font></h2>
+    {% for subject in user.weak_subjects %}
+        <h2>{{subject.name}} for: </h2>
+        {% for class in subject.classes %}
+            {{class}}th
+        {% endfor %}
+        grades.
+        <br>
+    {% endfor %}
+
+
+{% endblock %}
