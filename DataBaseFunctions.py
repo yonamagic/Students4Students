@@ -1,6 +1,6 @@
 import sqlite3
+from Subject import Subject
 class DataBaseFunctions:
-
 
     subjects = ['Math', 'History', 'Arabic', 'Bible']
 
@@ -15,8 +15,84 @@ class DataBaseFunctions:
 
     @staticmethod
     def create_user(username, password, strong_subjects=[], weak_subjects=[]):
-        conn = sqlite3.connect('database.db')
-        com = conn.execute("insert into users (username, password) values (?,?)", (username,password))
+        conn = sqlite3.connect('database.db', timeout=2)
+        # cursor = conn.execute("select * from users where username='yehonatan'")
+        # for i in cursor:
+        #     print("fffff"+str(i))
+        conn.execute("insert into users "
+                     "(username, password, strong_subjects, weak_subjects) values (?,?,?,?)",
+                     (username,
+                      password,
+                      DataBaseFunctions.subjects_list_to_string(strong_subjects),
+                      DataBaseFunctions.subjects_list_to_string(weak_subjects)))
+        # com = conn.execute("select * from users where username=?", (username,))
+        # conn.commit()
+
+        # DataBaseFunctions.create_strong_subs_in_users_table(conn,strong_subjects, username)
+        DataBaseFunctions.create_subs_in_subjects_table(conn,strong_subjects, username)
+        DataBaseFunctions.create_subs_in_subjects_table(conn,weak_subjects, username)
+
+        # DataBaseFunctions.edit_subjects_in_subjects_table(username=username, subjects=strong_subjects+weak_subjects)
+        # DataBaseFunctions.create_weak_subs_in_users_table(conn,weak_subjects, username)
+        conn.commit()
+
+        # for r in com:
+        #     print (r)
+        # conn.commit()
+
+    @staticmethod#Edits the column "strong_subjects" in users table
+    def edit_user_strong_subjects(username, strong_subjects):
+        conn = sqlite3.connect("database.db", timeout=2)
+        conn.execute("update users set strong_subjects = ? where username = ?",
+                     (DataBaseFunctions.subjects_list_to_string(strong_subjects),
+                      username))
+        conn.commit()
+
+    @staticmethod#Edits the column "weak_subjects" in users table
+    def edit_user_weak_subjects(username, weak_subjects):
+        conn = sqlite3.connect("database.db", timeout=2)
+        conn.execute("update users set weak_subjects = ? where username = ?",
+                     (DataBaseFunctions.subjects_list_to_string(weak_subjects),
+                      username))
+        conn.commit()
+
+
+    @staticmethod#Adds info to subjects table accordingly
+    def edit_subjects_in_subjects_table(username, subjects):
+        DataBaseFunctions.delete_user_from_subjects_table(username)
+        conn = sqlite3.connect("database.db", timeout=2)
+        for subject in subjects:
+            conn.execute("insert into subjects (username, subject, classes) values (?,?,?)",
+                         (username, subject.name, str(subject.classes)[1:-1].replace(' ', '')))
+        conn.commit()
+
+    @staticmethod#Deleted all rows in subjects table where username fits to parameter
+    def delete_user_from_subjects_table(username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        conn.execute("delete from subjects where username=?", (username,))
+        conn.commit()
+
+    @staticmethod
+    def subjects_list_to_string(subjects_list):
+        string = ""
+        for sub in subjects_list:
+            string += ',' + sub.name
+        string = string[1:]
+        return string
+
+
+    @staticmethod#Takes care of creating information in table: subjects, strong/weak according to the paramater
+    def create_subs_in_subjects_table(conn, subs, username):
+
+        for sub in subs:
+            #turn classes into a string for the DB
+            classes_as_string = ''
+            for current_class in sub.classes:
+                classes_as_string += "," + str(current_class)
+            classes_as_string = classes_as_string[1:]
+            #----------------------------------------
+            conn.execute("insert into subjects (username, subject, classes) values (?,?,?)", (username,sub.name,classes_as_string,))
+            conn.commit()
 
     @staticmethod #Returns True if username and password match database info
     def correctDetails(username, password):
@@ -27,6 +103,15 @@ class DataBaseFunctions:
         for row in com:
             return True
         return False
+
+
+    @staticmethod#returns a list of subjects
+    def get_user_strong_subjects(username):
+        ret_subjects = []
+        subs = DataBaseFunctions.get_strong_subjects(username)
+        for sub in subs:
+            ret_subjects.append(Subject(sub,DataBaseFunctions.get_subject_classes(username,sub)))
+        return ret_subjects
 
     @staticmethod
     def get_strong_subjects(username):
@@ -137,22 +222,8 @@ class DataBaseFunctions:
         return subjects
 
 
-from Subject import Subject
-
-# subjects = [Subject('Math',[10,11]), Subject('Arabic',[10,11,12])]
-# teachers_by_subject = DataBaseFunctions.teachers_by_subjects(DataBaseFunctions.potential_teachers(subjects))
-# teachers_by_classes = teachers_by_subject
-# for sub in teachers_by_classes:
-#     subject_name = sub[0]
-#     for username in sub[1]:
-# subjects = DataBaseFunctions.subjects_as_list_of_Subjects('yoni', DataBaseFunctions.get_weak_subjects('yoni'))
-
-# for i in DataBaseFunctions.teachers_by_subjects(DataBaseFunctions.potential_teachers(subjects)):
-# print(DataBaseFunctions.teachers_by_subjects(DataBaseFunctions.potential_teachers(subjects)))
-# print(DataBaseFunctions.matching_classes(['yoni','yoni'],'Math'))
-
-
-
-
-# conn = sqlite3.connect('database1.db')
-# com = conn.execute("insert into users (username, password) values ('yehonatan','12345678')")
+# DataBaseFunctions.edit_user_strong_subjects(sqlite3.connect("database.db", timeout=2),"yoni", [Subject("Mathematics",[10,11]), Subject("Bio",[10,12])])
+# DataBaseFunctions.delete_user_from_subjects_table('helloMeyyy')
+# print(str([1,2,3])[1:-1].replace(' ', ''))
+# DataBaseFunctions.edit_subjects_in_subjects_table('yoni',[Subject("Math",[10,11]), Subject("Arabic",[10,11,12])])
+# DataBaseFunctions.edit_subjects_in_subjects_table(username='newYoni', subjects=[Subject("Math",[10,11])]+[Subject("Arabic",[10,11,12])])

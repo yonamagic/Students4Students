@@ -1,3 +1,5 @@
+from os import abort
+
 from flask import Flask, render_template, request, session, redirect
 # from flask_socketio import SocketIO
 from Subject import Subject
@@ -17,6 +19,12 @@ subjects = [Subject('Math',[10,11]), Subject('Arabic',[10,11,12]), Subject('Hist
 
 # socketio = SocketIO(app)
 
+# request.remote_addr   -    ip
+
+
+@app.route('/ip')
+def ip():
+    return request.remote_addr
 
 @app.route('/chat/<username1>/<username2>')
 def chat(username1,username2):
@@ -90,6 +98,7 @@ def logout():
     return redirect('/')
 
 
+#First registration page,
 @app.route('/register', methods=['POST','GET'])
 def register(username="", username_comment="", password="", password_comment=""):
 
@@ -108,7 +117,9 @@ def checkRegistration():
         'username' : request.form.get("username"),
         'username_comment' : "",
         'password': request.form.get("password"),
-        'strong_subjects': []
+        'password_comment': "",
+        'strong_subjects': [],
+        'weak_subjects': []
     }
 
     strong_subjects = []
@@ -152,23 +163,54 @@ def checkRegistration():
                         username_comment=details_dict['username_comment'],
                         password_comment=details_dict['password_comment'])
 
-    DataBaseFunctions.create_user(username=details_dict['username'],
-                                  password=details_dict['password'])
-    return "OK"#Every thing is ok, register me!
+#If it came here, everything is good
+    registrationDone()
+    session['user'] = details_dict['username']
+    return redirect('/homePage')#Every thing is ok, register me!
 
+#Creates a new user in the DataBase
+def registrationDone():
+    print("Done")
+    print(handle_subjects_info("strong"))
+    DataBaseFunctions.create_user(request.form.get("username"),
+                                  request.form.get("password"),
+                                  strong_subjects=handle_subjects_info("strong"),
+                                  weak_subjects=handle_subjects_info("weak"))
+    # return "<h1> To sum up:</h1>" + '\r\n' + string
 
-@app.route('/done', methods=['POST','GET'])
-def done():
-    return request.form.get("username")
+#Turn the POST request to a list of Subjects and returns it, according to param
+def handle_subjects_info(strong_or_weak):
+    subjects=[]
+    for s in DataBaseFunctions.subjects:
+        if request.form.get(strong_or_weak + "_" + str(s)) != None:  # It is celected
+            current_subject = Subject(s, [])
+            for current_class in range(10, 13):
+                current_id = strong_or_weak + "_" + s + "_class_" + str(current_class)
+                if request.form.get(current_id) != None:  # class was chosen
+                    current_subject.classes.append(current_class)
+            subjects.append(current_subject)
+    return subjects
 
+@app.route('/editProfile')
+def editProfile():
+    return render_template('editProfile.html', subjects=DataBaseFunctions.subjects)
 
-
+@app.route('/profileEditingDone', methods=['POST'])
+def profileEditingDone():
+    DataBaseFunctions.edit_user_strong_subjects(username=session['user'],
+                                                strong_subjects=handle_subjects_info("strong"))
+    DataBaseFunctions.edit_user_weak_subjects(username=session['user'],
+                                                weak_subjects=handle_subjects_info("weak"))
+    DataBaseFunctions.edit_subjects_in_subjects_table(username=session['user'],
+                                                      subjects=handle_subjects_info("strong")+handle_subjects_info("weak"))
+    return "OK"
 @app.route('/homePage', methods=['POST','GET'])
 def homePage():
     if connected():
         return render_template('/homePage.html')
     return redirect('/')
 
+#Returns a User object - existing user.
 def build_User_object(username):
     subs = DataBaseFunctions.get_strong_subjects(username)
     strong_subjects = DataBaseFunctions.subjects_as_list_of_Subjects(username,subs)
