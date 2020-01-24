@@ -1,0 +1,42 @@
+{% extends "registeredLayout.html" %}
+
+{% block head %}
+<h1>Send a message!</h1>
+{% endblock %}
+
+{% block body %}
+
+
+
+<form action="/messageSent" method="post">
+<input type="text" name="addressee" placeholder="Send to:"><br>
+<input type="text" name="topic" placeholder="Topic"><br>
+<textarea rows="4" cols="50" name="content" placeholder="Message content here:"></textarea><br>
+<button type="submit" class="block">Send</button>
+</form>
+
+
+
+
+<style>
+.block {
+  display: block;
+  width: 100%;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 28px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.block:hover {
+  background-color: #ddd;
+  color: black;
+}
+</style>
+
+{% endblock %}
+
+

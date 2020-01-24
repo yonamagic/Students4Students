@@ -1,8 +1,11 @@
 import sqlite3
 from Subject import Subject
+import os
+from Message import Message
+
 class DataBaseFunctions:
 
-    subjects = ['Math', 'History', 'Arabic', 'Bible']
+    subjects = ['Math', 'English', 'History', 'Arabic', 'Bible']
 
 
     @staticmethod
@@ -20,17 +23,18 @@ class DataBaseFunctions:
         # for i in cursor:
         #     print("fffff"+str(i))
         conn.execute("insert into users "
-                     "(username, password, strong_subjects, weak_subjects) values (?,?,?,?)",
+                     "(username, password, strong_subjects, weak_subjects, inboxID) values (?,?,?,?,?)",
                      (username,
                       password,
                       DataBaseFunctions.subjects_list_to_string(strong_subjects),
-                      DataBaseFunctions.subjects_list_to_string(weak_subjects)))
+                      DataBaseFunctions.subjects_list_to_string(weak_subjects),
+                      str(os.urandom(24))))
         # com = conn.execute("select * from users where username=?", (username,))
         # conn.commit()
 
         # DataBaseFunctions.create_strong_subs_in_users_table(conn,strong_subjects, username)
-        DataBaseFunctions.create_subs_in_subjects_table(conn,strong_subjects, username)
-        DataBaseFunctions.create_subs_in_subjects_table(conn,weak_subjects, username)
+        DataBaseFunctions.create_subs_in_subjects_table(conn, strong_subjects, username)
+        DataBaseFunctions.create_subs_in_subjects_table(conn, weak_subjects, username)
 
         # DataBaseFunctions.edit_subjects_in_subjects_table(username=username, subjects=strong_subjects+weak_subjects)
         # DataBaseFunctions.create_weak_subs_in_users_table(conn,weak_subjects, username)
@@ -221,9 +225,126 @@ class DataBaseFunctions:
 
         return subjects
 
+    @staticmethod#returns a list of messages using user's msgs IDs
+    def messages_list(username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        inboxID = conn.execute("select inboxID from users where username=?", (username,))
+        ###############makes it the actual value
+        for i in inboxID:
+            inboxID = i
+        inboxID=inboxID[0]
+        print (inboxID)
+        ########################################
+        messages_IDs = conn.execute("select messagesIDs from inboxes where inboxID=?", (inboxID,))
+        #####################Kanal
+        for i in messages_IDs :
+            messages_IDs = (i[0])
+            messages_IDs = messages_IDs.split(',')
+        ##########################
 
+        msgs_list = []
+        for msg_id in messages_IDs:
+            topic = conn.execute("select topic from messages where messageID=?", (msg_id,))
+            for row in topic:
+                topic = row[0]
+            # print(topic)
+            sender = conn.execute("select sender from messages where messageID=?", (msg_id,))
+            for row in sender:
+                sender = row[0]
+            # print(sender)
+            content = conn.execute("select content from messages where messageID=?", (msg_id,))
+            for row in content:
+                content = row[0]
+            date = conn.execute("select date from messages where messageID=?", (msg_id,))
+            for row in date:
+                date = row[0]
+            new_msg = Message(
+                id = msg_id,
+                topic = topic,
+                sender = sender,
+                content = content,
+                date = date)
+            msgs_list.append(new_msg)
+            print(content)
+            # print(new_msg.id)
+        # print(msgs_list[0].id)
+        return msgs_list
+
+    @staticmethod
+    def random_id():
+        import random
+        import string
+        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+
+
+    @staticmethod
+    def get_message(msg_id):
+        conn = sqlite3.connect("database.db", timeout=2)
+        msg = conn.execute("select * from messages where messageID = ?", (msg_id,))
+        for row in msg:
+            msg = row
+            # msg_atts.append(row)
+            # print(row)
+        msg_atts = list(msg)
+
+        msg_to_return = Message(id=msg_atts[0],
+                                topic=msg_atts[1],
+                                sender=msg_atts[2],
+                                content=msg_atts[3],
+                                date=msg_atts[4],
+        )
+        return msg_to_return
+
+
+    @staticmethod
+    def create_msg(sender, topic, content):
+        import datetime
+        conn = sqlite3.connect("database.db", timeout=2)
+        msgID = str(DataBaseFunctions.random_id())
+        conn.execute("insert into messages (messageID, topic, sender, content, date) "
+                     "values (?,?,?,?,?)", (msgID, topic, sender, content, str(datetime.datetime.now()).split(' ')[0]))
+        conn.commit()
+        return msgID
+
+    @staticmethod#Send a message - adds info to the database
+    def send_msg(sender, addressee, topic, content):
+        conn = sqlite3.connect("database.db", timeout=2)
+        inboxID = conn.execute("select inboxID from users where username=?", (addressee,))
+        for row in inboxID:
+            inboxID = row[0]
+            # print("ID="+inboxID)
+            # print("inboxID="+str(inboxID[0]))
+        current_msgs = conn.execute("select messagesIDs from inboxes where inboxID=?", (inboxID,))
+        for row in current_msgs:
+            current_msgs = row[0]
+            # print(row)
+        # print("current msgs = " + str(current_msgs))
+
+        new_msg_id = DataBaseFunctions.create_msg(sender=sender, topic=topic, content=content)
+
+        print(str(new_msg_id))
+
+        new_msgs_IDs = str(current_msgs) + ',' + str(new_msg_id)
+
+        print (new_msgs_IDs)
+
+        conn.execute("UPDATE inboxes "
+                     "SET messagesIDs = ? "
+                     "WHERE inboxID = ?", (new_msgs_IDs, inboxID))
+
+        conn.commit()
+
+DataBaseFunctions.messages_list('aviv')
+# import datetime
+# print(str(datetime.datetime.now()).split(' '))
+# DataBaseFunctions.send_msg("yonamagic", "aviv", "Try msg", "Hello aviv, this is a msg!")
 # DataBaseFunctions.edit_user_strong_subjects(sqlite3.connect("database.db", timeout=2),"yoni", [Subject("Mathematics",[10,11]), Subject("Bio",[10,12])])
 # DataBaseFunctions.delete_user_from_subjects_table('helloMeyyy')
 # print(str([1,2,3])[1:-1].replace(' ', ''))
 # DataBaseFunctions.edit_subjects_in_subjects_table('yoni',[Subject("Math",[10,11]), Subject("Arabic",[10,11,12])])
 # DataBaseFunctions.edit_subjects_in_subjects_table(username='newYoni', subjects=[Subject("Math",[10,11])]+[Subject("Arabic",[10,11,12])])
+# l=([Message("1","Hi","Me","sup","22.1"),Message("1","Hi","Me","sup","22.1"),Message("1","Hi","Me","sup","22.1")])
+#
+# print(l)
+# for i in l:
+#     print(i.sender)

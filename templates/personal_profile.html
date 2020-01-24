@@ -14,6 +14,7 @@
     <button type="submit" class="btn btn-primary"><font color="brown">Edit personal details</font></button>
     </form>
 
+
     <h2><font color="green">Strong subjects:</font></h2>
     {% for subject in user.strong_subjects %}
         <h2>{{subject.name}} for: </h2>
@@ -23,6 +24,7 @@
         grades.
         <br>
     {% endfor %}
+
 
     <h2><font color="orange">Weak subjects:</font></h2>
     {% for subject in user.weak_subjects %}

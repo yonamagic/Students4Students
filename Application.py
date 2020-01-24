@@ -148,8 +148,8 @@ def checkRegistration():
 
     todo_bien = True#There are no problems in registration details
 
-    if len(details_dict['username']) < 5 or len(details_dict['username']) > 14:#username not in legal length
-        details_dict['username_comment'] = "Please enter a username between 5-14 characters"
+    if len(details_dict['username']) < 4 or len(details_dict['username']) > 14:#username not in legal length
+        details_dict['username_comment'] = "Please enter a username between 4-14 characters"
         todo_bien=False
     if DataBaseFunctions.user_exists(details_dict['username']):#username taken
         details_dict['username_comment'] = "This username is taken"
@@ -203,7 +203,7 @@ def profileEditingDone():
                                                 weak_subjects=handle_subjects_info("weak"))
     DataBaseFunctions.edit_subjects_in_subjects_table(username=session['user'],
                                                       subjects=handle_subjects_info("strong")+handle_subjects_info("weak"))
-    return "OK"
+    return redirect('/profile')
 @app.route('/homePage', methods=['POST','GET'])
 def homePage():
     if connected():
@@ -256,6 +256,39 @@ def potential__teachers():
 
 
 
+@app.route('/inbox', methods=['POST', 'GET'])
+def inbox():
+    if not connected():
+        return redirect('/')
+    messages_list = DataBaseFunctions.messages_list(session['user'])
+    messages_list.reverse()
+    return render_template('inbox.html', messages = messages_list)
+
+@app.route('/sendMessage')
+def sendMessage():
+    return render_template('sendMessage.html')
+
+@app.route('/messageSent', methods=['POST', 'GET'])
+def messageSent():
+    sender = session['user']
+    addressee = request.form.get("addressee")
+    topic = request.form.get("topic")
+    content = request.form.get("content")
+    DataBaseFunctions.send_msg(sender=sender,
+                               addressee = addressee,
+                               topic=topic,
+                               content=content)
+    return redirect('/inbox')
+
+@app.route('/viewMessage', methods=['POST','GET'])
+def viewMessage():
+    # msg_id = request.args.get("msg_id")
+    msg = DataBaseFunctions.get_message(request.args.get("msg_id"))
+    return render_template('viewMessage.html',
+                           sender=msg.sender,
+                           topic=msg.topic,
+                           content=msg.content)
+
 @app.route('/typingChatRoom')
 def typingChatRoom(methods=['GET']):
     if not connected() or (connected() and request.args.get("self_username") != session['user']):#For preventing scams and hacks
@@ -265,9 +298,9 @@ def typingChatRoom(methods=['GET']):
         return render_template('typingChatRoom.html')
 
 
-@app.route('/inbox')
-def inbox():
-    pass
+# @app.route('/inbox')
+# def inbox():
+#     pass
 
 
 

@@ -2,16 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="16433f86-56cf-4650-8bed-cca86308fc3c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/templates/editProfile.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Message.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/inbox.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/sendMessage.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/viewMessage.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Application.py" beforeDir="false" afterPath="$PROJECT_DIR$/Application.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DataBaseFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataBaseFunctions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/database.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database.db-journal" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/database1.db" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/database1.db-journal" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/editProfile.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/editProfile.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/personal_profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/personal_profile.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/registerr.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registerr.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/registeredLayout.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registeredLayout.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -61,29 +62,31 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="html" value="1142" />
-          <entry key="py" value="7275" />
+          <entry key="dummy" value="1" />
+          <entry key="html" value="2185" />
+          <entry key="py" value="11323" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="HTML" value="1142" />
-          <entry key="Python" value="7275" />
+          <entry key="HTML" value="2185" />
+          <entry key="PLAIN_TEXT" value="1" />
+          <entry key="Python" value="11323" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="db" value="2" />
           <entry key="db-journal" value="1" />
-          <entry key="html" value="2" />
-          <entry key="py" value="5" />
+          <entry key="html" value="7" />
+          <entry key="py" value="8" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="HTML" value="2" />
+          <entry key="HTML" value="7" />
           <entry key="PLAIN_TEXT" value="3" />
-          <entry key="Python" value="5" />
+          <entry key="Python" value="8" />
         </counts>
       </usages-collector>
     </session>
@@ -93,23 +96,87 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Application.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="195" column="82" selection-start-line="195" selection-start-column="82" selection-end-line="195" selection-end-column="82" />
+            <state relative-caret-position="153">
+              <caret line="264" column="65" selection-start-line="264" selection-start-column="65" selection-end-line="264" selection-end-column="65" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
-                <marker date="1579352168078" expanded="true" signature="542:574" ph="..." />
-                <marker date="1579352168078" expanded="true" signature="5731:6024" ph="..." />
-                <marker date="1579352168078" expanded="true" signature="6938:7492" ph="..." />
+                <marker date="1579886788859" expanded="true" signature="542:574" ph="..." />
+                <marker date="1579886788859" expanded="true" signature="5731:6024" ph="..." />
+                <marker date="1579886788859" expanded="true" signature="6938:7508" ph="..." />
+                <marker date="1579886788859" expanded="true" signature="10456:10753" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/sendMessage.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="157">
+              <caret line="13" column="43" selection-start-line="13" selection-start-column="43" selection-end-line="13" selection-end-column="43" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/viewMessage.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="119">
+              <caret line="7" column="18" selection-start-line="7" selection-start-column="18" selection-end-line="7" selection-end-column="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/typingChatRoom.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-231" />
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/DataBaseFunctions.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="425">
+              <caret line="336" column="37" selection-start-line="336" selection-start-column="37" selection-end-line="336" selection-end-column="37" />
+              <folding>
+                <element signature="e#0#14#0" expanded="true" />
+                <marker date="1579886275403" expanded="true" signature="3254:3414" ph="..." />
+                <marker date="1579886275403" expanded="true" signature="3475:3618" ph="..." />
+                <marker date="1579886275403" expanded="true" signature="4755:5001" ph="..." />
+                <marker date="1579886275403" expanded="true" signature="11408:11979" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/templates/inbox.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="204">
+              <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Message.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="153">
+              <caret line="9" column="24" selection-start-line="9" selection-start-column="24" selection-end-line="9" selection-end-column="24" />
+              <folding>
+                <marker date="1579773498297" expanded="true" signature="16:17" ph="..." />
+                <marker date="1579773498297" expanded="true" signature="16:22" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/editProfile.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" column="2" selection-start-line="3" selection-start-column="2" selection-end-line="3" selection-end-column="2" />
+            <state relative-caret-position="262">
+              <caret line="64" column="71" selection-start-line="64" selection-start-column="71" selection-end-line="64" selection-end-column="71" />
               <folding>
                 <element signature="e#890#896#0" expanded="true" />
                 <element signature="e#896#902#0" expanded="true" />
@@ -147,96 +214,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/DataBaseFunctions.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="214">
-              <caret line="229" lean-forward="true" selection-start-line="229" selection-end-line="229" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
-                <marker date="1579352183161" expanded="true" signature="3148:3308" ph="..." />
-                <marker date="1579352183161" expanded="true" signature="3369:3512" ph="..." />
-                <marker date="1579352183161" expanded="true" signature="4649:4895" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/personal_profile.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="13" column="68" selection-start-line="13" selection-start-column="68" selection-end-line="13" selection-end-column="68" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/templates/registerr.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-68">
-              <caret line="2" column="16" lean-forward="true" selection-start-line="2" selection-start-column="16" selection-end-line="2" selection-end-column="16" />
-              <folding>
-                <element signature="n#style#0;n#small#0;n#form#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#small#1;n#form#0;n#!!top" expanded="true" />
-                <element signature="e#828#834#0" expanded="true" />
-                <element signature="e#834#840#0" expanded="true" />
-                <element signature="e#840#846#0" expanded="true" />
-                <element signature="e#846#852#0" expanded="true" />
-                <element signature="e#852#858#0" expanded="true" />
-                <element signature="e#1096#1102#0" expanded="true" />
-                <element signature="e#1102#1108#0" expanded="true" />
-                <element signature="e#1108#1114#0" expanded="true" />
-                <element signature="e#1114#1120#0" expanded="true" />
-                <element signature="e#1120#1126#0" expanded="true" />
-                <element signature="e#1287#1293#0" expanded="true" />
-                <element signature="e#1293#1299#0" expanded="true" />
-                <element signature="e#1299#1305#0" expanded="true" />
-                <element signature="e#1305#1311#0" expanded="true" />
-                <element signature="e#1311#1317#0" expanded="true" />
-                <element signature="e#1671#1677#0" expanded="true" />
-                <element signature="e#1677#1683#0" expanded="true" />
-                <element signature="e#1683#1689#0" expanded="true" />
-                <element signature="e#1689#1695#0" expanded="true" />
-                <element signature="e#1695#1701#0" expanded="true" />
-                <element signature="e#1939#1945#0" expanded="true" />
-                <element signature="e#1945#1951#0" expanded="true" />
-                <element signature="e#1951#1957#0" expanded="true" />
-                <element signature="e#1957#1963#0" expanded="true" />
-                <element signature="e#1963#1969#0" expanded="true" />
-                <element signature="e#2130#2136#0" expanded="true" />
-                <element signature="e#2136#2142#0" expanded="true" />
-                <element signature="e#2142#2148#0" expanded="true" />
-                <element signature="e#2148#2154#0" expanded="true" />
-                <element signature="e#2154#2160#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/templates/login.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="12" column="52" selection-start-line="12" selection-start-column="3" selection-end-line="12" selection-end-column="52" />
-              <folding>
-                <element signature="n#style#0;n#small#0;n#form#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/database.db">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-371" />
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/templates/guestLayout.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="13" column="85" selection-start-line="13" selection-start-column="85" selection-end-line="13" selection-end-column="85" />
+            <state>
+              <caret column="24" lean-forward="true" selection-end-line="1" />
             </state>
           </provider>
         </entry>
@@ -244,8 +225,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/registeredLayout.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="13" column="28" lean-forward="true" selection-start-line="13" selection-start-column="28" selection-end-line="13" selection-end-column="28" />
+            <state relative-caret-position="119">
+              <caret line="7" column="12" lean-forward="true" selection-start-line="7" selection-start-column="12" selection-end-line="7" selection-end-column="12" />
             </state>
           </provider>
         </entry>
@@ -255,6 +236,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Python Script" />
         <option value="HTML File" />
       </list>
     </option>
@@ -264,6 +246,11 @@
       <find>create_weak_subs_in_users_table</find>
       <find>ip</find>
       <find>create_user</find>
+      <find>inbox</find>
+      <find>date</find>
+      <find>date =</find>
+      <find>datetime.</find>
+      <find>args.get</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -274,10 +261,16 @@
       <list>
         <option value="$PROJECT_DIR$/templates/guestLayout.html" />
         <option value="$PROJECT_DIR$/templates/registerr.html" />
-        <option value="$PROJECT_DIR$/templates/personal_profile.html" />
-        <option value="$PROJECT_DIR$/Application.py" />
-        <option value="$PROJECT_DIR$/DataBaseFunctions.py" />
         <option value="$PROJECT_DIR$/templates/editProfile.html" />
+        <option value="$PROJECT_DIR$/templates/personal_profile.html" />
+        <option value="$PROJECT_DIR$/message.py" />
+        <option value="$PROJECT_DIR$/Message.py" />
+        <option value="$PROJECT_DIR$/templates/viewMessage.html" />
+        <option value="$PROJECT_DIR$/templates/registeredLayout.html" />
+        <option value="$PROJECT_DIR$/DataBaseFunctions.py" />
+        <option value="$PROJECT_DIR$/templates/sendMessage.html" />
+        <option value="$PROJECT_DIR$/Application.py" />
+        <option value="$PROJECT_DIR$/templates/inbox.html" />
       </list>
     </option>
   </component>
@@ -314,6 +307,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file://C:/Users/user/PycharmProjects/Students4Students/DataBaseFunctions.py" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
@@ -483,13 +477,6 @@
     <entry file="file://$PROJECT_DIR$/Subject.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/registeredLayout.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="13" column="28" lean-forward="true" selection-start-line="13" selection-start-column="28" selection-end-line="13" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python38-32/Lib/site-packages/jinja2/lexer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="231">
@@ -540,44 +527,41 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/personal_profile.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="13" column="68" selection-start-line="13" selection-start-column="68" selection-end-line="13" selection-end-column="68" />
+        <state>
+          <caret column="24" lean-forward="true" selection-end-line="1" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/User.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/Application.py">
+    <entry file="file://$PROJECT_DIR$/templates/typingChatRoom.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="195" column="82" selection-start-line="195" selection-start-column="82" selection-end-line="195" selection-end-column="82" />
+        <state relative-caret-position="-231" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Message.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="24" selection-start-line="9" selection-start-column="24" selection-end-line="9" selection-end-column="24" />
           <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <marker date="1579352168078" expanded="true" signature="542:574" ph="..." />
-            <marker date="1579352168078" expanded="true" signature="5731:6024" ph="..." />
-            <marker date="1579352168078" expanded="true" signature="6938:7492" ph="..." />
+            <marker date="1579773498297" expanded="true" signature="16:17" ph="..." />
+            <marker date="1579773498297" expanded="true" signature="16:22" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/DataBaseFunctions.py">
+    <entry file="file://$PROJECT_DIR$/templates/registeredLayout.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="229" lean-forward="true" selection-start-line="229" selection-end-line="229" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-            <marker date="1579352183161" expanded="true" signature="3148:3308" ph="..." />
-            <marker date="1579352183161" expanded="true" signature="3369:3512" ph="..." />
-            <marker date="1579352183161" expanded="true" signature="4649:4895" ph="..." />
-          </folding>
+        <state relative-caret-position="119">
+          <caret line="7" column="12" lean-forward="true" selection-start-line="7" selection-start-column="12" selection-end-line="7" selection-end-column="12" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/editProfile.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="2" selection-start-line="3" selection-start-column="2" selection-end-line="3" selection-end-column="2" />
+        <state relative-caret-position="262">
+          <caret line="64" column="71" selection-start-line="64" selection-start-column="71" selection-end-line="64" selection-end-column="71" />
           <folding>
             <element signature="e#890#896#0" expanded="true" />
             <element signature="e#896#902#0" expanded="true" />
@@ -610,6 +594,55 @@
             <element signature="e#2581#2587#0" expanded="true" />
             <element signature="e#2587#2593#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/viewMessage.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="18" selection-start-line="7" selection-start-column="18" selection-end-line="7" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DataBaseFunctions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="336" column="37" selection-start-line="336" selection-start-column="37" selection-end-line="336" selection-end-column="37" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+            <marker date="1579886275403" expanded="true" signature="3254:3414" ph="..." />
+            <marker date="1579886275403" expanded="true" signature="3475:3618" ph="..." />
+            <marker date="1579886275403" expanded="true" signature="4755:5001" ph="..." />
+            <marker date="1579886275403" expanded="true" signature="11408:11979" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/sendMessage.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="157">
+          <caret line="13" column="43" selection-start-line="13" selection-start-column="43" selection-end-line="13" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Application.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="264" column="65" selection-start-line="264" selection-start-column="65" selection-end-line="264" selection-end-column="65" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+            <marker date="1579886788859" expanded="true" signature="542:574" ph="..." />
+            <marker date="1579886788859" expanded="true" signature="5731:6024" ph="..." />
+            <marker date="1579886788859" expanded="true" signature="6938:7508" ph="..." />
+            <marker date="1579886788859" expanded="true" signature="10456:10753" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/inbox.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
         </state>
       </provider>
     </entry>
