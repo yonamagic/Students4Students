@@ -2,6 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
+        Hello,  {{session.user}}
         <!--<form action="/homePage" method="post">-->
                 <button type="submit" class="btn btn-primary" onclick="location.href='/homePage'"><font color="blue">HOME</font></button>
         <!--</form>-->
@@ -20,6 +21,7 @@
         <!--<br>-->
          <!--<form action="/inbox" method="post">-->
                 <button type="submit" class="btn btn-primary" onclick="location.href='/inbox'"><font color="blue">Inbox</font></button>
+        You have {{session.new_msgs}} new messages
         <!--</form>-->
         <!--<br>-->
         <input type="text" id="searchTextBox" onclick="deleteTbText()" placeholder="Search Profiles" >

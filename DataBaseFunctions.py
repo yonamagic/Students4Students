@@ -40,7 +40,7 @@ class DataBaseFunctions:
         conn.execute("update users "
                      "set inboxID = ? "
                      "where username = ?", (inboxID,username))
-
+        conn.execute("insert into inboxes (inboxID, messagesIDs) values (?,'')", (inboxID,))
         # DataBaseFunctions.edit_subjects_in_subjects_table(username=username, subjects=strong_subjects+weak_subjects)
         # DataBaseFunctions.create_weak_subs_in_users_table(conn,weak_subjects, username)
         conn.commit()
@@ -286,7 +286,7 @@ class DataBaseFunctions:
         return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
 
 
-    @staticmethod
+    @staticmethod#returns a Message object
     def get_message(msg_id):
         conn = sqlite3.connect("database.db", timeout=2)
         msg = conn.execute("select * from messages where messageID = ?", (msg_id,))
@@ -306,7 +306,7 @@ class DataBaseFunctions:
         )
         return msg_to_return
 
-    @staticmethod
+    @staticmethod#Makes is_read att "yes"
     def make_msg_read(id):
         conn = sqlite3.connect("database.db", timeout=2)
         conn.execute("UPDATE messages "
@@ -321,7 +321,7 @@ class DataBaseFunctions:
 
         conn.commit()
 
-    @staticmethod
+    @staticmethod#creates a msg in the database
     def create_msg(sender, topic, content):
         import datetime
         conn = sqlite3.connect("database.db", timeout=2)

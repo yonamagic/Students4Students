@@ -166,7 +166,7 @@ def checkRegistration():
                         username_comment=details_dict['username_comment'],
                         password_comment=details_dict['password_comment'])
 
-#If it came here, everything is good
+    #If it came here, everything is good
     registrationDone()
     session['user'] = details_dict['username']
     return redirect('/homePage')#Every thing is ok, register me!
@@ -263,9 +263,10 @@ def potential__teachers():
 def inbox():
     if not connected():
         return redirect('/')
-    messages_list = DataBaseFunctions.messages_list(session['user'])[2:]#Because there are 2 additional Messages that I do not know why theyre in there
+    messages_list = DataBaseFunctions.messages_list(session['user'])#[2:]#Because there are 2 additional Messages that I do not know why theyre in there
     messages_list.reverse()
-    print("read="+messages_list[0].is_read)
+    print(messages_list)
+    # print("read="+messages_list[0].is_read)
     return render_template('inbox.html', messages = messages_list)
 
 @app.route('/sendMessage')
@@ -306,6 +307,18 @@ def viewMessage():
                            sender=msg.sender,
                            topic=msg.topic,
                            content=msg.content)
+
+@app.route('/replyMessage', methods=['GET'])
+def replayMessage():
+    return render_template('sendMessage.html',
+                           addressee=request.args.get("origin_sender"),
+                           topic="<Re>: " + request.args.get("topic"),
+                           content="--------------------<Re:>"
+                                   +'\r\n'+
+                                   request.args.get("content")
+                                   + '\r\n' +
+                                   "--------------------<Re:>"
+                           )
 
 @app.route('/typingChatRoom')
 def typingChatRoom(methods=['GET']):

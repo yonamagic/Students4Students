@@ -3,6 +3,7 @@
 {% block body %}
 
 <h1>From: {{sender}}</h1>
+<button onclick="location.href='/replyMessage?origin_sender={{sender}}&topic={{topic}}&content={{content}}'">Replay</button>
 <h1><font color="blue">{{topic}}</font></h1>
 <br>
 <p>{{content}}</p>

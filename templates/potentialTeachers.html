@@ -15,6 +15,7 @@
     {% for current_user in teachers %}
         {% if current_user[0] == subject %}
             {% for name in current_user[1] %}
+                <h1>yo</h1>
                 {% set matching_classes = DataBaseFunctions.matching_classes([my_username,name],current_user[0]) %}
                 {% if matching_classes %}
                     <a href="/profile?username={{name}}"><font size="5"><b>{{name}}</b></font></a> for classes: {{', '.join(matching_classes)}}
