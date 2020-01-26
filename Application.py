@@ -16,7 +16,6 @@ subjects = [Subject('Math',[10,11]), Subject('Arabic',[10,11,12]), Subject('Hist
 
 # SESSION_TYPE = 'redis'
 
-
 # socketio = SocketIO(app)
 
 # request.remote_addr   -    ip
@@ -48,6 +47,8 @@ def messageReceived(methods=['GET', 'POST']):
 #Just so I can determine the "Details incorrect" message
 class staticVar:
     comment=""
+    connected_username = ""
+
 
 #Returns True if user is connected
 def connected():
@@ -58,7 +59,7 @@ def index():
     # print(str(session['user']))
     staticVar.comment=""
     if connected():
-        return render_template('homePage.html')
+        return render_template('homePage.html', user=session['user'])
     return render_template("index.html")
 
 @app.route('/about', methods=['GET','POST'])
@@ -86,6 +87,7 @@ def checkUserEntryDetails():
     correct = DataBaseFunctions.correctDetails(username,password)
     if correct == True:
         session['user'] = request.form.get("username")
+        staticVar.connected_username = session['user']
         # return "Details are correct! You may login, " + username#Entry, I will write it later...
         return redirect('homePage', code=302)
     else:
@@ -95,6 +97,7 @@ def checkUserEntryDetails():
 @app.route('/logout', methods=['POST','GET'])
 def logout():
     del session['user']
+    staticVar.connected_username = ""
     return redirect('/')
 
 
@@ -226,7 +229,7 @@ def profile():
     if not username or username==session['user']:#if there is no specified username or the specified name is sessin['user']
         username = session['user']
         # user = build_User_object(username)
-        return render_template('personal_profile.html', user=build_User_object(username))
+        return render_template('personal_profile.html', user=build_User_object(username), session_username='yoni')
     else:
         return render_template('user_profile.html', user=build_User_object(username),
                                self_username=session['user'],
@@ -260,13 +263,19 @@ def potential__teachers():
 def inbox():
     if not connected():
         return redirect('/')
-    messages_list = DataBaseFunctions.messages_list(session['user'])
+    messages_list = DataBaseFunctions.messages_list(session['user'])[2:]#Because there are 2 additional Messages that I do not know why theyre in there
     messages_list.reverse()
+    print("read="+messages_list[0].is_read)
     return render_template('inbox.html', messages = messages_list)
 
 @app.route('/sendMessage')
-def sendMessage():
-    return render_template('sendMessage.html')
+def sendMessage(addressee="", topic="", content="", addressee_comment=""):
+    print("comment="+addressee_comment)
+    return render_template('sendMessage.html',
+                           addressee_comment=addressee_comment,
+                           addressee=addressee,
+                           topic=topic,
+                           content=content)
 
 @app.route('/messageSent', methods=['POST', 'GET'])
 def messageSent():
@@ -274,6 +283,14 @@ def messageSent():
     addressee = request.form.get("addressee")
     topic = request.form.get("topic")
     content = request.form.get("content")
+    # if DataBaseFunctions.user_exists(sender):
+    #     print("user does not exist")
+    #     return sendMessage(addressee=addressee,
+    #                        topic=topic,
+    #                        content=content,
+    #                        addressee_comment="Please enter an existing username")
+    print("User indeed exists")
+
     DataBaseFunctions.send_msg(sender=sender,
                                addressee = addressee,
                                topic=topic,
@@ -284,6 +301,7 @@ def messageSent():
 def viewMessage():
     # msg_id = request.args.get("msg_id")
     msg = DataBaseFunctions.get_message(request.args.get("msg_id"))
+    DataBaseFunctions.make_msg_read(request.args.get("msg_id"))
     return render_template('viewMessage.html',
                            sender=msg.sender,
                            topic=msg.topic,

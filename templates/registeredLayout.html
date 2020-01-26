@@ -2,26 +2,26 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <form action="/homePage" method="post">
-                <button type="submit" class="btn btn-primary"><font color="blue">HOME</font></button>
-        </form>
-        <br>
-        <form action="/logout" method="post">
-                <button type="submit" class="btn btn-primary"><font color="blue">Log Out</font></button>
-        </form>
-        <br>
-        <form action="/profile" method="post">
-                <button type="submit" class="btn btn-primary"><font color="blue">Profile</font></button>
-        </form>
-        <br>
-        <form action="/potentialTeachers" method="post">
-                <button type="submit" class="btn btn-primary"><font color="blue">Find Teachers</font></button>
-        </form>
-        <br>
-         <form action="/inbox" method="post">
-                <button type="submit" class="btn btn-primary"><font color="blue">Inbox</font></button>
-        </form>
-        <br>
+        <!--<form action="/homePage" method="post">-->
+                <button type="submit" class="btn btn-primary" onclick="location.href='/homePage'"><font color="blue">HOME</font></button>
+        <!--</form>-->
+        <!--<br>-->
+        <!--<form action="/logout" method="post">-->
+                <button type="submit" class="btn btn-primary" onclick="location.href='/logout'"><font color="blue">Log Out</font></button>
+        <!--</form>-->
+        <!--<br>-->
+        <!--<form action="/profile" method="post">-->
+                <button type="submit" class="btn btn-primary" onclick="location.href='/profile'"><font color="blue">Profile</font></button>
+        <!--</form>-->
+        <!--<br>-->
+        <!--<form action="/potentialTeachers" method="post">-->
+                <button type="submit" class="btn btn-primary" onclick="location.href='/potentialTeachers'"><font color="blue">Find Teachers</font></button>
+        <!--</form>-->
+        <!--<br>-->
+         <!--<form action="/inbox" method="post">-->
+                <button type="submit" class="btn btn-primary" onclick="location.href='/inbox'"><font color="blue">Inbox</font></button>
+        <!--</form>-->
+        <!--<br>-->
         <input type="text" id="searchTextBox" onclick="deleteTbText()" placeholder="Search Profiles" >
         <button  onclick="pageTransfer()">Search users' profiles</button>
         <script>

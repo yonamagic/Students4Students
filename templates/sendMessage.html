@@ -9,9 +9,11 @@
 
 
 <form action="/messageSent" method="post">
-<input type="text" name="addressee" placeholder="Send to:"><br>
-<input type="text" name="topic" placeholder="Topic"><br>
-<textarea rows="4" cols="50" name="content" placeholder="Message content here:"></textarea><br>
+<input type="text" name="addressee" value="{{addressee}}" placeholder="Send to:">
+    <font color="red">{{addressee_comment}}</font>
+    <br>
+<input type="text" name="topic" value="{{topic}}" placeholder="Topic"><br>
+<textarea rows="4" cols="50" name="content" placeholder="Message content here:">{{content}}</textarea><br>
 <button type="submit" class="block">Send</button>
 </form>
 

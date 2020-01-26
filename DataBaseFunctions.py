@@ -36,6 +36,11 @@ class DataBaseFunctions:
         DataBaseFunctions.create_subs_in_subjects_table(conn, strong_subjects, username)
         DataBaseFunctions.create_subs_in_subjects_table(conn, weak_subjects, username)
 
+        inboxID = DataBaseFunctions.random_id()
+        conn.execute("update users "
+                     "set inboxID = ? "
+                     "where username = ?", (inboxID,username))
+
         # DataBaseFunctions.edit_subjects_in_subjects_table(username=username, subjects=strong_subjects+weak_subjects)
         # DataBaseFunctions.create_weak_subs_in_users_table(conn,weak_subjects, username)
         conn.commit()
@@ -258,12 +263,16 @@ class DataBaseFunctions:
             date = conn.execute("select date from messages where messageID=?", (msg_id,))
             for row in date:
                 date = row[0]
+            is_read = conn.execute("select is_read from messages where messageID=?", (msg_id,))
+            for row in is_read:
+                is_read = row[0]
             new_msg = Message(
                 id = msg_id,
                 topic = topic,
                 sender = sender,
                 content = content,
-                date = date)
+                date = date,
+                is_read=is_read)
             msgs_list.append(new_msg)
             print(content)
             # print(new_msg.id)
@@ -283,6 +292,7 @@ class DataBaseFunctions:
         msg = conn.execute("select * from messages where messageID = ?", (msg_id,))
         for row in msg:
             msg = row
+            print(msg)
             # msg_atts.append(row)
             # print(row)
         msg_atts = list(msg)
@@ -292,17 +302,33 @@ class DataBaseFunctions:
                                 sender=msg_atts[2],
                                 content=msg_atts[3],
                                 date=msg_atts[4],
+                                is_read=msg_atts[5]
         )
         return msg_to_return
 
+    @staticmethod
+    def make_msg_read(id):
+        conn = sqlite3.connect("database.db", timeout=2)
+        conn.execute("UPDATE messages "
+                           "SET is_read = 'yes' "
+                           "WHERE messageID = ?", (id,))
+        print(id)
+
+        read=conn.execute("select is_read from messages where messageID=?", (id,))
+        for row in read:
+            read=row
+        print(read)
+
+        conn.commit()
 
     @staticmethod
     def create_msg(sender, topic, content):
         import datetime
         conn = sqlite3.connect("database.db", timeout=2)
         msgID = str(DataBaseFunctions.random_id())
-        conn.execute("insert into messages (messageID, topic, sender, content, date) "
-                     "values (?,?,?,?,?)", (msgID, topic, sender, content, str(datetime.datetime.now()).split(' ')[0]))
+        conn.execute("insert into messages (messageID, topic, sender, content, date, is_read) "
+                     "values (?,?,?,?,?,?)", (msgID, topic, sender, content, str(datetime.datetime.now()).split(' ')[0], "no")
+                     )
         conn.commit()
         return msgID
 
@@ -324,7 +350,11 @@ class DataBaseFunctions:
 
         print(str(new_msg_id))
 
-        new_msgs_IDs = str(current_msgs) + ',' + str(new_msg_id)
+
+        if str(current_msgs):
+            new_msgs_IDs = str(current_msgs) + ',' + str(new_msg_id)
+        else:
+            new_msgs_IDs = str(new_msg_id)
 
         print (new_msgs_IDs)
 
@@ -334,7 +364,9 @@ class DataBaseFunctions:
 
         conn.commit()
 
-DataBaseFunctions.messages_list('aviv')
+DataBaseFunctions.get_message("SSF3")
+print(DataBaseFunctions.get_message('SSF3').is_read)
+
 # import datetime
 # print(str(datetime.datetime.now()).split(' '))
 # DataBaseFunctions.send_msg("yonamagic", "aviv", "Try msg", "Hello aviv, this is a msg!")
