@@ -226,10 +226,9 @@ def build_User_object(username):
 @app.route('/profile' , methods=['POST','GET'])
 def profile():
     username = request.args.get("username")# Just for now
+    # print("username = " + session['user'])
     if not username or username==session['user']:#if there is no specified username or the specified name is sessin['user']
-        username = session['user']
-        # user = build_User_object(username)
-        return render_template('personal_profile.html', user=build_User_object(username), session_username='yoni')
+        return render_template('personal_profile.html', user=build_User_object(session['user']))
     else:
         return render_template('user_profile.html', user=build_User_object(username),
                                self_username=session['user'],

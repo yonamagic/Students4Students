@@ -12,14 +12,17 @@
 
 {% for subject in my_weak_subjects %}
     <h2>{{subject}} - </h2>
-    {% for current_user in teachers %}
+    <!--{# for current_user in teachers #}-->
+    {% set current_user = teachers[0] %}
         {% if current_user[0] == subject %}
+            <!--<h1>{{current_user}}</h1>-->
             {% for name in current_user[1] %}
-                <h1>yo</h1>
                 {% set matching_classes = DataBaseFunctions.matching_classes([my_username,name],current_user[0]) %}
                 {% if matching_classes %}
                     <a href="/profile?username={{name}}"><font size="5"><b>{{name}}</b></font></a> for classes: {{', '.join(matching_classes)}}
+                    <br>
                 {% else %}
+
                     {{ teachers_by_subject.append((current_user[0],name)) }}
                                                     <!--A tuple of subject name and teacher name-->
                     <!--<h3>{{name}} by subject but not by classes...</h3>-->
@@ -27,7 +30,7 @@
             {% endfor %}
             <!--<h3><b>{{current_user}}</b></h3>-->
         {% endif %}
-    {% endfor %}
+    <!--{# endfor #}-->
 {% endfor %}
 
 <h1>Didn't find what you were looking for? These are some teachers that match you by subject but not by classes:</h1>
@@ -38,6 +41,7 @@
     {% for teacher in teachers_by_subject %}
         {% if teacher[0] == subject %}
             <a href="/profile?username={{teacher[1]}}"><font size="5"><b>{{teacher[1]}}</b></font></a>
+            <br>
         {% endif %}
     {% endfor %}
 {% endfor %}
