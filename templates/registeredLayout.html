@@ -14,7 +14,7 @@
         <!--</form>-->
         <!--<br>-->
         <!--<form action="/profile" method="post">-->
-                <button type="submit" class="btn btn-primary" onclick="location.href='/profile'"><font color="blue">Profile</font></button>
+                <button type="submit" class="btn btn-primary" onclick="location.href='/profile?username={{session.user}}'"><font color="blue">Profile</font></button>
         <!--</form>-->
         <!--<br>-->
         <!--<form action="/potentialTeachers" method="post">-->
@@ -28,6 +28,8 @@
         <!--<br>-->
         <input type="text" id="searchTextBox" onclick="deleteTbText()" placeholder="Search Profiles" >
         <button  onclick="pageTransfer()">Search users' profiles</button>
+                        <font color="red">{{search_user_comment}}</font>
+
         <script>
             function pageTransfer() {
               var username = (document.getElementById("searchTextBox").value);

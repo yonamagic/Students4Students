@@ -342,6 +342,50 @@ class DataBaseFunctions:
         # print(msgs_list[0].id)
         return msgs_list
 
+    @staticmethod#returns a list of admin messages
+    def admins_messages_list():
+        conn = sqlite3.connect("database.db", timeout=2)
+        inboxID = "admins"
+        messages_IDs = conn.execute("select messagesIDs from inboxes where inboxID=?", (inboxID,))
+        #####################Kanal
+        for i in messages_IDs :
+            messages_IDs = (i[0])
+            messages_IDs = messages_IDs.split(',')
+        ##########################
+
+        msgs_list = []
+        for msg_id in messages_IDs:
+            topic = conn.execute("select topic from messages where messageID=?", (msg_id,))
+            for row in topic:
+                topic = row[0]
+            # print(topic)
+            sender = conn.execute("select sender from messages where messageID=?", (msg_id,))
+            for row in sender:
+                sender = row[0]
+            # print(sender)
+            content = conn.execute("select content from messages where messageID=?", (msg_id,))
+            for row in content:
+                content = row[0]
+            date = conn.execute("select date from messages where messageID=?", (msg_id,))
+            for row in date:
+                date = row[0]
+            is_read = conn.execute("select is_read from messages where messageID=?", (msg_id,))
+            for row in is_read:
+                is_read = row[0]
+            new_msg = Message(
+                id = msg_id,
+                topic = topic,
+                sender = sender,
+                content = content,
+                date = date,
+                is_read=is_read)
+            msgs_list.append(new_msg)
+            print(content)
+            # print(new_msg.id)
+        # print(msgs_list[0].id)
+        return msgs_list
+
+
     @staticmethod
     def random_id():
         import random

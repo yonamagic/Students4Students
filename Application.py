@@ -230,6 +230,9 @@ def build_User_object(username):
 @app.route('/profile' , methods=['POST','GET'])
 def profile():
     username = request.args.get("username")# Just for now
+    if not DataBaseFunctions.user_exists(username):
+        return render_template('homePage.html', search_user_comment="No such username exists")
+    print((session['user']))
     if not username or username==session['user']:#if there is no specified username or the specified name is sessin['user']
         username = session['user']
         # user = build_User_object(username)
@@ -342,6 +345,10 @@ def remove_from_favorites():
     return redirect('/profile?username=' + username)
 
 
+@app.route('/admin_inbox')
+def admin_options():
+    messages = DataBaseFunctions.admins_messages_list()
+    return render_template('/admin_inbox.html', messages=messages)
 
 @app.route('/typingChatRoom')
 def typingChatRoom(methods=['GET']):

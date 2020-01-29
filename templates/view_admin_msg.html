@@ -1,0 +1,10 @@
+{% extends "registeredLayout.html" %}
+
+{% block body %}
+
+<h1>From: {{sender}}</h1>
+<h1><font color="blue">{{topic}}</font></h1>
+<br>
+<p>{{content}}</p>
+<button type="submit" onclick="location.href='/admin_inbox'">Go back</button>
+{% endblock %}
