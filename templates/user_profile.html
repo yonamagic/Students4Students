@@ -8,8 +8,14 @@
 {{self_username}}
 {{username2}}
 <script>console.log({{self_username|tojson}})</script>
-<br>
+<br><br><br>
 <button  onclick="changeURL('{{self_username}}','{{username2}}  ')"/>Start chat!</button>
+<button  onclick="location.href='/report_user?username={{user.name}}'"/>Report user</button>
+{% if is_fav %}
+    <button  onclick="location.href='/add_to_favorites?username={{user.name}}'"/>Add to favorites</button>
+{% else %}
+    <button  onclick="location.href='/remove_from_favorites?username={{user.name}}'"/>Remove from favorites</button>
+{% endif %}
 <!--<button  onclick="changeURL('+{{self_username|tojson}},{{username2|tojson}})"/>Start chat!</button>-->
 <script>
     function changeURL(self_username, username2){

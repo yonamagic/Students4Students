@@ -1,0 +1,5 @@
+{% extends "registeredLayout.html" %}
+
+<h1>Report user: {{username}}</h1>
+<input type="text" name="content" placeholder="Why do you want to report this user?">
+<button onclick="location.href='/report_done?username={{username}}'">Send report</button>

@@ -7,6 +7,9 @@
         <!--</form>-->
         <!--<br>-->
         <!--<form action="/logout" method="post">-->
+            {% if session.is_admin %}
+                <button type="submit" class="btn btn-primary" onclick="location.href='/admin_options'"><font color="blue">Admin Options</font></button>
+            {% endif %}
                 <button type="submit" class="btn btn-primary" onclick="location.href='/logout'"><font color="blue">Log Out</font></button>
         <!--</form>-->
         <!--<br>-->
@@ -19,6 +22,7 @@
         <!--</form>-->
         <!--<br>-->
          <!--<form action="/inbox" method="post">-->
+                <button type="submit" class="btn btn-primary" onclick="location.href='/favorites'"><font color="blue">Favorites</font></button>
                 <button type="submit" class="btn btn-primary" onclick="location.href='/inbox'"><font color="blue">Inbox</font></button>
         <!--</form>-->
         <!--<br>-->

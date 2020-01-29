@@ -210,6 +210,10 @@ def profileEditingDone():
 @app.route('/homePage', methods=['POST','GET'])
 def homePage():
     if connected():
+        if DataBaseFunctions.is_admin(session['user']):
+            session['is_admin'] = True
+        else:
+            session['is_admin'] = False
         return render_template('/homePage.html')
     return redirect('/')
 
@@ -231,12 +235,23 @@ def profile():
         # user = build_User_object(username)
         return render_template('personal_profile.html', user=build_User_object(username), session_username='yoni')
     else:
+        print(DataBaseFunctions.is_fav(self_user = session['user'],
+                                                                 username=username))
         return render_template('user_profile.html', user=build_User_object(username),
                                self_username=session['user'],
-                               username2=username)
+                               username2=username,
+                               is_fav = not DataBaseFunctions.is_fav(self_user = session['user'],
+                                                                 username=username))#It gets the opposite somewhy
 
 
+@app.route('/report_user', methods=['GET'])
+def report():
+    return render_template('reportUser.html', username=request.args.get("username"))
 
+@app.route('/report_done', methods=['POST', 'GET'])
+def report_done():
+
+    return redirect('/profile?username='+request.args.get("username"))
 
 
 
@@ -263,7 +278,7 @@ def potential__teachers():
 def inbox():
     if not connected():
         return redirect('/')
-    messages_list = DataBaseFunctions.messages_list(session['user'])[2:]#Because there are 2 additional Messages that I do not know why theyre in there
+    messages_list = DataBaseFunctions.messages_list(session['user'])#Because there are 2 additional Messages that I do not know why theyre in there
     messages_list.reverse()
     print("read="+messages_list[0].is_read)
     return render_template('inbox.html', messages = messages_list)
@@ -306,6 +321,27 @@ def viewMessage():
                            sender=msg.sender,
                            topic=msg.topic,
                            content=msg.content)
+
+@app.route('/favorites')
+def favorites():
+    print((DataBaseFunctions.get_favorites(session['user'])))
+    return render_template('favorite_users.html', users=DataBaseFunctions.get_favorites(session['user']))
+
+@app.route('/add_to_favorites')
+def add_to_favorites():
+    username = request.args.get("username")
+    DataBaseFunctions.add_to_favorites(self_user = session['user'],
+                                       username = username)
+    return redirect('/profile?username=' + username)
+
+@app.route('/remove_from_favorites')
+def remove_from_favorites():
+    username = request.args.get("username")
+    DataBaseFunctions.remove_from_favorites(self_user = session['user'],
+                                       username = username)
+    return redirect('/profile?username=' + username)
+
+
 
 @app.route('/typingChatRoom')
 def typingChatRoom(methods=['GET']):

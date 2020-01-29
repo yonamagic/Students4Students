@@ -17,6 +17,16 @@ class DataBaseFunctions:
         return False
 
     @staticmethod
+    def is_admin(username):
+        conn = sqlite3.connect('database.db', timeout=2)
+        admin = conn.execute("select is_admin from users where username=?", (username,))
+        for row in admin:
+            admin = row[0]
+        if admin == "yes":
+            return True
+        return False
+
+    @staticmethod
     def create_user(username, password, strong_subjects=[], weak_subjects=[]):
         conn = sqlite3.connect('database.db', timeout=2)
         # cursor = conn.execute("select * from users where username='yehonatan'")
@@ -48,6 +58,59 @@ class DataBaseFunctions:
         # for r in com:
         #     print (r)
         # conn.commit()
+
+
+    @staticmethod#returns a list of a user favs
+    def get_favorites(username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        favs = conn.execute("select favorite_users from users where username=?", (username,))
+        for row in favs:
+            favs=row[0]
+        favs = favs.split(',')
+        return favs
+
+    @staticmethod
+    def is_fav(self_user, username):
+        return username in DataBaseFunctions.get_favorites(self_user)
+
+    @staticmethod
+    def add_to_favorites(self_user, username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        favs = conn.execute("select favorite_users from users where username=?", (self_user,))
+        for row in favs:
+            favs = row[0]
+        print("favorites = ")
+        print(favs)
+        if favs:
+            print(True)
+            total_favs = favs + ',' + username
+        else:
+            total_favs = username
+        print("total favs = " + total_favs)
+        print(favs)
+        print(total_favs)
+        conn.execute("update users "
+                     "set favorite_users = ? "
+                     "where username = ?", (total_favs,self_user))
+        conn.commit()
+
+    @staticmethod
+    def remove_from_favorites(self_user, username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        favs = conn.execute("select favorite_users from users where username=?", (self_user,))
+        for row in favs:
+            favs = row[0]
+        favs = favs.split(',')
+        print(favs)
+        favs.remove(username)
+        print(favs)
+        total_favs = str(favs)[2:-2]
+        print(total_favs)
+        conn.execute("update users "
+                     "set favorite_users = ? "
+                     "where username = ?", (total_favs,self_user))
+        conn.commit()
+
 
     @staticmethod#Edits the column "strong_subjects" in users table
     def edit_user_strong_subjects(username, strong_subjects):
