@@ -21,6 +21,13 @@ subjects = [Subject('Math',[10,11]), Subject('Arabic',[10,11,12]), Subject('Hist
 # request.remote_addr   -    ip
 
 
+@app.route('/ind/<sender>/<addressee>')
+def ind(sender, addressee):
+    i=1
+    while True:
+        i+=1
+        return str(i)
+
 @app.route('/ip')
 def ip():
     return request.remote_addr
@@ -283,7 +290,7 @@ def inbox():
         return redirect('/')
     messages_list = DataBaseFunctions.messages_list(session['user'])#Because there are 2 additional Messages that I do not know why theyre in there
     messages_list.reverse()
-    print("read="+messages_list[0].is_read)
+    # print("read="+messages_list[0].is_read)
     return render_template('inbox.html', messages = messages_list)
 
 @app.route('/sendMessage')
@@ -390,4 +397,4 @@ def response():
     # return string
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0',     debug=True)

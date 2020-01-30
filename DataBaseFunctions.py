@@ -51,6 +51,7 @@ class DataBaseFunctions:
                      "set inboxID = ? "
                      "where username = ?", (inboxID,username))
 
+        conn.execute("insert into inboxes (inboxID, messagesIDs) values (?,'')", (inboxID,))
         # DataBaseFunctions.edit_subjects_in_subjects_table(username=username, subjects=strong_subjects+weak_subjects)
         # DataBaseFunctions.create_weak_subs_in_users_table(conn,weak_subjects, username)
         conn.commit()
@@ -471,8 +472,6 @@ class DataBaseFunctions:
 
         conn.commit()
 
-DataBaseFunctions.get_message("SSF3")
-print(DataBaseFunctions.get_message('SSF3').is_read)
 
 # import datetime
 # print(str(datetime.datetime.now()).split(' '))
