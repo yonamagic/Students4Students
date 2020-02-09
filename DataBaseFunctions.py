@@ -471,9 +471,129 @@ class DataBaseFunctions:
 
         conn.commit()
 
-DataBaseFunctions.get_message("SSF3")
-print(DataBaseFunctions.get_message('SSF3').is_read)
+    @staticmethod#returns a Post object
+    def get_post_object(post_id):
+        from Post import Post
+        conn = sqlite3.connect("database.db", timeout=2)
+        post = conn.execute("select * from forum_posts where post_ID = ? ", (post_id,))
+        for row in post:
+            post = row
+            print("A",post)
+        print("Hi ",DataBaseFunctions.get_all_comments_list(post[5].split(',')))
+        return Post(post_ID = post[0],
+                    narrator = post[1],
+                    topic = post[2],
+                    content = post[3],
+                    date = post[4],
+                    comments = DataBaseFunctions.get_all_comments_list(post[5].split(',')))
 
+    @staticmethod#returns a list of Post objects by a list of posts IDs
+    def get_all_posts_list(posts_IDs):
+        posts = []
+        for id in posts_IDs:
+            posts.append(DataBaseFunctions.get_post_object(id))
+        posts.reverse()
+        return posts
+
+    @staticmethod#returns a list of Post objects by forum name
+    def get_forum_posts(forum_name):
+        conn = sqlite3.connect("database.db", timeout=2)
+        posts_IDs = conn.execute("select posts_IDs from forums where forum_name=?",(forum_name,))
+        for row in posts_IDs:
+            posts_IDs=row[0].split(',')
+        return DataBaseFunctions.get_all_posts_list(posts_IDs)
+
+    @staticmethod#returns a Comment object by comment id
+    def get_comment_object(comment_id):
+        from Comment import Comment
+        import datetime
+        conn = sqlite3.connect("database.db", timeout=2)
+        comment = conn.execute("select * from post_comments where comment_ID = ? ", (comment_id,))
+        for row in comment:
+            comment = row
+        print("comment is: " , comment)
+        return Comment(id=comment[0],
+                       content=comment[1],
+                       narrator=comment[2],
+                       date=str(datetime.datetime.now()).split(' ')[0])
+
+    @staticmethod  # returns a list of Comments objects by a list of comments IDs
+    def get_all_comments_list(comments_IDs):
+        comments = []
+        for id in comments_IDs:
+            comments.append(DataBaseFunctions.get_comment_object(id))
+        comments.reverse()
+        return comments
+
+    @staticmethod#returns a list of comments of a certain post
+    def get_post_comments(post_ID):
+        conn = sqlite3.connect("database.db", timeout=2)
+        comments_IDs = conn.execute("select comments_IDs from forum_posts where post_ID=?",(post_ID,))
+        for row in comments_IDs:
+            comments_IDs = row[0].split(',')
+            print("IDs=",comments_IDs)
+        return DataBaseFunctions.get_all_comments_list(["123","456"])
+
+
+
+    # @staticmethod#recieves a post topic and returns its id
+    # def get_post_id(post_topic):
+    #     conn = sqlite3.connect("database.db", timeout=2)
+    #     id = conn.execute("select post_ID from forum_posts where topic=?",(post_topic,))
+    #     for row in id:
+    #         id=row[0]
+    #     return id
+
+
+    @staticmethod
+    def add_comment(post_id, content,narrator):
+        import datetime
+        conn = sqlite3.connect("database.db", timeout=2)
+        comment_id = DataBaseFunctions.random_id()
+        date = str(datetime.datetime.now()).split(' ')[0]
+        DataBaseFunctions.create_comment(id = comment_id,
+                                         content=content,
+                                         narrator=narrator,
+                                         date=date)
+        DataBaseFunctions.attach_comment_to_post(post_id=post_id,
+                                                 comment_id=comment_id)
+
+
+    @staticmethod
+    def create_comment(id, content, narrator, date):
+        conn = sqlite3.connect("database.db", timeout=2)
+        conn.execute("insert into post_comments (comment_ID, content, narrator_username, date) values (?,?,?,?)",(id,content,narrator,date))
+        conn.commit()
+
+    @staticmethod
+    def attach_comment_to_post(post_id, comment_id):
+        conn = sqlite3.connect("database.db", timeout=2)
+        current_IDs = conn.execute("select comments_IDs from forum_posts where post_ID=?",(post_id,))
+        for row in current_IDs:
+            current_IDs=row[0]
+        # print("Current = " + current_IDs)
+        if current_IDs:
+            new_IDs = current_IDs + ',' + comment_id
+        else:
+            new_IDs = comment_id
+        conn.execute("update forum_posts set comments_IDs = ? where post_ID=? ", (new_IDs,post_id))
+        conn.commit()
+
+    @staticmethod
+    def get_forums():
+        pass
+
+
+    @staticmethod
+    def get_forum_names():
+        conn = sqlite3.connect("database.db", timeout=2)
+        com = conn.execute("select forum_name from forums")
+        names=[]
+        for row in com:
+            names.append(row[0])
+        return names
+# DataBaseFunctions.get_comment_object("123")
+# DataBaseFunctions.get_post_comments("1234")
 # import datetime
 # print(str(datetime.datetime.now()).split(' '))
 # DataBaseFunctions.send_msg("yonamagic", "aviv", "Try msg", "Hello aviv, this is a msg!")
@@ -487,3 +607,4 @@ print(DataBaseFunctions.get_message('SSF3').is_read)
 # print(l)
 # for i in l:
 #     print(i.sender)
+

@@ -154,6 +154,9 @@ def checkRegistration():
     if len(details_dict['username']) < 4 or len(details_dict['username']) > 14:#username not in legal length
         details_dict['username_comment'] = "Please enter a username between 4-14 characters"
         todo_bien=False
+    if DataBaseFunctions.user_exists(details_dict['username']):
+        details_dict['username_comment'] = "This username is taken"
+        todo_bien = False
     if DataBaseFunctions.user_exists(details_dict['username']):#username taken
         details_dict['username_comment'] = "This username is taken"
         todo_bien = False
@@ -301,12 +304,12 @@ def messageSent():
     addressee = request.form.get("addressee")
     topic = request.form.get("topic")
     content = request.form.get("content")
-    # if DataBaseFunctions.user_exists(sender):
-    #     print("user does not exist")
-    #     return sendMessage(addressee=addressee,
-    #                        topic=topic,
-    #                        content=content,
-    #                        addressee_comment="Please enter an existing username")
+    if not DataBaseFunctions.user_exists(addressee):
+        print("user does not exist")
+        return sendMessage(addressee=addressee,
+                           topic=topic,
+                           content=content,
+                           addressee_comment="Please enter an existing username")
     print("User indeed exists")
 
     DataBaseFunctions.send_msg(sender=sender,
@@ -344,6 +347,33 @@ def remove_from_favorites():
                                        username = username)
     return redirect('/profile?username=' + username)
 
+
+@app.route('/forum_homepage')
+def forum_homepage():
+    if connected():
+        return render_template('forum_homepage.html', forum_names=DataBaseFunctions.get_forum_names())
+    return redirect('/')
+
+@app.route('/forum/<forum_name>')
+def specific_forum(forum_name):
+    return render_template('specific_forum.html', forum_name=forum_name, posts=DataBaseFunctions.get_forum_posts(forum_name))
+
+@app.route('/post/<post_id>')
+def view_post(post_id):
+    # print(DataBaseFunctions.get_post_object(post_id).topic)
+    return render_template('view_post.html', post=DataBaseFunctions.get_post_object(post_id), post_id=post_id)
+
+@app.route('/post/write_comment/<post_id>')
+def write_comment(post_id):
+    return render_template('write_comment.html', post_id=post_id)
+
+@app.route('/post/comment_sent/<post_id>', methods=['POST'])
+def comment_sent(post_id):
+    content = request.form.get("content")
+    DataBaseFunctions.add_comment(post_id=post_id,
+                                  content=content,
+                                  narrator=session['user'])
+    return redirect('/post/'+post_id)
 
 @app.route('/admin_inbox')
 def admin_options():
