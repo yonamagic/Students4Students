@@ -4,6 +4,9 @@
 
 <h1>Forum: {{forum_name}}</h1>
 
+<button class="block" onclick="location.href='/forum/{{forum_name}}/create_post'">Write a new post</button><br>
+<br><br><br>
+
 {% for post in posts %}
     <button class="block" onclick="location.href='/post/{{post.post_ID}}'"><b>By:</b> {{post.narrator}}         <b>topic:</b> {{post.topic}}     <b>date:</b> {{post.date}}</button><br>
 {% endfor %}

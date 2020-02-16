@@ -358,6 +358,21 @@ def forum_homepage():
 def specific_forum(forum_name):
     return render_template('specific_forum.html', forum_name=forum_name, posts=DataBaseFunctions.get_forum_posts(forum_name))
 
+@app.route('/forum/<forum_name>/create_post')
+def create_post(forum_name):
+    return render_template('create_new_post.html', forum_name=forum_name)
+
+@app.route('/forum/<forum_name>/new_post_submitted', methods=['POST'])
+def new_post_submitted(forum_name):
+    topic = request.form.get("topic")
+    content = request.form.get("content")
+    DataBaseFunctions.create_new_post(forum_name=forum_name,
+                                      narrator=session['user'],
+                                      topic=topic,
+                                      content=content)
+    return redirect('/forum/' + forum_name)
+
+
 @app.route('/post/<post_id>')
 def view_post(post_id):
     # print(DataBaseFunctions.get_post_object(post_id).topic)

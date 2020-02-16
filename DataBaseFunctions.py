@@ -3,6 +3,14 @@ from Subject import Subject
 import os
 from Message import Message
 
+def get_date():
+    import datetime
+    date = str(datetime.datetime.now()).split(' ')[0]
+    date = date.split('-')
+    date.reverse()
+    date = "/".join(date)
+    return date
+
 class DataBaseFunctions:
 
     subjects = ['Math', 'English', 'History', 'Arabic', 'Bible']
@@ -430,11 +438,10 @@ class DataBaseFunctions:
 
     @staticmethod
     def create_msg(sender, topic, content):
-        import datetime
         conn = sqlite3.connect("database.db", timeout=2)
         msgID = str(DataBaseFunctions.random_id())
         conn.execute("insert into messages (messageID, topic, sender, content, date, is_read) "
-                     "values (?,?,?,?,?,?)", (msgID, topic, sender, content, str(datetime.datetime.now()).split(' ')[0], "no")
+                     "values (?,?,?,?,?,?)", (msgID, topic, sender, content, get_date(), "no")
                      )
         conn.commit()
         return msgID
@@ -479,7 +486,8 @@ class DataBaseFunctions:
         for row in post:
             post = row
             print("A",post)
-        print("Hi ",DataBaseFunctions.get_all_comments_list(post[5].split(',')))
+        # print("comments: ", post[5].split(','))
+        # print("Hi ",DataBaseFunctions.get_all_comments_list(post[5]))
         return Post(post_ID = post[0],
                     narrator = post[1],
                     topic = post[2],
@@ -506,23 +514,29 @@ class DataBaseFunctions:
     @staticmethod#returns a Comment object by comment id
     def get_comment_object(comment_id):
         from Comment import Comment
-        import datetime
         conn = sqlite3.connect("database.db", timeout=2)
         comment = conn.execute("select * from post_comments where comment_ID = ? ", (comment_id,))
         for row in comment:
             comment = row
         print("comment is: " , comment)
+        print(isinstance(comment,tuple))
+        print(type(comment))
+        if not isinstance(comment,tuple) :
+            return None
         return Comment(id=comment[0],
                        content=comment[1],
                        narrator=comment[2],
-                       date=str(datetime.datetime.now()).split(' ')[0])
+                       date=get_date())
 
     @staticmethod  # returns a list of Comments objects by a list of comments IDs
     def get_all_comments_list(comments_IDs):
         comments = []
         for id in comments_IDs:
-            comments.append(DataBaseFunctions.get_comment_object(id))
+            comment_object = DataBaseFunctions.get_comment_object(id)
+            if comment_object is not None:
+                comments.append(DataBaseFunctions.get_comment_object(id))
         comments.reverse()
+        print("comments are: ", comments)
         return comments
 
     @staticmethod#returns a list of comments of a certain post
@@ -545,12 +559,11 @@ class DataBaseFunctions:
     #     return id
 
 
-    @staticmethod
+    @staticmethod#adds a new comment to a post (by its id - parameter)
     def add_comment(post_id, content,narrator):
-        import datetime
         conn = sqlite3.connect("database.db", timeout=2)
         comment_id = DataBaseFunctions.random_id()
-        date = str(datetime.datetime.now()).split(' ')[0]
+        date = get_date()
         DataBaseFunctions.create_comment(id = comment_id,
                                          content=content,
                                          narrator=narrator,
@@ -559,13 +572,13 @@ class DataBaseFunctions:
                                                  comment_id=comment_id)
 
 
-    @staticmethod
+    @staticmethod#creates comment (updates database)
     def create_comment(id, content, narrator, date):
         conn = sqlite3.connect("database.db", timeout=2)
         conn.execute("insert into post_comments (comment_ID, content, narrator_username, date) values (?,?,?,?)",(id,content,narrator,date))
         conn.commit()
 
-    @staticmethod
+    @staticmethod#attaches a comment to a post - update a post's "comments_IDs" value
     def attach_comment_to_post(post_id, comment_id):
         conn = sqlite3.connect("database.db", timeout=2)
         current_IDs = conn.execute("select comments_IDs from forum_posts where post_ID=?",(post_id,))
@@ -579,10 +592,6 @@ class DataBaseFunctions:
         conn.execute("update forum_posts set comments_IDs = ? where post_ID=? ", (new_IDs,post_id))
         conn.commit()
 
-    @staticmethod
-    def get_forums():
-        pass
-
 
     @staticmethod
     def get_forum_names():
@@ -592,6 +601,35 @@ class DataBaseFunctions:
         for row in com:
             names.append(row[0])
         return names
+
+    @staticmethod#adds a new post (id) to the "forums" db and returns its id
+    def create_post_in_forums(forum_name, new_post_id):
+        conn = sqlite3.connect("database.db", timeout=2)
+        current_posts_IDs = conn.execute("select posts_IDs from forums where forum_name=?", (forum_name,))
+        for row in current_posts_IDs:
+            current_posts_IDs = row[0]
+        current_posts_IDs += ',' + new_post_id
+        conn.execute("update forums set posts_IDs = ? where forum_name=?", (current_posts_IDs, forum_name))
+        conn.commit()
+
+    @staticmethod
+    def create_post_in_forum_posts(post_id, narrator, topic, content):
+        conn = sqlite3.connect("database.db", timeout=2)
+        conn.execute("insert into forum_posts (post_ID, narrator, topic, content, date, comments_IDs)"
+                     " values (?,?,?,?,?,?)", (post_id, narrator, topic, content, get_date(), ""))
+        conn.commit()
+
+    @staticmethod
+    def create_new_post(forum_name, narrator, topic, content):
+        post_id = DataBaseFunctions.random_id()
+        DataBaseFunctions.create_post_in_forums(forum_name=forum_name,
+                                                new_post_id=post_id)
+        DataBaseFunctions.create_post_in_forum_posts(post_id=post_id,
+                                                     narrator=narrator,
+                                                     topic=topic,
+                                                     content=content)
+
+# DataBaseFunctions.create_new_post("Math","Yoni","new one","just some trying outs")
 # DataBaseFunctions.get_comment_object("123")
 # DataBaseFunctions.get_post_comments("1234")
 # import datetime
