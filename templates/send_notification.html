@@ -1,0 +1,10 @@
+{%extends "registeredLayout.html"%}
+
+{%block body%}
+<br><br>
+
+<form action="/notification_sent">
+    <textarea rows="4" cols="50" name="content" placeholder="Notification content here:">{{content}}</textarea><br>
+</form>
+
+{%endblock%}

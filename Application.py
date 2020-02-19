@@ -280,14 +280,26 @@ def potential__teachers():
 
 
 
-@app.route('/inbox', methods=['POST', 'GET'])
+@app.route("/inbox")
 def inbox():
+    return render_template("inbox.html")
+
+@app.route("/notifications")
+def notifications():
+    return render_template("notifications.html", notifications=DataBaseFunctions.get_all_notifications_as_list(session['user']))
+
+@app.route("/notifications/view_note/<note_id>")
+def view_note(note_id):
+    return render_template("view_note.html", notification=DataBaseFunctions.get_notification_object(note_id))
+
+@app.route('/messages', methods=['POST', 'GET'])
+def messages():
     if not connected():
         return redirect('/')
     messages_list = DataBaseFunctions.messages_list(session['user'])#Because there are 2 additional Messages that I do not know why theyre in there
     messages_list.reverse()
     print("read="+messages_list[0].is_read)
-    return render_template('inbox.html', messages = messages_list)
+    return render_template('messages.html', messages = messages_list)
 
 @app.route('/sendMessage')
 def sendMessage(addressee="", topic="", content="", addressee_comment=""):
@@ -316,7 +328,7 @@ def messageSent():
                                addressee = addressee,
                                topic=topic,
                                content=content)
-    return redirect('/inbox')
+    return redirect('/messages')
 
 @app.route('/viewMessage', methods=['POST','GET'])
 def viewMessage():
@@ -390,10 +402,26 @@ def comment_sent(post_id):
                                   narrator=session['user'])
     return redirect('/post/'+post_id)
 
-@app.route('/admin_inbox')
+@app.route("/admin_options")
 def admin_options():
+    return render_template("admin_options.html")
+
+@app.route("/send_notification")
+def send_notification():
+    return render_template("send_notification.html")
+
+@app.route("/notification_sent", methods = ['POST'])
+def notification_sent():
+    topic = request.form.get("topic")
+    content= request.form.get("content")
+    DataBaseFunctions.send_notification(topic=topic, content=content)
+    return render_template("admin_options.html")
+
+
+@app.route('/admin_options/admin_messages')
+def admin_messages():
     messages = DataBaseFunctions.admins_messages_list()
-    return render_template('/admin_inbox.html', messages=messages)
+    return render_template('/admin_messages.html', messages=messages)
 
 @app.route('/typingChatRoom')
 def typingChatRoom(methods=['GET']):

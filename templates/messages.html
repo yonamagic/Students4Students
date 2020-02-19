@@ -1,0 +1,69 @@
+{% extends "registeredLayout.html" %}
+
+{% block head %}
+<h1>Personal Inbox</h1>
+{% endblock %}
+
+{% block body %}
+
+<form action="/sendMessage">
+        <button type="submit" class="btn btn-primary"><font color="brown">Send a message!</font></button>
+</form>
+
+
+<h2>Your messages:</h2>
+{% for msg in messages %}
+    {% if msg.is_read == "yes" %}
+        {% set block = "is_read" %}
+    {% else %}
+        {% set block = "not_read" %}
+    {% endif %}
+    <button class={{block}} onclick="location.href='/viewMessage?msg_id={{msg.id}}'"><b>From:</b> {{msg.sender}}      <b>topic:</b> {{msg.topic}}     <b>date:</b> {{msg.date}}</button>
+    <br>
+{% endfor %}
+
+
+
+
+<style>
+.not_read {
+  display: block;
+  width: 100%;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 28px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.block:hover {
+  background-color: #ddd;
+  color: black;
+}
+</style>
+
+
+
+<style>
+.is_read {
+  display: block;
+  width: 100%;
+  border: none;
+  background-color: #A9A9A9;
+  color: white;
+  padding: 14px 28px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.block:hover {
+  background-color: #ddd;
+  color: black;
+}
+</style>
+
+
+{% endblock %}

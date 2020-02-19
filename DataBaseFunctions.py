@@ -629,6 +629,42 @@ class DataBaseFunctions:
                                                      topic=topic,
                                                      content=content)
 
+
+    @staticmethod
+    def get_notification_object(id):
+        from Notification import Notification
+        conn = sqlite3.connect("database.db", timeout=2)
+        note = conn.execute("select * from notifications where ID=?", (id,))
+        for row in note:
+            note = row
+        return Notification(ID=note[0],
+                            topic=note[1],
+                            content=note[2],
+                            date=note[3],
+                            is_read=note[4])
+
+    @staticmethod
+    def get_all_notifications_as_list(username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        notifications = []
+        notes_IDs = conn.execute("select notifications_IDs from users where username=?", (username,))
+        for row in notes_IDs:
+            notes_IDs=row[0]
+        notes_IDs=notes_IDs.split(',')
+        for note in notes_IDs:
+            notifications.append(DataBaseFunctions.get_notification_object(note))
+        return notifications
+
+
+    @staticmethod
+    def send_notification(topic, content):
+
+
+    @staticmethod
+    def create_notification_in_users_table(id):
+        conn = sqlite3.connect("database.db", timeout=2)
+        conn.execute("update users set ")#/////////////////////////////////////////////////////////
+print(DataBaseFunctions.get_all_notifications_as_list("yonamagic"))
 # DataBaseFunctions.create_new_post("Math","Yoni","new one","just some trying outs")
 # DataBaseFunctions.get_comment_object("123")
 # DataBaseFunctions.get_post_comments("1234")
