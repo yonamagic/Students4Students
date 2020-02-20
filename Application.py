@@ -241,13 +241,16 @@ def profile():
         # user = build_User_object(username)
         return render_template('personal_profile.html', user=build_User_object(username), session_username='yoni')
     else:
-        print(DataBaseFunctions.is_fav(self_user = session['user'],
+        print("is_friend=" ,DataBaseFunctions.is_friend(self_user = session['user'],
                                                                  username=username))
+
         return render_template('user_profile.html', user=build_User_object(username),
                                self_username=session['user'],
                                username2=username,
-                               is_fav = not DataBaseFunctions.is_fav(self_user = session['user'],
-                                                                 username=username))#It gets the opposite somewhy
+                               is_friend = not DataBaseFunctions.is_friend(self_user = session['user'],
+                                                                 username=username,),#It gets the opposite somewhy
+                               friend_request_sent_already = DataBaseFunctions.is_in_friend_requests(self_user=username,
+                                                                                                     username=session['user']))
 
 
 @app.route('/report_user', methods=['GET'])
@@ -342,23 +345,54 @@ def viewMessage():
 
 @app.route('/friends_list')
 def friends_list():
-    print((DataBaseFunctions.get_favorites(session['user'])))
-    return render_template('friends_list.html', users=DataBaseFunctions.get_favorites(session['user']))
+    print((DataBaseFunctions.get_friends_list(session['user'])))
+    return render_template('friends_list.html', users=DataBaseFunctions.get_friends_list(session['user']))
 
-@app.route('/add_to_favorites')
-def add_to_favorites():
+@app.route('/send_friend_request')
+def send_friend_request():
     username = request.args.get("username")
-    DataBaseFunctions.add_to_favorites(self_user = session['user'],
+    DataBaseFunctions.add_to_friend_requests(self_user=username,
+                                             username=session['user'])
+    return redirect('/profile?username=' + username)
+@app.route('/add_to_friends_list')
+def add_to_friends_list():
+    username = request.args.get("username")
+    DataBaseFunctions.add_to_friends_list(self_user = session['user'],
                                        username = username)
     return redirect('/profile?username=' + username)
 
-@app.route('/remove_from_favorites')
-def remove_from_favorites():
+@app.route('/remove_from_friends_list')
+def remove_from_friends_list():
     username = request.args.get("username")
-    DataBaseFunctions.remove_from_favorites(self_user = session['user'],
+    DataBaseFunctions.remove_from_friends_list(self_user = session['user'],
                                        username = username)
+    DataBaseFunctions.remove_from_friends_list(self_user=username,
+                                               username=session['user'])
     return redirect('/profile?username=' + username)
 
+@app.route('/friend_requests')
+def view_friend_requests():
+    return render_template('view_friend_requests.html', users=DataBaseFunctions.get_friend_requests(session['user']))
+
+@app.route('/accept_friend_request', methods=['GET'])
+def accept_friend_request():
+    username = request.args.get("username")
+    DataBaseFunctions.add_to_friends_list(session['user'], username)
+    DataBaseFunctions.add_to_friends_list(username, session['user'])
+    DataBaseFunctions.remove_from_friend_requests(session['user'], username)
+    return redirect('/friend_requests')
+
+@app.route('/deny_friend_request', methods=['GET'])
+def deny_friend_request():
+    username = request.args.get("username")
+    DataBaseFunctions.remove_from_friend_requests(session['user'], username)
+    return redirect('/friend_requests')
+
+@app.route('/cancel_friend_request', methods=['GET'])
+def cancel_friend_request():
+    username = request.args.get("username")
+    DataBaseFunctions.remove_from_friend_requests(username, session['user'])
+    return redirect('/profile?username=' + username)
 
 @app.route('/forum_homepage')
 def forum_homepage():

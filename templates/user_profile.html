@@ -11,10 +11,17 @@
 <br><br><br>
 <button  onclick="changeURL('{{self_username}}','{{username2}}  ')"/>Start chat!</button>
 <button  onclick="location.href='/report_user?username={{user.name}}'"/>Report user</button>
-{% if is_fav %}
-    <button  onclick="location.href='/add_to_favorites?username={{user.name}}'"/>Add to favorites</button>
+
+{% if is_friend %}
+<!--It means that the user is NOT a friend already-->
+    {% if friend_request_sent_already %}
+        <button  onclick="location.href='/cancel_friend_request?username={{user.name}}'"/>Cancel friend request</button>
+    {% else %}
+        <button  onclick="location.href='/send_friend_request?username={{user.name}}'"/>Send friend request</button>
+    {%endif%}
 {% else %}
-    <button  onclick="location.href='/remove_from_favorites?username={{user.name}}'"/>Remove from favorites</button>
+<!--It means that the user is INDEED a friend already-->
+    <button  onclick="location.href='/remove_from_friends_list?username={{user.name}}'"/>Remove from friends_list</button>
 {% endif %}
 <!--<button  onclick="changeURL('+{{self_username|tojson}},{{username2|tojson}})"/>Start chat!</button>-->
 <script>

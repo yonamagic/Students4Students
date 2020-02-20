@@ -8,7 +8,7 @@ def get_date():
     date = str(datetime.datetime.now()).split(' ')[0]
     date = date.split('-')
     date.reverse()
-    date = "/".join(date)
+    date = '/'.join(date)
     return date
 
 class DataBaseFunctions:
@@ -68,10 +68,10 @@ class DataBaseFunctions:
         # conn.commit()
 
 
-    @staticmethod#returns a list of a user favs
+    @staticmethod#returns a list of a user's friends list
     def get_friends_list(username):
         conn = sqlite3.connect("database.db", timeout=2)
-        friends = conn.execute("select favorite_users from users where username=?", (username,))
+        friends = conn.execute("select friends_list from users where username=?", (username,))
         for row in friends:
             friends=row[0]
         friends = friends.split(',')
@@ -79,44 +79,45 @@ class DataBaseFunctions:
 
     @staticmethod
     def is_friend(self_user, username):
-        return username in DataBaseFunctions.get_favorites(self_user)
+        return username in DataBaseFunctions.get_friends_list(self_user)
 
     @staticmethod
-    def add_to_favorites(self_user, username):
+    def add_to_friends_list(self_user, username):
         conn = sqlite3.connect("database.db", timeout=2)
-        favs = conn.execute("select favorite_users from users where username=?", (self_user,))
-        for row in favs:
-            favs = row[0]
+        friends = conn.execute("select friends_list from users where username=?", (self_user,))
+        for row in friends:
+            friends = row[0]
         print("favorites = ")
-        print(favs)
-        if favs:
+        print(friends)
+        if friends:
             print(True)
-            total_favs = favs + ',' + username
+            total_friends = friends + ',' + username
         else:
-            total_favs = username
-        print("total favs = " + total_favs)
-        print(favs)
-        print(total_favs)
+            total_friends = username
+        print("total favs = " + total_friends)
+        print(friends)
+        print(total_friends)
         conn.execute("update users "
-                     "set favorite_users = ? "
-                     "where username = ?", (total_favs,self_user))
+                     "set friends_list = ? "
+                     "where username = ?", (total_friends,self_user))
         conn.commit()
 
     @staticmethod
-    def remove_from_favorites(self_user, username):
+    def remove_from_friends_list(self_user, username):
         conn = sqlite3.connect("database.db", timeout=2)
-        favs = conn.execute("select favorite_users from users where username=?", (self_user,))
-        for row in favs:
-            favs = row[0]
-        favs = favs.split(',')
-        print(favs)
-        favs.remove(username)
-        print(favs)
-        total_favs = str(favs)[2:-2]
-        print(total_favs)
+        friends = conn.execute("select friends_list from users where username=?", (self_user,))
+        for row in friends:
+            friends = row[0]
+        print("Here we go:")
+        friends = friends.split(',')
+        print(friends)
+        friends.remove(username)
+        print(friends)
+        total_friends = ','.join(friends)
+        print(total_friends)
         conn.execute("update users "
-                     "set favorite_users = ? "
-                     "where username = ?", (total_favs,self_user))
+                     "set friends_list = ? "
+                     "where username = ?", (total_friends, self_user))
         conn.commit()
 
 
@@ -693,7 +694,48 @@ class DataBaseFunctions:
                      " values (?,?,?,?,?)", (note_id, topic, content, get_date(), "no"))
         conn.commit()
 
-print(DataBaseFunctions.get_favorites("yonamagic"))
+
+    @staticmethod
+    def get_friend_requests(username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        friend_requests = conn.execute("select friend_requests from users where username=?", (username,))
+        for row in friend_requests:
+            friend_requests = row[0]
+        friend_requests = friend_requests.split(',')
+        return friend_requests
+
+    @staticmethod
+    def add_to_friend_requests(self_user, username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        requests = conn.execute("select friend_requests from users where username=?", (self_user,))
+        for row in requests:
+            requests = row[0]
+        if requests:
+            print(True)
+            total_requests = requests + ',' + username
+        else:
+            total_requests = username
+        conn.execute("update users "
+                     "set friend_requests = ? "
+                     "where username = ?", (total_requests, self_user))
+        conn.commit()
+
+    @staticmethod
+    def remove_from_friend_requests(self_user, username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        friend_requests = DataBaseFunctions.get_friend_requests(self_user)
+        friend_requests.remove(username)
+        friend_requests = ','.join(friend_requests)
+        conn.execute("update users set friend_requests=? where username=?", (friend_requests, self_user))
+        conn.commit()
+
+    @staticmethod
+    def is_in_friend_requests(self_user, username):
+        friend_requests = DataBaseFunctions.get_friend_requests(self_user)
+        return username in friend_requests
+
+DataBaseFunctions.remove_from_friends_list("yonamagic","aviv")
+# print(DataBaseFunctions.add_to_friend_requests("yonamagic","newone"))
 # print(DataBaseFunctions.get_all_users())
 # DataBaseFunctions.create_new_post("Math","Yoni","new one","just some trying outs")
 # DataBaseFunctions.get_comment_object("123")

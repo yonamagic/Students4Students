@@ -1,0 +1,15 @@
+{% extends "registeredLayout.html" %}
+
+{% block body %}
+
+<h1>Friend Requests</h1>
+{% for name in users %}
+    {% if name %}
+        <a href="/profile?username={{name}}"><font size="5"><b>{{name}}</b></font></a>
+        <button onclick="location.href='/accept_friend_request?username={{name}}'">Accept</button>
+        <button onclick="location.href='/deny_friend_request?username={{name}}'">Deny</button>
+
+        <br>
+    {%endif%}
+{% endfor %}
+{% endblock %}
