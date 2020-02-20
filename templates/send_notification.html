@@ -3,8 +3,11 @@
 {%block body%}
 <br><br>
 
-<form action="/notification_sent">
+<form action="/admin_options/send_notification/notification_sent" method="post">
+    <input type="text" placeholder="topic:" name="topic">
+    <br><br>
     <textarea rows="4" cols="50" name="content" placeholder="Notification content here:">{{content}}</textarea><br>
+    <input type="submit">
 </form>
 
 {%endblock%}

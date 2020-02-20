@@ -1,0 +1,48 @@
+{% extends "registeredLayout.html" %}
+
+{% block head %}
+<h1>Admin Inbox</h1>
+{% endblock %}
+
+{% block body %}
+
+
+
+<h2>Your messages:</h2>
+{% for msg in messages %}
+    <!--{# if msg.is_read == "yes" #}-->
+        <!--{# set block = "is_read" #}-->
+    <!--{# else #}-->
+        <!--{# set block = "not_read" #}-->
+    <!--{# endif #}-->
+    <button class=block onclick="location.href='/admin_options/admin_messages/view_admin_msg/{{msg.id}}'"><b>From:</b> {{msg.sender}}      <b>topic:</b> {{msg.topic}}     <b>date:</b> {{msg.date}}</button>
+    <br>
+{% endfor %}
+
+
+
+
+<style>
+.block {
+  display: block;
+  width: 100%;
+  border: none;
+  background-color: #9400D3	;
+  color: white;
+  padding: 14px 28px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.block:hover {
+  background-color: #ddd;
+  color: black;
+}
+</style>
+
+
+
+
+
+{% endblock %}

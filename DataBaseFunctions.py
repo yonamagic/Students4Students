@@ -69,16 +69,16 @@ class DataBaseFunctions:
 
 
     @staticmethod#returns a list of a user favs
-    def get_favorites(username):
+    def get_friends_list(username):
         conn = sqlite3.connect("database.db", timeout=2)
-        favs = conn.execute("select favorite_users from users where username=?", (username,))
-        for row in favs:
-            favs=row[0]
-        favs = favs.split(',')
-        return favs
+        friends = conn.execute("select favorite_users from users where username=?", (username,))
+        for row in friends:
+            friends=row[0]
+        friends = friends.split(',')
+        return friends
 
     @staticmethod
-    def is_fav(self_user, username):
+    def is_friend(self_user, username):
         return username in DataBaseFunctions.get_favorites(self_user)
 
     @staticmethod
@@ -653,18 +653,48 @@ class DataBaseFunctions:
         notes_IDs=notes_IDs.split(',')
         for note in notes_IDs:
             notifications.append(DataBaseFunctions.get_notification_object(note))
+        notifications.reverse()
         return notifications
 
 
-    @staticmethod
+    @staticmethod#sends a notification to all users
     def send_notification(topic, content):
-
-
-    @staticmethod
-    def create_notification_in_users_table(id):
+        id = DataBaseFunctions.random_id()
+        DataBaseFunctions.create_notification_in_users_table(note_id=id)
+        DataBaseFunctions.create_notification_in_notifications_table(note_id=id,
+                                                                    topic=topic,
+                                                                    content=content)
+    @staticmethod#Returns a list of all usernames
+    def get_all_users():
         conn = sqlite3.connect("database.db", timeout=2)
-        conn.execute("update users set ")#/////////////////////////////////////////////////////////
-print(DataBaseFunctions.get_all_notifications_as_list("yonamagic"))
+        users = []
+        all=conn.execute("select username from users")
+        for row in all:
+            users.append(row[0])
+        return users
+
+    @staticmethod#Updates users table
+    def create_notification_in_users_table(note_id):
+        conn = sqlite3.connect("database.db", timeout=2)
+        for user in DataBaseFunctions.get_all_users():
+            existing_notes = conn.execute("select notifications_IDs from users where username=?", (user,))
+            for row in existing_notes:
+                existing_notes = row[0]
+            print (existing_notes)
+            new_notes_IDs = existing_notes + ',' + note_id
+            conn.execute("update users set notifications_IDs=? where username=?", (new_notes_IDs,user))
+
+        conn.commit()
+
+    @staticmethod#updates notifications table
+    def create_notification_in_notifications_table(note_id, topic, content):
+        conn = sqlite3.connect("database.db", timeout=2)
+        conn.execute("insert into notifications (ID, topic, content, date, is_read)"
+                     " values (?,?,?,?,?)", (note_id, topic, content, get_date(), "no"))
+        conn.commit()
+
+print(DataBaseFunctions.get_favorites("yonamagic"))
+# print(DataBaseFunctions.get_all_users())
 # DataBaseFunctions.create_new_post("Math","Yoni","new one","just some trying outs")
 # DataBaseFunctions.get_comment_object("123")
 # DataBaseFunctions.get_post_comments("1234")

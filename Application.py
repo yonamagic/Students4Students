@@ -340,10 +340,10 @@ def viewMessage():
                            topic=msg.topic,
                            content=msg.content)
 
-@app.route('/favorites')
-def favorites():
+@app.route('/friends_list')
+def friends_list():
     print((DataBaseFunctions.get_favorites(session['user'])))
-    return render_template('favorite_users.html', users=DataBaseFunctions.get_favorites(session['user']))
+    return render_template('friends_list.html', users=DataBaseFunctions.get_favorites(session['user']))
 
 @app.route('/add_to_favorites')
 def add_to_favorites():
@@ -406,22 +406,31 @@ def comment_sent(post_id):
 def admin_options():
     return render_template("admin_options.html")
 
-@app.route("/send_notification")
+@app.route("/admin_options/send_notification", methods=['POST','GET'])
 def send_notification():
     return render_template("send_notification.html")
 
-@app.route("/notification_sent", methods = ['POST'])
+@app.route("/admin_options/send_notification/notification_sent", methods = ['POST','GET'])
 def notification_sent():
     topic = request.form.get("topic")
     content= request.form.get("content")
     DataBaseFunctions.send_notification(topic=topic, content=content)
-    return render_template("admin_options.html")
+    return redirect("/admin_options")
 
 
-@app.route('/admin_options/admin_messages')
+@app.route('/admin_options/admin_messages', methods=['GET'])
 def admin_messages():
     messages = DataBaseFunctions.admins_messages_list()
-    return render_template('/admin_messages.html', messages=messages)
+    return render_template('admin_messages.html', messages=messages)
+
+@app.route('/admin_options/admin_messages/view_admin_msg/<msg_id>')
+def view_admin_msg(msg_id):
+    msg = DataBaseFunctions.get_message(msg_id)
+    DataBaseFunctions.make_msg_read(msg_id)
+    return render_template('view_admin_msg.html',
+                           sender=msg.sender,
+                           topic=msg.topic,
+                           content=msg.content)
 
 @app.route('/typingChatRoom')
 def typingChatRoom(methods=['GET']):
