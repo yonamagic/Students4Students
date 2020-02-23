@@ -209,7 +209,7 @@ def profileEditingDone():
                                                 weak_subjects=handle_subjects_info("weak"))
     DataBaseFunctions.edit_subjects_in_subjects_table(username=session['user'],
                                                       subjects=handle_subjects_info("strong")+handle_subjects_info("weak"))
-    return redirect('/profile')
+    return redirect('/profile?username='+session['user'])
 @app.route('/homePage', methods=['POST','GET'])
 def homePage():
     if connected():
@@ -233,16 +233,15 @@ def build_User_object(username):
 @app.route('/profile' , methods=['POST','GET'])
 def profile():
     username = request.args.get("username")# Just for now
+    print("username = ", username)
     if not DataBaseFunctions.user_exists(username):
         return render_template('homePage.html', search_user_comment="No such username exists")
     print((session['user']))
     if not username or username==session['user']:#if there is no specified username or the specified name is sessin['user']
         username = session['user']
         # user = build_User_object(username)
-        return render_template('personal_profile.html', user=build_User_object(username), session_username='yoni')
-    else:
-        print("is_friend=" ,DataBaseFunctions.is_friend(self_user = session['user'],
-                                                                 username=username))
+        return render_template('personal_profile.html', user=build_User_object(username))
+    else:#user exists and it is not session['user']
 
         return render_template('user_profile.html', user=build_User_object(username),
                                self_username=session['user'],
@@ -351,9 +350,12 @@ def friends_list():
 @app.route('/send_friend_request')
 def send_friend_request():
     username = request.args.get("username")
-    DataBaseFunctions.add_to_friend_requests(self_user=username,
-                                             username=session['user'])
+    if not DataBaseFunctions.is_friend(self_user=session['user'],
+                                       username=username):
+        DataBaseFunctions.add_to_friend_requests(self_user=username,
+                                                 username=session['user'])
     return redirect('/profile?username=' + username)
+
 @app.route('/add_to_friends_list')
 def add_to_friends_list():
     username = request.args.get("username")
@@ -385,13 +387,16 @@ def accept_friend_request():
 @app.route('/deny_friend_request', methods=['GET'])
 def deny_friend_request():
     username = request.args.get("username")
-    DataBaseFunctions.remove_from_friend_requests(session['user'], username)
+    if DataBaseFunctions.is_in_friend_requests(session['user'], username):
+        DataBaseFunctions.remove_from_friend_requests(session['user'], username)
     return redirect('/friend_requests')
 
 @app.route('/cancel_friend_request', methods=['GET'])
 def cancel_friend_request():
     username = request.args.get("username")
-    DataBaseFunctions.remove_from_friend_requests(username, session['user'])
+    if DataBaseFunctions.is_in_friend_requests(self_user=username,
+                                                   username=session['user']):
+        DataBaseFunctions.remove_from_friend_requests(username, session['user'])
     return redirect('/profile?username=' + username)
 
 @app.route('/forum_homepage')
@@ -506,4 +511,4 @@ def response():
     # return string
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
