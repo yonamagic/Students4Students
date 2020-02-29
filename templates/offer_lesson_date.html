@@ -1,0 +1,11 @@
+{% extends "registeredLayout.html" %}
+
+{% block body %}
+<br><br><br>
+Choose a date for the lesson:
+<br><br>
+{% for date in upcoming_dates %}
+    <button onclick="location.href='/offer_lesson_timerange?username={{username}}&location={{location}}&date={{date}}'">{{date}}</button>
+    <br><br>
+{% endfor %}
+{% endblock %}

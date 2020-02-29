@@ -1,0 +1,31 @@
+{% extends "registeredLayout.html" %}
+
+{% block body %}
+<br><br><br>
+Choose a location for the lesson:
+
+<!--<form action="/offer_lesson_date" method="post">-->
+<!--<select name='locations'>-->
+<!--{% for location in locations %}-->
+<!--  <option value={{location}}>{{location}}</option>-->
+<!--{% endfor %}-->
+<!--<input type="submit">-->
+<!--</select>-->
+<!--</form>-->
+
+<select id="locations_list" name='locations'>
+{% for location in locations %}
+  <option value={{location}} id={{location}}>{{location}}</option>
+{% endfor %}
+</select>
+<button onclick="location.href='/offer_lesson_date?username={{username}}&location='+getSelectedItemFromList()">Send</button>
+<br><br>
+
+<script>
+    function getSelectedItemFromList(){
+        var e = document.getElementById("locations_list")
+        var actualStr = e.options[e.selectedIndex].text;
+        return actualStr;
+    }
+</script>
+{% endblock %}

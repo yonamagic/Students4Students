@@ -1,0 +1,11 @@
+{% extends "registeredLayout.html" %}
+
+{% block body %}
+<br><br><br>
+Choose a time range for the lesson:
+<br><br>
+{% for time_range in available_time_ranges %}
+    <button onclick="location.href='/offer_lesson_timerange?username={{username}}&location={{location}}&date={{date}}&time_range={{time_range}}'">{{time_range}}</button>
+    <br><br>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "registeredLayout.html" %}
+
+{% block body %}
+<br><br><br>
+For the week ahead of us:
+{% for day in upcoming_days %}
+    <h2>{{day.date}}</h2>
+    {% for available_time in day.available_time_ranges %}
+        <button onclick="location.href='/send_lesson_offer?username={{username}}&date={{day.date}}&time_range={{available_time}}'">{{available_time}}</button>
+    <br><br>
+    {% endfor %}
+{% endfor %}
+{% endblock %}

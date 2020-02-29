@@ -1,0 +1,17 @@
+{% extends "registeredLayout.html" %}
+
+{% block body %}
+
+<h1>Lessons Offers</h1>
+{% for lesson_offer in lessons_offers %}
+    {% if lesson_offer %}
+        <a href="/profile?username={{lesson_offer.username}}">
+            <font size="5"><b>{{lesson_offer.username}}</b></font></a>
+                , on {{lesson_offer.date}} at {{lesson_offer.time_range}}
+        <button onclick="location.href='/accept_lesson_offer?username={{lesson_offer.username}}&date={{lesson_offer.date}}&time={{lesson_offer.time_range}}'">Accept</button>
+        <button onclick="location.href='/deny_lesson_offer?username={{lesson_offer.username}}&date={{lesson_offer.date}}&time={{lesson_offer.time_range}}'">Deny</button>
+
+        <br>
+    {%endif%}
+{% endfor %}
+{% endblock %}

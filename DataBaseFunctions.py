@@ -659,12 +659,23 @@ class DataBaseFunctions:
 
 
     @staticmethod#sends a notification to all users
-    def send_notification(topic, content):
+    def send_notification_to_all_users(topic, content):
         id = DataBaseFunctions.random_id()
         DataBaseFunctions.create_notification_in_users_table(note_id=id)
         DataBaseFunctions.create_notification_in_notifications_table(note_id=id,
                                                                     topic=topic,
                                                                     content=content)
+
+
+
+    @staticmethod#sends a notification toa single user
+    def send_notification_to_a_single_user(topic, content):
+        id = DataBaseFunctions.random_id()
+        DataBaseFunctions.create_notification_in_users_table_for_a_single_user(note_id=id)
+        DataBaseFunctions.create_notification_in_notifications_table(note_id=id,
+                                                                    topic=topic,
+                                                                    content=content)
+
     @staticmethod#Returns a list of all usernames
     def get_all_users():
         conn = sqlite3.connect("database.db", timeout=2)
@@ -684,6 +695,17 @@ class DataBaseFunctions:
             print (existing_notes)
             new_notes_IDs = existing_notes + ',' + note_id
             conn.execute("update users set notifications_IDs=? where username=?", (new_notes_IDs,user))
+
+        conn.commit()
+
+    def create_notification_in_users_table_for_a_single_user(note_id, username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        existing_notes = conn.execute("select notifications_IDs from users where username=?", (username,))
+        for row in existing_notes:
+            existing_notes = row[0]
+        print(existing_notes)
+        new_notes_IDs = existing_notes + ',' + note_id
+        conn.execute("update users set notifications_IDs=? where username=?", (new_notes_IDs, username))
 
         conn.commit()
 
@@ -734,7 +756,39 @@ class DataBaseFunctions:
         friend_requests = DataBaseFunctions.get_friend_requests(self_user)
         return username in friend_requests
 
-DataBaseFunctions.remove_from_friends_list("yonamagic","aviv")
+
+
+    @staticmethod
+    def get_lessons_offers_IDs(username):#returns a list of lessons_offers IDs according to a certain usrname
+        conn = sqlite3.connect("database.db", timeout=2)
+        IDs = conn.execute("select lessons_offers_IDs from users where username=?", (username,))
+        for row in IDs:
+            IDs = row[0]
+        IDs = IDs.split(',')
+        return IDs
+
+    @staticmethod
+    def get_lesson_offer_object(id):#returns a Lesson_offer object
+        from Lesson_offer import Lesson_offer
+        conn = sqlite3.connect("database.db", timeout=2)
+        offer = conn.execute("select * from lessons_offers where ID=?", (id,))
+        for row in offer:
+            offer=row
+        return Lesson_offer(ID=offer[0],
+                            username=offer[1],
+                            location=offer[2],
+                            date=offer[3],
+                            time_range=offer[4])
+
+    @staticmethod
+    def get_lessons_offers_as_list(username):
+        Lessons_offers = []
+        offers_IDs = DataBaseFunctions.get_lessons_offers_IDs(username)
+        for id in offers_IDs:
+            Lessons_offers.append(DataBaseFunctions.get_lesson_offer_object(id))
+        return Lessons_offers
+
+print(DataBaseFunctions.get_lessons_offers_as_list("yonamagic"))
 # print(DataBaseFunctions.add_to_friend_requests("yonamagic","newone"))
 # print(DataBaseFunctions.get_all_users())
 # DataBaseFunctions.create_new_post("Math","Yoni","new one","just some trying outs")

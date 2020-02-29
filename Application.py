@@ -453,7 +453,7 @@ def send_notification():
 def notification_sent():
     topic = request.form.get("topic")
     content= request.form.get("content")
-    DataBaseFunctions.send_notification(topic=topic, content=content)
+    DataBaseFunctions.send_notification_to_all_users(topic=topic, content=content)
     return redirect("/admin_options")
 
 
@@ -470,6 +470,58 @@ def view_admin_msg(msg_id):
                            sender=msg.sender,
                            topic=msg.topic,
                            content=msg.content)
+
+@app.route('/offer_lesson_location', methods=['GET','POST'])
+def offer_lesson_location():
+    import Calend
+    username = request.args.get("username")
+    return render_template('offer_lesson_location.html', locations=Calend.locations, username=username)
+
+@app.route('/offer_lesson_date', methods=['GET','POST'])
+def offer_lesson_date():
+    import Calend
+    username = request.args.get("username")
+    location = request.args.get('locations')
+    return render_template('offer_lesson_date.html',
+                          upcoming_dates=['28/02/20'],
+                           username=username, location=location)
+
+
+@app.route('/offer_lesson_timerange', methods=['GET','POST'])
+def offer_lesson_timerange():
+    import Calend
+    username = request.args.get("username")
+    location = request.args.get("location")
+    date = request.args.get("date")
+    return render_template('offer_lesson_timerange.html',
+                          available_time_ranges=['14:00-15:00', '15:15-16:15'],
+                           username=username, location=location, )
+
+# @app.route('/lessons_offers', methods=['GET'])
+# def lessons_offers():
+#     return render_template('view_lessons_offers.html', lessons_offers=DataBaseFunctions.get_lessons_offers_as_list(session['user']))
+#
+#
+#
+# @app.route('/offer_lesson_location', methods=['GET'])
+# def offer_lesson_location():
+#     import Calend
+#     username = request.args.get("username")
+#     return render_template('offer_lesson_location.html', locations=Calend.locations, username=username)
+#
+#
+# @app.route('/offer_lesson', methods=['GET'])
+# def offer_lesson():
+#     import Calend
+#     return render_template('offer_lesson.html', upcoming_days=[Calend.get_Day('today')])
+#
+#
+#
+# @app.route('/send_lesson_offer', methods=['GET'])
+# def send_lesson_offer():
+#     username = request.args.get("username")
+#     date = request.args.get("date")
+#     time_range = request.args.get("time_range")
 
 @app.route('/typingChatRoom')
 def typingChatRoom(methods=['GET']):
