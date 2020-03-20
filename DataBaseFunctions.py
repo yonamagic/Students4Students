@@ -35,30 +35,37 @@ class DataBaseFunctions:
         return False
 
     @staticmethod
-    def create_user(username, password, strong_subjects=[], weak_subjects=[]):
+    def create_user(username, password, email, strong_subjects=[], weak_subjects=[]):
         conn = sqlite3.connect('database.db', timeout=2)
         # cursor = conn.execute("select * from users where username='yehonatan'")
         # for i in cursor:
         #     print("fffff"+str(i))
         conn.execute("insert into users "
-                     "(username, password, strong_subjects, weak_subjects, inboxID) values (?,?,?,?,?)",
+                     "(username, password, email, strong_subjects, weak_subjects, inboxID, is_admin, friends_list, friend_requests, notifications_IDs, lessons_offers_IDs) "
+                     "values (?,?,?,?,?,?,'no', '' ,'' ,'' ,'')",
                      (username,
                       password,
-                      DataBaseFunctions.subjects_list_to_string(strong_subjects),
-                      DataBaseFunctions.subjects_list_to_string(weak_subjects),
+                      email,
+                      ','.join(DataBaseFunctions.subjects_names(strong_subjects)),
+                      ','.join(DataBaseFunctions.subjects_names(weak_subjects)),
                       str(os.urandom(24))))
         # com = conn.execute("select * from users where username=?", (username,))
         # conn.commit()
 
         # DataBaseFunctions.create_strong_subs_in_users_table(conn,strong_subjects, username)
-        DataBaseFunctions.create_subs_in_subjects_table(conn, strong_subjects, username)
-        DataBaseFunctions.create_subs_in_subjects_table(conn, weak_subjects, username)
-
+        DataBaseFunctions.create_subs_in_subjects_table(conn=conn,
+                                                        subs=strong_subjects,
+                                                        status='strong',
+                                                        username=username)
+        DataBaseFunctions.create_subs_in_subjects_table(conn=conn,
+                                                        subs=weak_subjects,
+                                                        status='weak',
+                                                        username=username)
         inboxID = DataBaseFunctions.random_id()
         conn.execute("update users "
                      "set inboxID = ? "
                      "where username = ?", (inboxID,username))
-
+        conn.execute("insert into inboxes (inboxID, messagesIDs) values (?,'')", (inboxID,))
         # DataBaseFunctions.edit_subjects_in_subjects_table(username=username, subjects=strong_subjects+weak_subjects)
         # DataBaseFunctions.create_weak_subs_in_users_table(conn,weak_subjects, username)
         conn.commit()
@@ -121,49 +128,55 @@ class DataBaseFunctions:
         conn.commit()
 
 
-    @staticmethod#Edits the column "strong_subjects" in users table
-    def edit_user_strong_subjects(username, strong_subjects):
-        conn = sqlite3.connect("database.db", timeout=2)
-        conn.execute("update users set strong_subjects = ? where username = ?",
-                     (DataBaseFunctions.subjects_list_to_string(strong_subjects),
-                      username))
-        conn.commit()
+    # @staticmethod#Edits the column "strong_subjects" in users table
+    # def edit_user_strong_subjects(username, strong_subjects):
+    #     conn = sqlite3.connect("database.db", timeout=2)
+    #     conn.execute("update users set strong_subjects = ? where username = ?",
+    #                  (DataBaseFunctions.subjects_list_to_string(strong_subjects),
+    #                   username))
+    #     conn.commit()
 
-    @staticmethod#Edits the column "weak_subjects" in users table
-    def edit_user_weak_subjects(username, weak_subjects):
-        conn = sqlite3.connect("database.db", timeout=2)
-        conn.execute("update users set weak_subjects = ? where username = ?",
-                     (DataBaseFunctions.subjects_list_to_string(weak_subjects),
-                      username))
-        conn.commit()
+    # @staticmethod#Edits the column "weak_subjects" in users table
+    # def edit_user_weak_subjects(username, weak_subjects):
+    #     conn = sqlite3.connect("database.db", timeout=2)
+    #     conn.execute("update users set weak_subjects = ? where username = ?",
+    #                  (DataBaseFunctions.subjects_list_to_string(weak_subjects),
+    #                   username))
+    #     conn.commit()
 
 
-    @staticmethod#Adds info to subjects table accordingly
-    def edit_subjects_in_subjects_table(username, subjects):
-        DataBaseFunctions.delete_user_from_subjects_table(username)
-        conn = sqlite3.connect("database.db", timeout=2)
-        for subject in subjects:
-            conn.execute("insert into subjects (username, subject, classes) values (?,?,?)",
-                         (username, subject.name, str(subject.classes)[1:-1].replace(' ', '')))
-        conn.commit()
+    # @staticmethod#Adds info to subjects table accordingly
+    # def edit_subjects_in_subjects_table(username, subjects):
+    #     DataBaseFunctions.delete_user_from_subjects_table(username)
+    #     conn = sqlite3.connect("database.db", timeout=2)
+    #     for subject in subjects:
+    #         conn.execute("insert into subjects (username, subject, classes) values (?,?,?)",
+    #                      (username, subject.name, str(subject.classes)[1:-1].replace(' ', '')))
+    #     conn.commit()
 
-    @staticmethod#Deleted all rows in subjects table where username fits to parameter
+    @staticmethod#Deletes all rows in subjects table where username fits to parameter
     def delete_user_from_subjects_table(username):
         conn = sqlite3.connect("database.db", timeout=2)
         conn.execute("delete from subjects where username=?", (username,))
         conn.commit()
 
+    # @staticmethod
+    # def subjects_list_to_string(subjects_list):
+    #     string = ""
+    #     for sub in subjects_list:
+    #         string += ',' + sub.name
+    #     string = string[1:]
+    #     return string
     @staticmethod
-    def subjects_list_to_string(subjects_list):
-        string = ""
-        for sub in subjects_list:
-            string += ',' + sub.name
-        string = string[1:]
-        return string
-
+    # recieves a list of Subjects and returns a list of their names
+    def subjects_names(subjects):
+        subjects_names = []
+        for sub in subjects:
+            subjects_names.append(sub.name)
+        return subjects_names
 
     @staticmethod#Takes care of creating information in table: subjects, strong/weak according to the paramater
-    def create_subs_in_subjects_table(conn, subs, username):
+    def create_subs_in_subjects_table(conn, subs, status, username):
 
         for sub in subs:
             #turn classes into a string for the DB
@@ -172,7 +185,7 @@ class DataBaseFunctions:
                 classes_as_string += "," + str(current_class)
             classes_as_string = classes_as_string[1:]
             #----------------------------------------
-            conn.execute("insert into subjects (username, subject, classes) values (?,?,?)", (username,sub.name,classes_as_string,))
+            conn.execute("insert into subjects (username, subject, status, classes) values (?,?,?,?)", (username,sub.name,status,classes_as_string,))
             conn.commit()
 
     @staticmethod #Returns True if username and password match database info
@@ -186,121 +199,123 @@ class DataBaseFunctions:
         return False
 
 
-    @staticmethod#returns a list of subjects
-    def get_user_strong_subjects(username):
-        ret_subjects = []
-        subs = DataBaseFunctions.get_strong_subjects(username)
-        for sub in subs:
-            ret_subjects.append(Subject(sub,DataBaseFunctions.get_subject_classes(username,sub)))
-        return ret_subjects
 
-    @staticmethod
-    def get_strong_subjects(username):
-        conn = sqlite3.connect('database.db')
-        att = conn.execute("select strong_subjects from users where username== ? ", (username,))
-        for row in att:
-            # print (row[0])#row[0] is the whole string
-            att = row[0].split(',')
-        return att
-
-    @staticmethod
-    def get_weak_subjects(username):
-        conn = sqlite3.connect('database.db')
-        att = conn.execute("select weak_subjects from users where username== ? ", (username,))
-        for row in att:
-            # print (row[0])#row[0] is the whole string
-            att = row[0].split(',')
-        return att
-
-    @staticmethod
-    def get_subject_classes(username,subject):
-        conn = sqlite3.connect('database.db')
-        att = conn.execute("select classes from subjects where username==? and subject==?" , (username,subject))
-        for row in att:
-            att = row[0].split(',')
-        return att
-
-
-    @staticmethod
-    def potential_teachers(weak_subjects=[]):
-        conn = sqlite3.connect('database.db')
-        weak_subjects_names = []
-        for sub in weak_subjects:#Create a list made of those subjects' names
-            weak_subjects_names.append(sub.name)
-
-        teachers = conn.execute("select * from users")
-        subs_lists=[]#Each index conatins a tupple made of the username and the strong subjects of a user as a string
-        for i in teachers:
-            subs_lists.append((i[0],i[2]))
-
-        teachers_by_subject = []
-        teachers_by_classes = []
-        for user in subs_lists:
-            strong_subjects = user[1].split(',')
-            for subject in strong_subjects:
-                if subject in weak_subjects_names:
-                    teachers_by_subject.append((user[0],subject))
-                    common_classes = conn.execute("select classes from subjects where username==(?) and subject==(?) ",
-                                                                                                                (user[0],subject))
-                    for row in common_classes:
-                        common_classes = row
-                    teachers_by_classes.append((user[0],subject,common_classes))
-        # print(teachers_by_subject)
-        # print(teachers_by_classes)
-
-        return (teachers_by_classes,teachers_by_subject)
-
-    @staticmethod
-    def teachers_by_subjects(teachers):
-        teachers_by_classes = teachers[0]
-        # teachers_by_subject = teachers[1]
-        subjects = []
-        for t in teachers_by_classes:
-            if t[1] not in subjects:
-                subjects.append([t[1],[]])
-
-        for subject in subjects:
-            for t in teachers_by_classes:
-                if t[1] == subject[0]:
-                    subject[1].append(t[0])
-
-        print (subjects)#A list, each index contains a list in which the first index includes subcject name and the second one - a list of relevant usernames
-        return subjects
-        #Get it from here Yehonatan!
-
-    @staticmethod
-    def matching_classes(users, subject):
-        conn = sqlite3.connect('database.db')
-        classes1 = conn.execute("select classes from subjects where username=? and subject=?", (users[0],subject))
-        for row in classes1:
-            classes1 = row
-
-        classes2 = conn.execute("select classes from subjects where username=? and subject=?", (users[1],subject))
-        for row in classes2:
-            classes2 = row
-        # print(classes2)
-
-        classes1 = classes1[0].split(',')
-        classes2 = classes2[0].split(',')
-
-        # print(classes1, classes2)
-        common_classes = (list(set(classes1).intersection(classes2)))
-        if common_classes:#if there are common classes
-            return common_classes
-        return None
-
-    # Gets username a list of subjects' names and returns a list that contains those subjects as Subject type and their relevant classes
-    # it is needed in profile page
-    @staticmethod
-    def subjects_as_list_of_Subjects(username, subs):
-        print("subs=" + str(subs))
-        subjects = []
-        for current_subject in subs:
-            classes = DataBaseFunctions.get_subject_classes(username, current_subject)
-            subjects.append(Subject(current_subject, classes))
-            # print (subjects[i].name, str(subjects[i].classes))
-
-        return subjects
+    # @staticmethod
+    # def get_strong_subjects(username):
+    #     conn = sqlite3.connect('database.db')
+    #     att = conn.execute("select strong_subjects from users where username== ? ", (username,))
+    #     for row in att:
+    #         # print (row[0])#row[0] is the whole string
+    #         att = row[0].split(',')
+    #     return att
+    #
+    # @staticmethod
+    # def get_weak_subjects(username):
+    #     conn = sqlite3.connect('database.db')
+    #     att = conn.execute("select weak_subjects from users where username== ? ", (username,))
+    #     for row in att:
+    #         # print (row[0])#row[0] is the whole string
+    #         att = row[0].split(',')
+    #     return att
+    #
+    # @staticmethod
+    # def get_subject_classes(username,subject, status):
+    #     conn = sqlite3.connect('database.db')
+    #     att = conn.execute("select classes from subjects where username==? and subject==? and status=?" ,
+    #                                                                                 (username,subject,status))
+    #     for row in att:
+    #         att = row[0].split(',')
+    #         print(row[0])
+    #     return att
+    #
+    #
+    # @staticmethod#מחזיר רשימה עם שני אינדקסים: [0]מכיל משתמשים שחזקים במקצועות החלשים (ללא התאמה בין תתי נושאים)- מחולק לtuples שמכילים (טאפל של תתאי נושאים חזקים ,מקצוע, שם משתמש)
+    # #[0] מכיל
+    # def potential_teachers(username, weak_subjects=[]):
+    #     conn = sqlite3.connect('database.db')
+    #     weak_subjects_names = []
+    #     for sub in weak_subjects:#Create a list made of those subjects' names
+    #         weak_subjects_names.append(sub.name)
+    #
+    #     teachers = conn.execute("select * from users")
+    #     subs_lists=[]#Each index conatins a tupple made of the username and the strong subjects of a user as a string
+    #     for i in teachers:
+    #         # print("username is i[0] = ", i[0])
+    #         # print('*'+i[0]+'*')
+    #         if username != i[0]:
+    #             subs_lists.append((i[0],i[2]))
+    #     # print("subs_lists=",subs_lists)
+    #     teachers_by_subject = []
+    #     teachers_by_classes = []
+    #     # print("subs_lists=", subs_lists)
+    #     for user in subs_lists:
+    #         strong_subjects = user[1].split(',')
+    #         for subject in strong_subjects:
+    #             if subject in weak_subjects_names:
+    #                 teachers_by_subject.append((user[0],subject))
+    #                 common_classes = conn.execute("select classes from subjects where username==(?) and subject==(?) and status='strong'",
+    #                                                                                                  (user[0],subject))
+    #                 for row in common_classes:
+    #                     common_classes = row
+    #                 # print("common classes=", common_classes)
+    #
+    #                 teachers_by_classes.append((user[0],subject,common_classes))
+    #     # print(teachers_by_subject)
+    #     # print(teachers_by_classes)
+    #
+    #     return (teachers_by_classes,teachers_by_subject)
+    #
+    # @staticmethod#recieves potential_teachers returned value and returns :  [[<subject>, []
+    # def teachers_by_subjects(teachers):
+    #     teachers_by_classes = teachers[0]
+    #     # teachers_by_subject = teachers[1]
+    #     subjects = []
+    #     for t in teachers_by_classes:
+    #         if t[1] not in subjects:
+    #             subjects.append([t[1],[]])
+    #
+    #     for subject in subjects:
+    #         for t in teachers_by_classes:
+    #             if t[1] == subject[0]:
+    #                 subject[1].append(t[0])
+    #
+    #     print (subjects)#A list, each index contains a list in which the first index includes subcject name and the second one - a list of relevant usernames
+    #     return subjects
+    #     #Get it from here Yehonatan!
+    #
+    # @staticmethod
+    # def matching_classes(users, subject):
+    #     conn = sqlite3.connect('database.db')
+    #     classes1 = conn.execute("select classes from subjects where username=? and subject=?", (users[0],subject))
+    #     for row in classes1:
+    #         classes1 = row
+    #
+    #     classes2 = conn.execute("select classes from subjects where username=? and subject=?", (users[1],subject))
+    #     for row in classes2:
+    #         classes2 = row
+    #     # print(classes2)
+    #
+    #     classes1 = classes1[0].split(',')
+    #     classes2 = classes2[0].split(',')
+    #
+    #     # print(classes1, classes2)
+    #     common_classes = (list(set(classes1).intersection(classes2)))
+    #     if common_classes:#if there are common classes
+    #         return common_classes
+    #     return None
+    #
+    # # Gets username a list of subjects' names and returns a list that contains those subjects as Subject type and their relevant classes
+    # # it is needed in profile page
+    # @staticmethod
+    # def subjects_as_list_of_Subjects(username, subs, status):
+    #     print("subs=" + str(subs))
+    #     subjects = []
+    #     for current_subject in subs:
+    #         classes = DataBaseFunctions.get_subject_classes(username, current_subject, status)
+    #         subjects.append(Subject(current_subject, classes))
+    #         # print (subjects[i].name, str(subjects[i].classes))
+    #
+    #     return subjects
 
     @staticmethod#returns a list of messages using user's msgs IDs
     def messages_list(username):
@@ -446,6 +461,9 @@ class DataBaseFunctions:
                      )
         conn.commit()
         return msgID
+
+
+
 
     @staticmethod#Send a message - adds info to the database
     def send_msg(sender, addressee, topic, content):
@@ -788,7 +806,108 @@ class DataBaseFunctions:
             Lessons_offers.append(DataBaseFunctions.get_lesson_offer_object(id))
         return Lessons_offers
 
-print(DataBaseFunctions.get_lessons_offers_as_list("yonamagic"))
+
+    @staticmethod
+    def report_user(username, report_content):
+        conn = sqlite3.connect("database.db", timeout=2)
+        ID = DataBaseFunctions.random_id()
+        date = get_date()
+        conn.execute("insert into reports (ID, reported_user, content, date) values (?,?,?,?)",
+                     (ID, username, report_content, date))
+        conn.commit()
+    @staticmethod
+    def get_list_of_reported_usernames():
+        conn = sqlite3.connect("database.db", timeout=2)
+        usernames = []
+        all = conn.execute("select username from reportings")
+        for row in all:
+            usernames.append(row[0])
+        return usernames
+
+    @staticmethod
+    def send_msg_to_admins(sender,  topic, content):
+        conn = sqlite3.connect("database.db", timeout=2)
+        inboxID = "admins"
+        current_msgs = conn.execute("select messagesIDs from inboxes where inboxID=?", (inboxID,))
+        for row in current_msgs:
+            current_msgs = row[0]
+            # print(row)
+        # print("current msgs = " + str(current_msgs))
+
+        new_msg_id = DataBaseFunctions.create_msg(sender=sender, topic=topic, content=content)
+
+        print(str(new_msg_id))
+
+        if str(current_msgs):
+            new_msgs_IDs = str(current_msgs) + ',' + str(new_msg_id)
+        else:
+            new_msgs_IDs = str(new_msg_id)
+
+        print(new_msgs_IDs)
+
+        conn.execute("UPDATE inboxes "
+                     "SET messagesIDs = ? "
+                     "WHERE inboxID = ?", (new_msgs_IDs, inboxID))
+
+        conn.commit()
+
+    @staticmethod#returns a Report Object
+    def get_Report(ID):
+        from Report import Report
+        conn = sqlite3.connect("database.db", timeout=2)
+        rep = conn.execute("select * from reports where ID=?", (ID,))
+        for r in rep:
+            rep=r
+        return Report(ID=rep[0],
+                      reported_user=rep[1],
+                      content=rep[2],
+                      date=rep[3])
+    @staticmethod
+    def get_user_reports_IDs(username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        command = conn.execute("select ID from reports where reported_user=?", (username,))
+        IDs=[]
+        for i in command:
+            IDs.append(i[0])
+        return IDs
+
+    @staticmethod
+    def get_reports_list(username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        reports=[]
+        IDs = DataBaseFunctions.get_user_reports_IDs(username)
+        for id in IDs:
+            reports.append(DataBaseFunctions.get_Report(id))
+        return reports
+
+    @staticmethod
+    def get_num_of_reports(username):
+        conn = sqlite3.connect("database.db", timeout=2)
+        command = conn.execute("select ID from reports where reported_user=?", (username,))
+        return len(list(command))
+
+    @staticmethod
+    def get_all_reported_users():
+        conn = sqlite3.connect("database.db", timeout=2)
+        command = conn.execute("select reported_user from reports")
+        users=[]
+        for i in command:
+            users.append(i[0])
+        users = list(dict.fromkeys(users))
+
+        return users
+
+    @staticmethod
+    def get_reports_dict_list():
+        dicts = []
+        all_reported_users = DataBaseFunctions.get_all_reported_users()
+        for user in all_reported_users:
+            dicts.append({
+                'username' : user,
+                'num_of_reports' : DataBaseFunctions.get_num_of_reports(user)
+            })
+
+        return dicts
 # print(DataBaseFunctions.add_to_friend_requests("yonamagic","newone"))
 # print(DataBaseFunctions.get_all_users())
 # DataBaseFunctions.create_new_post("Math","Yoni","new one","just some trying outs")
@@ -808,3 +927,74 @@ print(DataBaseFunctions.get_lessons_offers_as_list("yonamagic"))
 # for i in l:
 #     print(i.sender)
 
+# #מקבלת שם משתמש של הסשן ורשימה של Subjects גרועים ומחזירה רשימה של משתמשים שיכולים לעזור על פי המקצועות החזקים שלהם בפורמט הבא:
+# #[[[<רשימה של שמות >] , <שם מקצוע>],...]
+# def get_teachers(self_username, weak_subjects):
+#     pass
+
+
+    @staticmethod
+    #מקבלת שם של מקצוע ומחזירה רשימה של שמות המשתמשים שמקצוע זה נכלל ברשימת המקצועות החזקים שלהם
+    def get_teachers_in_general(subject):
+        conn = sqlite3.connect('database.db')
+        teachers=[]
+        teachers_from_db = conn.execute("select username from subjects where subject=? and status='strong'", (subject,))
+        for r in teachers_from_db:
+            teachers.append(r[0])
+        return teachers
+
+
+    subjects_and_classes = [
+        # [subject, [classes]]
+        [ 'Math' , ['5 יחל לכיתה י','5 יחל לכיתה יא','5 יחל לכיתה יב','4 יחל לכיתה י','4 יחל לכיתה יא','4 יחל לכיתה יב','3 יחל לכיתה י','3 יחל לכיתה יא']],
+        ['English',['5 יחל לכיתה י', '5 יחל לכיתה יא', '5 יחל לכיתה יב', '4 יחל לכיתה י', '4 יחל לכיתה יא', '4 יחל לכיתה יב', '3 יחל לכיתה י', '3 יחל לכיתה יא', '3 יחל לכיתה יב']]
+
+    ]
+
+    @staticmethod
+    #מקבל שם משתמש ומחזיר רשימה של Subject טובים
+    def get_strong_subjects(username):
+        conn = sqlite3.connect('database.db')
+        strong_subjects=[]
+        subjects = conn.execute("select * from subjects where username=? and status='strong'", (username,))
+        for row in subjects:
+            strong_subjects.append(Subject(row[1], row[3].split(',')))
+        return strong_subjects
+
+
+    @staticmethod
+    #מקבל שם משתמש ומחזיר רשימה של Subject גרועים
+    def get_weak_subjects(username):
+        conn = sqlite3.connect('database.db')
+        weak_subjects=[]
+        subjects = conn.execute("select * from subjects where username=? and status='weak'", (username,))
+        for row in subjects:
+            weak_subjects.append(Subject(row[1], row[3].split(',')))
+        return weak_subjects
+
+    @staticmethod
+    #מקבל רשימה של Subject גרועים ומחזיר רשימה של רשימות, בתוכה כל איבר מכיל רשימה שאיברה השמאלי הוא שם מקצוע והשני רשימה המכילה רשימות, כל אחת מהן מכילה באינדקס הראשון שם של משתמש ובשני רשימה של קלאסים
+    def specific_teachers_for_all_subjects(subjects):
+        list = []
+        for subject in subjects:
+            # print(subject.name)
+            # print(subject.classes)
+            # print(specific_teachers_for_one_subject(subject))
+            list.append([subject.name, DataBaseFunctions.specific_teachers_for_one_subject(subject)])
+        return list
+
+
+    @staticmethod
+    #מקבל מקצוע ומחזיר רשימה שכל איבר הוא רשימה המכילה שני אינדקסים: שם משתמש ורשימה נוספת של קלאסים משותפים לדרישה ולמשתמש
+    def specific_teachers_for_one_subject(subject=Subject('English',['10','11'])):
+        conn = sqlite3.connect('database.db')
+        specific_teachers=[]#[ [username, [common_classes]],  ...  ]
+        general_teachers=(DataBaseFunctions.get_teachers_in_general(subject.name))
+        for user in general_teachers:
+            classes = conn.execute("select classes from subjects where username=? and subject=? and status='strong'",
+                                                                                                    (user,subject.name))
+            for row in classes:
+                classes=row[0].split(',')
+            common_classes = (list(set(classes).intersection(subject.classes)))
+            if common_classes:
+                specific_teachers.append([user,common_classes])

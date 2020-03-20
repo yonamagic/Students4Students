@@ -6,72 +6,135 @@
 
 {% block body %}
 
-<h1>Enter your details to create your account!</h1>
+<h1>הזינו את פרטיכם כדי ליצור משתמש:</h1>
 <form action="/checkRegistration" method="post">
-<input type="text" name="username" id="username" placeholder="username">
-    <script>document.getElementById("username").value="{{username}}"</script>
+<input type="text" name="username" id="username" placeholder="username" value="{{username}}">
      <small style="color:red">{{username_comment}}</small><br>
 
 <br>
 
-<input type="text" name="password" id="password" placeholder="password">
-    <script>document.getElementById("password").value="{{password}}"</script>
+<input type="password" name="password" id="password" placeholder="password" value="{{password}}">
     <small style="color:red">{{password_comment}}</small><br>
 
+    <br>
 
-<h2>Choose your strong subjects:</h2>
+<input type="password" name="confirm_password" placeholder="confirm password" value="{{confirm_password}}">
+<small style="color:red">{{confirm_password_comment}}</small><br>
+
+
+<br>
+
+
+<input type="text" name="email"  placeholder="email" value="{{email}}">
+     <small style="color:red">{{email_comment}}</small><br>
+
+<br>
+
+<h2>במה תוכלו לעזור לתלמידים אחרים?</h2>
 {% for subject in subjects %}
-    <input type="checkbox" name="strong_{{subject}}" id="strong_{{subject}}" onclick="checkboxOnClick('strong_{{subject}}_class_')"><font size="6">{{subject}}</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="checkbox"
-           name="strong_{{subject}}_class_10"
-           id="strong_{{subject}}_class_10"><font size="5">Yod</font>
-    <script>document.getElementById("strong_{{subject}}_class_10").disabled=true</script>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-    <input type="checkbox"
-           name="strong_{{subject}}_class_11"
-           id="strong_{{subject}}_class_11"><font size="5">Yod Alef</font>
-    <script>document.getElementById("strong_{{subject}}_class_11").disabled=true</script>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-    <input type="checkbox"
-           name="strong_{{subject}}_class_12"
-           id="strong_{{subject}}_class_12"><font size="5">Yod Bet</font>
-    <script>document.getElementById("strong_{{subject}}_class_12").disabled=true</script>
-
-    <br><br>
-
-    <script>
-        function checkboxOnClick(checkboxId){
-            for (var i = 10; i < 13; i++){
-                document.getElementById(checkboxId+i.toString()).disabled = !document.getElementById(checkboxId+i.toString()).disabled
-            }
-        }
-    </script>
-
-{% endfor %}
-
-<h2>Choose your weak subjects:</h2>
-{% for subject in subjects %}
-    <input type="checkbox" name="weak_{{subject}}" id="weak_{{subject}}"><font size="6">{{subject}}</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="checkbox"
-           name="weak_{{subject}}_class_10"
-           id="weak_{{subject}}_class_10"><font size="5">Yod</font>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="checkbox"
-           name="weak_{{subject}}_class_11"
-           id="weak_{{subject}}_class_11"><font size="5">Yod Alef</font>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="checkbox"
-           name="weak_{{subject}}_class_12"
-           id="weak_{{subject}}_class_12"><font size="5">Yod Bet</font>
-
-    <br><br>
-
+    <font size="5">{{subject[0]}}</font>
+    {% for class in subject[1] %}
+        {% if subject[1].index(class) != 0 %}
+            {% for space in range(subject[0]|length+3) %}
+                &nbsp;
+            {% endfor %}
+        {% endif %}
+        <input type="checkbox" name="strong_{{subject[0]}}_{{class}}" >{{class}}
+        <br>
+    {% endfor %}
+    <br>
 {% endfor %}
 
 
-<button type="submit" class="btn btn-primary"><font color="blue">Done</font></button>
+
+<h2>במה לא יזיק לכם תגבור קטן? :)</h2>
+{% for subject in subjects %}
+    <font size="5">{{subject[0]}}</font>
+    {% for class in subject[1] %}
+        {% if subject[1].index(class) != 0 %}
+            {% for space in range(subject[0]|length+3) %}
+                &nbsp;
+            {% endfor %}
+        {% endif %}
+        <input type="checkbox" name="weak_{{subject[0]}}_{{class}}" >{{class}}
+        <br>
+    {% endfor %}
+    <br>
+{% endfor %}
+
+<!--<h2>Choose your strong subjects:</h2>-->
+<!--{# for subject in subjects #}-->
+<!--    <input type="checkbox" name="strong_{{subject}}" id="strong_{{subject}}" onclick="checkboxOnClick('strong_{{subject}}_class_')"><font size="6">{{subject}}</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--    <input type="checkbox"-->
+<!--           name="strong_{{subject}}_class_10"-->
+<!--           id="strong_{{subject}}_class_10"><font size="5">Yod</font>-->
+<!--    <script>document.getElementById("strong_{{subject}}_class_10").disabled=true</script>-->
+<!--            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+
+<!--    <input type="checkbox"-->
+<!--           name="strong_{{subject}}_class_11"-->
+<!--           id="strong_{{subject}}_class_11"><font size="5">Yod Alef</font>-->
+<!--    <script>document.getElementById("strong_{{subject}}_class_11").disabled=true</script>-->
+<!--            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+
+<!--    <input type="checkbox"-->
+<!--           name="strong_{{subject}}_class_12"-->
+<!--           id="strong_{{subject}}_class_12"><font size="5">Yod Bet</font>-->
+<!--    <script>document.getElementById("strong_{{subject}}_class_12").disabled=true</script>-->
+
+<!--    <br><br>-->
+
+<!--    <script>-->
+<!--        function checkboxOnClick(checkboxId){-->
+<!--            for (var i = 10; i < 13; i++){-->
+<!--                document.getElementById(checkboxId+i.toString()).disabled = !document.getElementById(checkboxId+i.toString()).disabled-->
+<!--            }-->
+<!--        }-->
+<!--    </script>-->
+
+<!--{# endfor #}-->
+
+<!--<h2>Choose your weak subjects:</h2>-->
+<!--{# for subject in subjects #}-->
+<!--    <input type="checkbox" name="weak_{{subject}}" id="weak_{{subject}}"><font size="6">{{subject}}</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--    <input type="checkbox"-->
+<!--           name="weak_{{subject}}_class_10"-->
+<!--           id="weak_{{subject}}_class_10"><font size="5">Yod</font>-->
+<!--            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--    <input type="checkbox"-->
+<!--           name="weak_{{subject}}_class_11"-->
+<!--           id="weak_{{subject}}_class_11"><font size="5">Yod Alef</font>-->
+<!--            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--    <input type="checkbox"-->
+<!--           name="weak_{{subject}}_class_12"-->
+<!--           id="weak_{{subject}}_class_12"><font size="5">Yod Bet</font>-->
+
+<!--    <br><br>-->
+
+<!--{# endfor #}-->
+
+
+<button type="submit" class="stylish"><font size="6">Done</font></button>
 </form>
+
+<style>
+.stylish {
+  display: block;
+  width: 100%;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 28px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.block:hover {
+  background-color: #ddd;
+  color: black;
+}
+</style>
+
 
 {% endblock %}

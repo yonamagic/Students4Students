@@ -19,7 +19,9 @@
         <!--</form>-->
         <!--<br>-->
         <!--<form action="/potentialTeachers" method="post">-->
-                <button type="submit" class="btn btn-primary" onclick="location.href='/potentialTeachers'"><font color="blue">Find Teachers</font></button>
+                {% if not session.is_admin %}
+                    <button type="submit" class="btn btn-primary" onclick="location.href='/potentialTeachers'"><font color="blue">Find Teachers</font></button>
+                {% endif %}
         <!--</form>-->
         <!--<br>-->
          <!--<form action="/inbox" method="post">-->

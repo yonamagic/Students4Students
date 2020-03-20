@@ -2,12 +2,90 @@
 
 {% block body %}
 <br><br><br>
-For the week ahead of us:
-{% for day in upcoming_days %}
-    <h2>{{day.date}}</h2>
-    {% for available_time in day.available_time_ranges %}
-        <button onclick="location.href='/send_lesson_offer?username={{username}}&date={{day.date}}&time_range={{available_time}}'">{{available_time}}</button>
-    <br><br>
+
+<form action="/process_lesson_request/{{username}}" method="post">
+
+
+באיזה נושא יהיה השיעור?
+<select id="subjects_list" name="subjects_list">
+{% for subject in subjects_list %}
+    {% for class in subject.classes %}
+          {% if selected_subject == subject.name+' - '+class %}
+              {% set selected = "selected" %}
+          {% else %}
+              {% set selected = "" %}
+          {% endif %}
+
+            <option value="{{subject.name}} - {{class}}" id={{subject}} {{selected}}>{{subject.name}} - {{class}}</option>
     {% endfor %}
 {% endfor %}
+</select>
+
+    <br><br>
+באיזו דרך תרצה לנהל את השיעור?
+<select id="platforms_list" name='platforms_list'>
+{% for platform in platforms %}
+  {% if selected_platform == platform %}
+      {% set selected = "selected" %}
+  {% else %}
+      {% set selected = "" %}
+  {% endif %}
+  <option value={{platform}} id={{platform}} {{selected}}>{{platform}}</option>
+{% endfor %}
+</select>
+
+<br><br>
+
+בחר תאריך לשיעור
+<select id="dates_list" name='dates'>
+{% for date in dates %}
+  {% if selected_date == date %}
+      {% set selected = "selected" %}
+  {% else %}
+      {% set selected = "" %}
+  {% endif %}
+
+  <option value={{date}} id={{date}} {{selected}}>{{date}}</option>
+{% endfor %}
+</select>
+
+<br><br>
+
+בחר טווח שעות לשיעור
+<select id="from_time_list" name='from_time_list'>
+{% for timeA in timesA %}
+    {% if selected_timeA == timeA %}
+      {% set selected = "selected" %}
+  {% else %}
+      {% set selected = "" %}
+  {% endif %}
+
+  <option value={{timeA}} id={{timeA}} {{selected}}>{{timeA}}</option>
+{% endfor %}
+</select>
+
+<select id="until_time_list" name='until_time_list'>
+{% for timeB in timesB %}
+    {% if selected_timeB == timeB %}
+      {% set selected = "selected" %}
+  {% else %}
+      {% set selected = "" %}
+  {% endif %}
+
+  <option value={{timeB}} id={{timeB}} {{selected}}>{{timeB}}</option>
+{% endfor %}
+</select>
+  <br><br>
+  <input type="text" name="free_text" size="50" placeholder="טקסט חופשי (הודעה קצרה, שם משתמש בסקייפ וכו')" value={{free_text}}>
+
+   <h3><font color="red">{{error_msg}}</font></h3>
+
+  <input type="submit">
+
+</form>
+
+
+
+<br><br>
+
 {% endblock %}

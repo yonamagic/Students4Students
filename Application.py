@@ -12,7 +12,7 @@ app.secret_key = 'secret_key'
 # socketio = SocketIO(app)
 
 #For registration page
-subjects = [Subject('Math',[10,11]), Subject('Arabic',[10,11,12]), Subject('History',[10])]
+# subjects = [Subject('Math',[10,11]), Subject('Arabic',[10,11,12]), Subject('History',[10])]
 
 # SESSION_TYPE = 'redis'
 
@@ -103,13 +103,18 @@ def logout():
 
 #First registration page,
 @app.route('/register', methods=['POST','GET'])
-def register(username="", username_comment="", password="", password_comment=""):
+def register(username="", username_comment="",
+             password="", password_comment="",
+             confirm_password="", confirm_password_comment="",
+             email="", email_comment=""):
 
     return render_template('registerr.html',
-                           username=username, password=password,
+                           username=username, password=password, confirm_password=confirm_password, email=email,
                            username_comment=username_comment,
                            password_comment=password_comment,
-                           subjects=DataBaseFunctions.subjects)
+                           confirm_password_comment=confirm_password_comment,
+                           email_comment=email_comment,
+                           subjects=DataBaseFunctions.subjects_and_classes)
 
 
 
@@ -121,95 +126,102 @@ def checkRegistration():
         'username_comment' : "",
         'password': request.form.get("password"),
         'password_comment': "",
+        'confirm_password' : request.form.get("confirm_password"),
+        'confirm_password_comment': request.form.get("confirm_password_comment"),
+        'email' : request.form.get("email"),
+        'email_comment' : "",
         'strong_subjects': [],
         'weak_subjects': []
     }
 
-    strong_subjects = []
-    for sub in DataBaseFunctions.subjects:
-        if request.form.get("strong_" + str(sub)) != None:
-            current_subject = Subject(sub,[])
-            for i in range(10,13):
-                if request.form.get("strong_" + sub + "_class_" + str(i)) != None:
-                    current_subject.classes.append(i)
-            strong_subjects.append(current_subject)
-    details_dict['strong_subjects'] = strong_subjects
+    strong_subjects=[]
+    for subject in DataBaseFunctions.subjects_and_classes:
+        subject_name=subject[0]
+        classes=[]
+        for single_class in subject[1]:
+            if request.form.get("strong_"+subject_name+"_"+single_class) == "on":
+                classes.append(single_class)
+        strong_subjects.append(Subject(subject_name, classes))
 
+    weak_subjects=[]
+    for subject in DataBaseFunctions.subjects_and_classes:
+        subject_name=subject[0]
+        classes=[]
+        for single_class in subject[1]:
+            if request.form.get("weak_"+subject_name+"_"+single_class) == "on":
+                classes.append(single_class)
+        weak_subjects.append(Subject(subject_name, classes))
 
-    weak_subjects = []
-    for sub in DataBaseFunctions.subjects:
-        if request.form.get("weak_"+str(sub)) != None:
-            current_subject = Subject(sub,[])
-            for i in range(10,13):
-                if request.form.get("weak_" + sub + "_class_" + str(i)) != None:
-                    current_subject.classes.append(i)
-            weak_subjects.append(current_subject)
-    details_dict['weak_subjects'] = strong_subjects
+    # strong_subjects = []
+    # for sub in DataBaseFunctions.subjects:
+    #     if request.form.get("strong_" + str(sub)) != None:
+    #         current_subject = Subject(sub,[])
+    #         for i in range(10,13):
+    #             if request.form.get("strong_" + sub + "_class_" + str(i)) != None:
+    #                 current_subject.classes.append(i)
+    #         strong_subjects.append(current_subject)
+    # details_dict['strong_subjects'] = strong_subjects
+    #
+    #
+    # weak_subjects = []
+    # for sub in DataBaseFunctions.subjects:
+    #     if request.form.get("weak_"+str(sub)) != None:
+    #         current_subject = Subject(sub,[])
+    #         for i in range(10,13):
+    #             if request.form.get("weak_" + sub + "_class_" + str(i)) != None:
+    #                 current_subject.classes.append(i)
+    #         weak_subjects.append(current_subject)
+    # details_dict['weak_subjects'] = strong_subjects
 
 
 
 
     todo_bien = True#There are no problems in registration details
 
-    if len(details_dict['username']) < 4 or len(details_dict['username']) > 14:#username not in legal length
-        details_dict['username_comment'] = "Please enter a username between 4-14 characters"
+    if len(details_dict['username']) < 4 or len(details_dict['username']) > 14 or details_dict['username'].__contains__(' '):#username not in legal length
+        details_dict['username_comment'] = "Please enter a username between 4-14 characters with no spaces"
         todo_bien=False
-    if DataBaseFunctions.user_exists(details_dict['username']):
-        details_dict['username_comment'] = "This username is taken"
-        todo_bien = False
+    if details_dict['confirm_password'] != details_dict['password']:
+        details_dict['confirm_password_comment'] = "מממ... הסיסמות לא תואמות ):"
+        todo_bien=False
     if DataBaseFunctions.user_exists(details_dict['username']):#username taken
         details_dict['username_comment'] = "This username is taken"
         todo_bien = False
     if len(details_dict['password']) < 8:#password is too short
         details_dict['password_comment'] = "Please choose a password with a minimal length of 8 characters"
         todo_bien = False
+    if len(details_dict['email']) == 0:
+        details_dict['email_comment']="אנא מלאו כתובת מייל תקנית"
+        todo_bien=False
+    if not details_dict['email'].__contains__('@'):
+        details_dict['email_comment']="אנא מלאו כתובת מייל תקנית"
+        todo_bien=False
+
     if todo_bien==False:#Theres a problem
         return register(username=details_dict['username'],
                         password=details_dict['password'],
+                        confirm_password=details_dict['confirm_password'],
+                        email=details_dict['email'],
                         username_comment=details_dict['username_comment'],
-                        password_comment=details_dict['password_comment'])
-
+                        password_comment=details_dict['password_comment'],
+                        confirm_password_comment=details_dict['confirm_password_comment'],
+                        email_comment=details_dict['email_comment']
+                        )
 #If it came here, everything is good
-    registrationDone()
+    DataBaseFunctions.create_user(username=request.form.get("username"),
+                                  password=request.form.get("password"),
+                                  email=request.form.get("email"),
+                                  strong_subjects=strong_subjects,
+                                  weak_subjects=weak_subjects)
     session['user'] = details_dict['username']
     return redirect('/homePage')#Every thing is ok, register me!
 
-#Creates a new user in the DataBase
-def registrationDone():
-    print("Done")
-    print(handle_subjects_info("strong"))
-    DataBaseFunctions.create_user(request.form.get("username"),
-                                  request.form.get("password"),
-                                  strong_subjects=handle_subjects_info("strong"),
-                                  weak_subjects=handle_subjects_info("weak"))
-    # return "<h1> To sum up:</h1>" + '\r\n' + string
 
-#Turn the POST request to a list of Subjects and returns it, according to param
-def handle_subjects_info(strong_or_weak):
-    subjects=[]
-    for s in DataBaseFunctions.subjects:
-        if request.form.get(strong_or_weak + "_" + str(s)) != None:  # It is celected
-            current_subject = Subject(s, [])
-            for current_class in range(10, 13):
-                current_id = strong_or_weak + "_" + s + "_class_" + str(current_class)
-                if request.form.get(current_id) != None:  # class was chosen
-                    current_subject.classes.append(current_class)
-            subjects.append(current_subject)
-    return subjects
 
 @app.route('/editProfile')
 def editProfile():
     return render_template('editProfile.html', subjects=DataBaseFunctions.subjects)
 
-@app.route('/profileEditingDone', methods=['POST'])
-def profileEditingDone():
-    DataBaseFunctions.edit_user_strong_subjects(username=session['user'],
-                                                strong_subjects=handle_subjects_info("strong"))
-    DataBaseFunctions.edit_user_weak_subjects(username=session['user'],
-                                                weak_subjects=handle_subjects_info("weak"))
-    DataBaseFunctions.edit_subjects_in_subjects_table(username=session['user'],
-                                                      subjects=handle_subjects_info("strong")+handle_subjects_info("weak"))
-    return redirect('/profile?username='+session['user'])
 @app.route('/homePage', methods=['POST','GET'])
 def homePage():
     if connected():
@@ -219,15 +231,6 @@ def homePage():
             session['is_admin'] = False
         return render_template('/homePage.html')
     return redirect('/')
-
-#Returns a User object - existing user.
-def build_User_object(username):
-    subs = DataBaseFunctions.get_strong_subjects(username)
-    strong_subjects = DataBaseFunctions.subjects_as_list_of_Subjects(username,subs)
-    subs = DataBaseFunctions.get_weak_subjects(username)
-    weak_subjects = DataBaseFunctions.subjects_as_list_of_Subjects(username, subs)
-
-    return User(username,strong_subjects,weak_subjects)
 
 
 @app.route('/profile' , methods=['POST','GET'])
@@ -240,26 +243,33 @@ def profile():
     if not username or username==session['user']:#if there is no specified username or the specified name is sessin['user']
         username = session['user']
         # user = build_User_object(username)
-        return render_template('personal_profile.html', user=build_User_object(username))
+        return render_template('personal_profile.html',
+                               strong_subjects=DataBaseFunctions.get_strong_subjects(username),
+                               weak_subjects=DataBaseFunctions.get_weak_subjects(username))
     else:#user exists and it is not session['user']
 
-        return render_template('user_profile.html', user=build_User_object(username),
-                               self_username=session['user'],
-                               username2=username,
+        return render_template('user_profile.html',
+                               username=username,
+                               strong_subjects = DataBaseFunctions.get_strong_subjects(username),
+                               weak_subjects = DataBaseFunctions.get_weak_subjects(username),
                                is_friend = not DataBaseFunctions.is_friend(self_user = session['user'],
                                                                  username=username,),#It gets the opposite somewhy
                                friend_request_sent_already = DataBaseFunctions.is_in_friend_requests(self_user=username,
                                                                                                      username=session['user']))
 
 
-@app.route('/report_user', methods=['GET'])
+@app.route('/report_user', methods=['POST','GET'])
 def report():
     return render_template('reportUser.html', username=request.args.get("username"))
 
 @app.route('/report_done', methods=['POST', 'GET'])
 def report_done():
-
-    return redirect('/profile?username='+request.args.get("username"))
+    username = request.args.get("username")
+    report_content = request.form.get("report_content")
+    # print(report_content)
+    # print(username)
+    DataBaseFunctions.report_user(username, report_content)
+    return redirect('/profile?username=' + str(username))
 
 
 
@@ -275,10 +285,21 @@ def report_done():
 
 @app.route('/potentialTeachers' , methods=['POST','GET'])
 def potential__teachers():
-    subjects = DataBaseFunctions.subjects_as_list_of_Subjects(session['user'], DataBaseFunctions.get_weak_subjects(session['user']))
-    teachers = (DataBaseFunctions.teachers_by_subjects(DataBaseFunctions.potential_teachers(subjects)))
-    return render_template('potentialTeachers.html',DataBaseFunctions=DataBaseFunctions, my_weak_subjects=DataBaseFunctions.get_weak_subjects(session['user']),
-                                                    teachers=teachers, my_username=session['user'])
+    weak_subjects = DataBaseFunctions.get_weak_subjects(session['user'])
+    return render_template('potential_teachers.html',
+                           subjects=DataBaseFunctions.specific_teachers_for_all_subjects(weak_subjects))
+
+    # subjects = DataBaseFunctions.subjects_as_list_of_Subjects(username=session['user'],
+    #                                                           subs=DataBaseFunctions.get_weak_subjects(session['user']),
+    #                                                           status='weak')
+    # teachers = (DataBaseFunctions.teachers_by_subjects(DataBaseFunctions.potential_teachers(weak_subjects=subjects,
+    #                                                                                         username=session['user'])))
+    # print("teachers=",teachers)
+    # return render_template('potentialTeachers.html',
+    #                        DataBaseFunctions=DataBaseFunctions,
+    #                        my_weak_subjects=DataBaseFunctions.get_weak_subjects(session['user']),
+    #                        teachers=teachers,
+    #                        my_username=session['user'])
 
 
 
@@ -445,6 +466,16 @@ def comment_sent(post_id):
 def admin_options():
     return render_template("admin_options.html")
 
+@app.route("/admin_options/view_reports")
+def view_reports():
+    return render_template("view_reports_by_usernames.html", reported_users=DataBaseFunctions.get_reports_dict_list())
+    #DataBaseFunctions.get_list_of_reported_usernames())
+
+@app.route("/view_user_reports")
+def view_user_reports():
+    username = request.args.get("username")
+    return render_template("view_user_reports.html", reports=DataBaseFunctions.get_reports_list(username))
+
 @app.route("/admin_options/send_notification", methods=['POST','GET'])
 def send_notification():
     return render_template("send_notification.html")
@@ -471,35 +502,97 @@ def view_admin_msg(msg_id):
                            topic=msg.topic,
                            content=msg.content)
 
-@app.route('/offer_lesson_location', methods=['GET','POST'])
-def offer_lesson_location():
-    import Calend
-    username = request.args.get("username")
-    return render_template('offer_lesson_location.html', locations=Calend.locations, username=username)
+#/<selected_platform>/<selected_date>/<selected_timeA>/<selected_timeB>/<error_msg>
+@app.route('/offer_lesson/<username>', methods=['GET'])
+def offer_lesson(username, selected_platform="", selected_date="", selected_timeA="", selected_timeB="", selected_subject="", free_text="", error_msg=""):
+    import Calendar_Functions
+    # username = request.args.get("username")
+    return render_template('offer_lesson.html',
+                           username=username,
+                           subjects_list=DataBaseFunctions.get_strong_subjects(username),
+                           platforms=['Skype', 'Zoom'],
+                           dates=Calendar_Functions.get_upcoming_dates(),
+                           timesA=Calendar_Functions.get_times_for_lessons(),
+                           timesB=Calendar_Functions.get_times_for_lessons(),
+                           selected_platform=selected_platform,
+                           selected_date=selected_date,
+                           selected_timeA=selected_timeA,
+                           selected_timeB=selected_timeB,
+                           selected_subject=selected_subject,
+                           free_text=free_text,
+                           error_msg=error_msg
+                           )
 
-@app.route('/offer_lesson_date', methods=['GET','POST'])
-def offer_lesson_date():
-    import Calend
-    username = request.args.get("username")
-    location = request.args.get('locations')
-    return render_template('offer_lesson_date.html',
-                          upcoming_dates=['28/02/20'],
-                           username=username, location=location)
+@app.route('/process_lesson_request/<username>', methods=['POST','GET'])
+def process_lesson_request(username):
+    import Calendar_Functions
+    print("username=",username)
+    platform = request.form.get("platforms_list")
+    date = request.form.get("dates")
+    from_time = request.form.get("from_time_list")
+    until_time = request.form.get("until_time_list")
+    selected_subject = request.form.get("subjects_list")
+    print("yoooooo", selected_subject)
+    free_text = request.form.get("free_text")
+    if free_text is None:
+        free_text = ""
+    if not Calendar_Functions.is_after(until_time,from_time):
+        error_msg = "אנא בחר טווח שעות הגיוני"
+        return offer_lesson(username=username,
+                            selected_subject=selected_subject,
+                            selected_platform=platform,
+                            selected_date=date,
+                            selected_timeA=from_time,
+                            selected_timeB=until_time,
+                            free_text=free_text,
+                            error_msg=error_msg)
+    # Calendar_Functions.create_new_lesson(participants=str(session['user'])+','+username,
+    #                                      location=platform,
+    #                                      date=date,
+    #                                      time_range=from_time+'-'+until_time
+    #                                      )
+    DataBaseFunctions.send_lesson_request()#----?
+    return redirect('/profile?username='+username)
+#------------------------------------------------------------------------------------------------Non-Corona
+# @app.route('/offer_lesson_location', methods=['GET','POST'])
+# def offer_lesson_location():
+#     import Calend
+#     username = request.args.get("username")
+#     return render_template('offer_lesson_location.html', locations=Calend.locations, username=username)
+#
+# @app.route('/offer_lesson_date', methods=['GET','POST'])
+# def offer_lesson_date():
+#     import Calend
+#     username = request.args.get("username")
+#     location = request.args.get("location")
+#     return render_template('offer_lesson_date.html',
+#                           upcoming_dates=['12/03/20','13/03/20'],
+#                            username=username, location=location)
+#
+#
+# @app.route('/offer_lesson_timerange', methods=['GET','POST'])
+# def offer_lesson_timerange():
+#     import Calend
+#     username = request.args.get("username")
+#     location = request.args.get("location")
+#     date = request.args.get("date")
+#     return render_template('offer_lesson_timerange.html',
+#                           available_time_ranges=['14:00-15:00', '15:15-16:15'],
+#                            username=username, location=location, date=date)
+#
+# @app.route('/send_lesson_offer', methods=['POST','GET'])
+# def send_lesson_offer():
+#     username = request.args.get("username")
+#     location = request.args.get("location")
+#     date = request.args.get("date")
+#     time_range = request.form.get("time_range")
+#     return str(username+","+ location+","+  date+","+ time_range)
+#------------------------------------------------------------------------------------------------Non-Corona
 
 
-@app.route('/offer_lesson_timerange', methods=['GET','POST'])
-def offer_lesson_timerange():
-    import Calend
-    username = request.args.get("username")
-    location = request.args.get("location")
-    date = request.args.get("date")
-    return render_template('offer_lesson_timerange.html',
-                          available_time_ranges=['14:00-15:00', '15:15-16:15'],
-                           username=username, location=location, )
-
-# @app.route('/lessons_offers', methods=['GET'])
-# def lessons_offers():
-#     return render_template('view_lessons_offers.html', lessons_offers=DataBaseFunctions.get_lessons_offers_as_list(session['user']))
+@app.route('/view_lessons_offers')
+def lessons_offers():
+    return render_template('view_lessons_offers.html', lessons_offers=DataBaseFunctions.get_lessons_offers_as_list(session['user']))
 #
 #
 #
@@ -510,10 +603,6 @@ def offer_lesson_timerange():
 #     return render_template('offer_lesson_location.html', locations=Calend.locations, username=username)
 #
 #
-# @app.route('/offer_lesson', methods=['GET'])
-# def offer_lesson():
-#     import Calend
-#     return render_template('offer_lesson.html', upcoming_days=[Calend.get_Day('today')])
 #
 #
 #
@@ -563,4 +652,4 @@ def response():
     # return string
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True)#, host='0.0.0.0')

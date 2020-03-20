@@ -1,40 +1,36 @@
 {% extends "registeredLayout.html" %}
 
 {% block head %}
-    <title>{{user.name}}</title>
-        <h1>Yo YO this is a personal profile    This is my account, Im am connected!</h1>
+    <title>{{session.user}}</title>
 {% endblock %}
 
 {% block body %}
 <br>
 
-    <h1><font color="magenta">{{user.name}}</font></h1>
+    <h1><font color="blue">{{session.user}}</font></h1>
 
     <form action="/editProfile">
     <button type="submit" class="btn btn-primary"><font color="brown">Edit personal details</font></button>
     </form>
 
+<h2><font color="green">Strong subjects:</font></h2>
+{% for subject in strong_subjects %}
+    <h2>{{subject.name}} -</h2>
+    {% for class in subject.classes %}
+        * {{class}}
+          <br>
+  {% endfor %}
+{% endfor %}
 
-    <h2><font color="green">Strong subjects:</font></h2>
-    {% for subject in user.strong_subjects %}
-        <h2>{{subject.name}} for: </h2>
-        {% for class in subject.classes %}
-            {{class}}th
-        {% endfor %}
-        grades.
-        <br>
-    {% endfor %}
+<br><br>
 
-
-    <h2><font color="orange">Weak subjects:</font></h2>
-    {% for subject in user.weak_subjects %}
-        <h2>{{subject.name}} for: </h2>
-        {% for class in subject.classes %}
-            {{class}}th
-        {% endfor %}
-        grades.
-        <br>
-    {% endfor %}
-
+<h2><font color="brown">Weak subjects:</font></h2>
+{% for subject in weak_subjects %}
+    <h2>{{subject.name}} -</h2>
+    {% for class in subject.classes %}
+        * {{class}}
+           <br>
+     {% endfor %}
+{% endfor %}
 
 {% endblock %}

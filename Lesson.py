@@ -1,6 +1,7 @@
 class Lesson:
-    def __init__(self, ID, participant, place, time_range):
+    def __init__(self, ID, date, location, participants, time_range):
         self.ID = ID
-        self.participant = participant
-        self.place = place
+        self.date = date
+        self.location = location
+        self.participants = participants
         self.time_range = time_range

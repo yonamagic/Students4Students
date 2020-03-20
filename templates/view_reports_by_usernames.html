@@ -1,0 +1,11 @@
+{%extends "registeredLayout.html"%}
+
+{%block body%}
+<br><br>
+
+{% for user in reported_users %}
+<a href="/profile?username={{user['username']}}">{{user['username']}}</a> has <a href="/view_user_reports?username={{user['username']}}">{{user['num_of_reports']}} reports</a>
+<br><br>
+{% endfor %}
+
+{%endblock%}

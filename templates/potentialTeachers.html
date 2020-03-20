@@ -18,7 +18,7 @@
             {% for name in current_user[1] %}
                 {% set matching_classes = DataBaseFunctions.matching_classes([my_username,name],current_user[0]) %}
                 {% if matching_classes %}
-                    <a href="/profile?username={{name}}"><font size="5"><b>{{name}}</b></font></a> for classes: {{', '.join(matching_classes)}}
+                    <a href="/profile?username={{name}}"><font size="5"><b>{{name}}</b></font></a> : {{', '.join(matching_classes)}}
 <br>
                 {% else %}
                     {{ teachers_by_subject.append((current_user[0],name)) }}

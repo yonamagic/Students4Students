@@ -1,0 +1,30 @@
+{% extends "registeredLayout.html" %}
+
+{% block body %}
+
+<h1>מורים פוטנציאלים</h1>
+<h2>המשתמשים האלו יכולים לעזור לך:</h2>
+{% for subject in subjects %}
+    {% if subject[1] %}
+        {{subject[0]}} -
+    {% endif %}
+    {% for user in subject[1] %}
+        {% if subject[1].index(user) != 0 %}
+            {% for space in range(6) %}
+                &nbsp;
+            {% endfor %}
+        {% endif %}
+        <a href="profile?username={{user[0]}}">{{user[0]}}</a>:
+            {% for class in user[1] %}
+                {% if user[1].index(class) != 0 %}
+                    {% for space in range(16) %}
+                        &nbsp;
+                    {% endfor %}
+                {% endif %}
+                * {{class}}
+                <br>
+            {% endfor %}
+    {% endfor %}
+<br><br>
+{% endfor %}
+{% endblock %}
