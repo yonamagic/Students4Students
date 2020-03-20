@@ -777,37 +777,6 @@ class DataBaseFunctions:
 
 
     @staticmethod
-    def get_lessons_offers_IDs(username):#returns a list of lessons_offers IDs according to a certain usrname
-        conn = sqlite3.connect("database.db", timeout=2)
-        IDs = conn.execute("select lessons_offers_IDs from users where username=?", (username,))
-        for row in IDs:
-            IDs = row[0]
-        IDs = IDs.split(',')
-        return IDs
-
-    @staticmethod
-    def get_lesson_offer_object(id):#returns a Lesson_offer object
-        from Lesson_offer import Lesson_offer
-        conn = sqlite3.connect("database.db", timeout=2)
-        offer = conn.execute("select * from lessons_offers where ID=?", (id,))
-        for row in offer:
-            offer=row
-        return Lesson_offer(ID=offer[0],
-                            username=offer[1],
-                            location=offer[2],
-                            date=offer[3],
-                            time_range=offer[4])
-
-    @staticmethod
-    def get_lessons_offers_as_list(username):
-        Lessons_offers = []
-        offers_IDs = DataBaseFunctions.get_lessons_offers_IDs(username)
-        for id in offers_IDs:
-            Lessons_offers.append(DataBaseFunctions.get_lesson_offer_object(id))
-        return Lessons_offers
-
-
-    @staticmethod
     def report_user(username, report_content):
         conn = sqlite3.connect("database.db", timeout=2)
         ID = DataBaseFunctions.random_id()
@@ -998,3 +967,84 @@ class DataBaseFunctions:
             common_classes = (list(set(classes).intersection(subject.classes)))
             if common_classes:
                 specific_teachers.append([user,common_classes])
+
+    @staticmethod
+    # מקבלת רשימת Subjects ושם של מקצוע. במידה והמקצוע קיים ברשימה, הפעולה תחזיר את המקצוע עצמו ובמידה שלא - תחזיר False.
+    def sub_name_exists(subs_list, sub_name):
+        for sub in subs_list:
+            if sub.name == sub_name:
+                return sub
+        return False
+
+    @staticmethod
+    # מחזיר רשימה של Subjects שמכילה את הנושאים המשותפים (כולל קלאסים) מבין שתי רשימות נושאים
+    def mix_subjects(subs1=[Subject('Math', ['10', '11']), Subject('Math1', ['10', '11'])],
+                     subs2=[Subject('Math1v', ['11', '12'])]):
+        ret_subs = []
+        for sub in subs1:
+            sub_if_exists = DataBaseFunctions.sub_name_exists(subs_list=subs2, sub_name=sub.name)
+            if sub_if_exists != False:
+                common_classes = list(set(sub.classes).intersection(sub_if_exists.classes))
+                if common_classes:
+                    ret_subs.append(Subject(sub.name, common_classes))
+        return ret_subs
+        # Subject(sub1.name, list(set(sub1.classes).intersection(sub2.classes)))
+
+    @staticmethod
+    def send_lesson_request(platform, date, from_user, to_user, teacher, subject, platform_nickname, time_range, free_text):
+        conn = sqlite3.connect('database.db')
+        lesson_offer_ID = DataBaseFunctions.random_id()
+        lessons_requests_IDs = conn.execute("select lessons_requests_IDs from users where username=?", (to_user,))
+        for row in lessons_requests_IDs:
+            lessons_requests_IDs=row[0]
+        if len(lessons_requests_IDs) > 0:
+            lessons_requests_IDs += ',' + lesson_offer_ID
+        else:
+            lessons_requests_IDs = lesson_offer_ID
+        conn.execute("update users set lessons_requests_IDs = ?", (lessons_requests_IDs,))
+
+
+        conn.execute("insert into lessons_offers "
+                     "(ID, place, date, from_user, teacher, subject, platform_nickname, time_range, free_text)"
+                     " values (?,?,?,?,?,?,?,?,?)",
+                     (lesson_offer_ID, platform, date, from_user, teacher, subject, platform_nickname, time_range, free_text))
+
+        conn.commit()
+
+
+    @staticmethod
+    def get_lessons_offers_IDs(username):#returns a list of lessons_offers IDs according to a certain usrname
+        conn = sqlite3.connect("database.db", timeout=2)
+        IDs = conn.execute("select lessons_offers_IDs from users where username=?", (username,))
+        for row in IDs:
+            IDs = row[0]
+        IDs = IDs.split(',')
+        return IDs
+
+    @staticmethod
+    def get_lesson_offer_object(id):#returns a Lesson_offer object
+        from Lesson_offer import Lesson_offer
+        conn = sqlite3.connect("database.db", timeout=2)
+        offer = conn.execute("select * from lessons_offers where ID=?", (id,))
+        for row in offer:
+            offer=row
+        return Lesson_offer(ID=offer[0],
+                            place=offer[1],
+                            date=offer[2],
+                            from_user=offer[3],
+                            teacher=offer[4],
+                            subject=offer[5],
+                            platform_nickname=offer[6],
+                            time_range=offer[7],
+                            free_text=offer[8])
+
+    @staticmethod
+    def get_lessons_offers_as_list(username):
+        Lessons_offers = []
+        offers_IDs = DataBaseFunctions.get_lessons_offers_IDs(username)
+        for id in offers_IDs:
+            Lessons_offers.append(DataBaseFunctions.get_lesson_offer_object(id))
+        return Lessons_offers
+
+print(DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects('yonamagic'),
+                                                       subs2=DataBaseFunctions.get_weak_subjects('aviv')))

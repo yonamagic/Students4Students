@@ -502,14 +502,27 @@ def view_admin_msg(msg_id):
                            topic=msg.topic,
                            content=msg.content)
 
+@app.route('/teacher_or_students_offer_lesson/<username>')
+def teacher_or_students_offer_lesson(username):
+    return render_template('teacher_or_student_lesson_offer.html', username=username)
+
 #/<selected_platform>/<selected_date>/<selected_timeA>/<selected_timeB>/<error_msg>
-@app.route('/offer_lesson/<username>', methods=['GET'])
-def offer_lesson(username, selected_platform="", selected_date="", selected_timeA="", selected_timeB="", selected_subject="", free_text="", error_msg=""):
+@app.route('/offer_lesson/<username>/<teacher>', methods=['GET'])
+def offer_lesson(username, teacher, selected_platform="", selected_date="", selected_timeA="", selected_timeB="", selected_subject="", free_text="", error_msg=""):
     import Calendar_Functions
+    if teacher == "True":
+        subjects_list = DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
+                                                       subs2=DataBaseFunctions.get_weak_subjects(username))#מה שמשותף למקצועות החזקים של סשן והחלשים של יוזר
+        # subjects_list = DataBaseFunctions.get_weak_subjects(username)
+    else:
+        subjects_list = DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_weak_subjects(session['user']),
+                                                       subs2=DataBaseFunctions.get_strong_subjects(username))#מה שמשותף למקצועות חלשים של סשן והחזקים של יוזר
+        # subjects_list = DataBaseFunctions.get_strong_subjects(session['user'])
+    return str(subjects_list)
     # username = request.args.get("username")
     return render_template('offer_lesson.html',
                            username=username,
-                           subjects_list=DataBaseFunctions.get_strong_subjects(username),
+                           subjects_list=subjects_list,
                            platforms=['Skype', 'Zoom'],
                            dates=Calendar_Functions.get_upcoming_dates(),
                            timesA=Calendar_Functions.get_times_for_lessons(),
@@ -551,7 +564,15 @@ def process_lesson_request(username):
     #                                      date=date,
     #                                      time_range=from_time+'-'+until_time
     #                                      )
-    DataBaseFunctions.send_lesson_request()#----?
+    DataBaseFunctions.send_lesson_request(platform=platform,
+                                          date=date,
+                                          from_user=username,
+                                          to_user=session['user'],
+                                          teacher=teacher,
+                                          subject=selected_subject,
+                                          platform_nickname=platform_nickname,
+                                          time_range=from_time+'-'+until_time,
+                                          free_text=free_text)
     return redirect('/profile?username='+username)
 #------------------------------------------------------------------------------------------------Non-Corona
 # @app.route('/offer_lesson_location', methods=['GET','POST'])
@@ -592,7 +613,15 @@ def process_lesson_request(username):
 
 @app.route('/view_lessons_offers')
 def lessons_offers():
-    return render_template('view_lessons_offers.html', lessons_offers=DataBaseFunctions.get_lessons_offers_as_list(session['user']))
+    return render_template('view_lessons_offers.html',
+                           lessons_offers=DataBaseFunctions.get_lessons_offers_as_list(session['user']))
+
+@app.route('/view_lessons_offers/single_offer/<offer_id>')
+def view_a_single_lesson_offer(offer_id):
+    print(DataBaseFunctions.get_lesson_offer_object(offer_id))
+    return render_template('view_a_single_lesson_offer.html',
+                           offer=DataBaseFunctions.get_lesson_offer_object(offer_id))
+
 #
 #
 #

@@ -1,0 +1,8 @@
+{% extends "registeredLayout.html" %}
+{% block body %}
+<br><br>
+האם תרצה ללמד או ללמוד?
+    <br><br><br>
+    <button onclick="location.href='/offer_lesson/{{username}}/True'">ללמד - ארצה להעביר שיעור פרטי</button>
+    <button onclick="location.href='/offer_lesson/{{username}}/False'">ללמוד - ארצה לקבל שיעור פרטי</button>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "registeredLayout.html" %}
+
+{%block body %}
+
+{% if offer.teacher == session.user %}
+        {% set desire = "wants you to teach him" %}
+    {% else %}
+        {% set desire = "wants to teach you" %}
+{%endif%}
+
+<h1>{{offer.from_user}} {{desire}} {{offer.subject}}</h1>
+
+<h2>{{offer.place}} - פלטפורמה</h2>
+<h3> {{offer.platform_nickname}}  -  {{offer.place}}  כינוי ב  </h3>
+<h2>{{offer.date}} - בתאריך</h2>
+<h2>{{offer.time_range}} - בשעות</h2>
+
+{% if offer.free_text %}
+<br><br>
+    <h2>...ונראה שהוא כתב לך משהו קטן</h2>
+    <p>{{offer.free_text}}</p>
+{% endif %}
+{% endblock %}
