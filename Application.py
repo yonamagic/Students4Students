@@ -321,7 +321,7 @@ def messages():
         return redirect('/')
     messages_list = DataBaseFunctions.messages_list(session['user'])#Because there are 2 additional Messages that I do not know why theyre in there
     messages_list.reverse()
-    print("read="+messages_list[0].is_read)
+    # print("read="+messages_list[0].is_read)
     return render_template('messages.html', messages = messages_list)
 
 @app.route('/sendMessage')
@@ -508,26 +508,26 @@ def teacher_or_students_offer_lesson(username):
 
 #/<selected_platform>/<selected_date>/<selected_timeA>/<selected_timeB>/<error_msg>
 @app.route('/offer_lesson/<username>/<teacher>', methods=['GET'])
-def offer_lesson(username, teacher, selected_platform="", selected_date="", selected_timeA="", selected_timeB="", selected_subject="", free_text="", error_msg=""):
+def offer_lesson(username, teacher, selected_platform="", selected_platform_nickname="", selected_date="", selected_timeA="", selected_timeB="", selected_subject="", free_text="", error_msg=""):
     import Calendar_Functions
+    subjects_list=[]
     if teacher == "True":
+        print(teacher)
         subjects_list = DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
                                                        subs2=DataBaseFunctions.get_weak_subjects(username))#מה שמשותף למקצועות החזקים של סשן והחלשים של יוזר
-        # subjects_list = DataBaseFunctions.get_weak_subjects(username)
     else:
         subjects_list = DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_weak_subjects(session['user']),
                                                        subs2=DataBaseFunctions.get_strong_subjects(username))#מה שמשותף למקצועות חלשים של סשן והחזקים של יוזר
-        # subjects_list = DataBaseFunctions.get_strong_subjects(session['user'])
-    return str(subjects_list)
-    # username = request.args.get("username")
     return render_template('offer_lesson.html',
                            username=username,
+                           Im_the_teacher=teacher,
                            subjects_list=subjects_list,
                            platforms=['Skype', 'Zoom'],
                            dates=Calendar_Functions.get_upcoming_dates(),
                            timesA=Calendar_Functions.get_times_for_lessons(),
                            timesB=Calendar_Functions.get_times_for_lessons(),
                            selected_platform=selected_platform,
+                           selected_platform_nickname=selected_platform_nickname,
                            selected_date=selected_date,
                            selected_timeA=selected_timeA,
                            selected_timeB=selected_timeB,
@@ -536,11 +536,16 @@ def offer_lesson(username, teacher, selected_platform="", selected_date="", sele
                            error_msg=error_msg
                            )
 
-@app.route('/process_lesson_request/<username>', methods=['POST','GET'])
-def process_lesson_request(username):
+@app.route('/process_lesson_request/<username>/<teacher>', methods=['POST','GET'])
+def process_lesson_request(username, teacher):
     import Calendar_Functions
     print("username=",username)
+    if teacher == "False":
+        teacher = username
+    else:
+        teacher = session['user']
     platform = request.form.get("platforms_list")
+    platform_nickname = request.form.get("platform_nickname")
     date = request.form.get("dates")
     from_time = request.form.get("from_time_list")
     until_time = request.form.get("until_time_list")
@@ -549,11 +554,23 @@ def process_lesson_request(username):
     free_text = request.form.get("free_text")
     if free_text is None:
         free_text = ""
+
+    #בדיקת תקינות של הפרטים שהוכנסו
+    todo_bien = True
     if not Calendar_Functions.is_after(until_time,from_time):
         error_msg = "אנא בחר טווח שעות הגיוני"
+        todo_bien=False
+    print("platform nickname = ", platform_nickname)
+    if platform_nickname == "":
+        error_msg = "אנא הזן את הכינוי שלך באחת הפלטפורמות לוידאו צ'אט"
+        todo_bien=False
+    #---------------------------------------------------------סיום בדיקת תקינות
+    if not todo_bien:
         return offer_lesson(username=username,
+                            teacher=teacher,
                             selected_subject=selected_subject,
                             selected_platform=platform,
+                            selected_platform_nickname=platform_nickname,
                             selected_date=date,
                             selected_timeA=from_time,
                             selected_timeB=until_time,
@@ -566,8 +583,8 @@ def process_lesson_request(username):
     #                                      )
     DataBaseFunctions.send_lesson_request(platform=platform,
                                           date=date,
-                                          from_user=username,
-                                          to_user=session['user'],
+                                          from_user=session['user'],
+                                          to_user=username,
                                           teacher=teacher,
                                           subject=selected_subject,
                                           platform_nickname=platform_nickname,
@@ -618,7 +635,7 @@ def lessons_offers():
 
 @app.route('/view_lessons_offers/single_offer/<offer_id>')
 def view_a_single_lesson_offer(offer_id):
-    print(DataBaseFunctions.get_lesson_offer_object(offer_id))
+    print("offer ",DataBaseFunctions.get_lesson_offer_object(offer_id))
     return render_template('view_a_single_lesson_offer.html',
                            offer=DataBaseFunctions.get_lesson_offer_object(offer_id))
 

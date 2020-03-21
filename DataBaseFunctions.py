@@ -915,8 +915,8 @@ class DataBaseFunctions:
 
     subjects_and_classes = [
         # [subject, [classes]]
-        [ 'Math' , ['5 יחל לכיתה י','5 יחל לכיתה יא','5 יחל לכיתה יב','4 יחל לכיתה י','4 יחל לכיתה יא','4 יחל לכיתה יב','3 יחל לכיתה י','3 יחל לכיתה יא']],
-        ['English',['5 יחל לכיתה י', '5 יחל לכיתה יא', '5 יחל לכיתה יב', '4 יחל לכיתה י', '4 יחל לכיתה יא', '4 יחל לכיתה יב', '3 יחל לכיתה י', '3 יחל לכיתה יא', '3 יחל לכיתה יב']]
+        [ 'מתמטיקה' , ['חמש יחל לכיתה י','חמש יחל לכיתה יא','חמש יחל לכיתה יב','ארבע יחל לכיתה י','ארבע יחל לכיתה יא','ארבע יחל לכיתה יב','שלוש יחל לכיתה י','שלוש יחל לכיתה יא']],
+        ['אנגלית',['חמש יחל לכיתה י', 'חמש יחל לכיתה יא', 'חמש יחל לכיתה יב', 'ארבע יחל לכיתה י', 'ארבע יחל לכיתה יא', 'ארבע יחל לכיתה יב', 'שלוש יחל לכיתה י', 'שלוש יחל לכיתה יא', 'שלוש יחל לכיתה יב']]
 
     ]
 
@@ -994,14 +994,16 @@ class DataBaseFunctions:
     def send_lesson_request(platform, date, from_user, to_user, teacher, subject, platform_nickname, time_range, free_text):
         conn = sqlite3.connect('database.db')
         lesson_offer_ID = DataBaseFunctions.random_id()
-        lessons_requests_IDs = conn.execute("select lessons_requests_IDs from users where username=?", (to_user,))
+        print("from ",from_user)
+        print("to ", to_user)
+        lessons_requests_IDs = conn.execute("select lessons_offers_IDs from users where username=?", (to_user,))
         for row in lessons_requests_IDs:
             lessons_requests_IDs=row[0]
         if len(lessons_requests_IDs) > 0:
             lessons_requests_IDs += ',' + lesson_offer_ID
         else:
             lessons_requests_IDs = lesson_offer_ID
-        conn.execute("update users set lessons_requests_IDs = ?", (lessons_requests_IDs,))
+        conn.execute("update users set lessons_offers_IDs = ? where username=?", (lessons_requests_IDs,to_user))
 
 
         conn.execute("insert into lessons_offers "
@@ -1028,6 +1030,7 @@ class DataBaseFunctions:
         offer = conn.execute("select * from lessons_offers where ID=?", (id,))
         for row in offer:
             offer=row
+        print(offer)
         return Lesson_offer(ID=offer[0],
                             place=offer[1],
                             date=offer[2],
@@ -1042,9 +1045,12 @@ class DataBaseFunctions:
     def get_lessons_offers_as_list(username):
         Lessons_offers = []
         offers_IDs = DataBaseFunctions.get_lessons_offers_IDs(username)
-        for id in offers_IDs:
-            Lessons_offers.append(DataBaseFunctions.get_lesson_offer_object(id))
+        print("offers_IDs = ", len(offers_IDs))
+
+        if offers_IDs != ['']:
+            for id in offers_IDs:
+                print("+"+id+"+")
+                Lessons_offers.append(DataBaseFunctions.get_lesson_offer_object(id))
         return Lessons_offers
 
-print(DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects('yonamagic'),
-                                                       subs2=DataBaseFunctions.get_weak_subjects('aviv')))
+DataBaseFunctions.get_lessons_offers_as_list('yonamagic')

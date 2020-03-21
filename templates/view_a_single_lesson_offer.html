@@ -3,12 +3,13 @@
 {%block body %}
 
 {% if offer.teacher == session.user %}
-        {% set desire = "wants you to teach him" %}
+        {% set desire = "רוצה ללמוד ממך" %}
     {% else %}
-        {% set desire = "wants to teach you" %}
+        {% set desire = "רוצה ללמד אותך" %}
 {%endif%}
 
-<h1>{{offer.from_user}} {{desire}} {{offer.subject}}</h1>
+<h1>              {{desire}} <font color="green">{{offer.subject}}</font> <a href="/profile?username={{offer.from_user}}">{{offer.from_user}}</a>
+</h1>
 
 <h2>{{offer.place}} - פלטפורמה</h2>
 <h3> {{offer.platform_nickname}}  -  {{offer.place}}  כינוי ב  </h3>

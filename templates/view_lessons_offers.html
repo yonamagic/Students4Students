@@ -10,12 +10,12 @@
 <br><br>
 {% for offer in lessons_offers %}
     {% if offer.teacher == session.user %}
-        {% set desire = "wants you to teach him" %}
+        {% set desire = "רוצה ללמוד ממך" %}
     {% else %}
-        {% set desire = "wants to teach you" %}
+        {% set desire = "רוצה ללמד אותך" %}
     {%endif%}
         <button class="stylish" onclick="location.href='/view_lessons_offers/single_offer/{{offer.ID}}'">
-            {{offer.from_user}} {{desire}} {{offer.subject}}
+              {{desire}} {{offer.subject}} {{offer.from_user}}
         </button>
 {% endfor %}
 
