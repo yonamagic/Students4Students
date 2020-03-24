@@ -35,17 +35,18 @@ class DataBaseFunctions:
         return False
 
     @staticmethod
-    def create_user(username, password, email, strong_subjects=[], weak_subjects=[]):
+    def create_user(username, password, email, platform_nickname, strong_subjects=[], weak_subjects=[]):
         conn = sqlite3.connect('database.db', timeout=2)
         # cursor = conn.execute("select * from users where username='yehonatan'")
         # for i in cursor:
         #     print("fffff"+str(i))
         conn.execute("insert into users "
-                     "(username, password, email, strong_subjects, weak_subjects, inboxID, is_admin, friends_list, friend_requests, notifications_IDs, lessons_offers_IDs) "
-                     "values (?,?,?,?,?,?,'no', '' ,'' ,'' ,'')",
+                     "(username, password, email, platform_nickname, strong_subjects, weak_subjects, inboxID, is_admin, friends_list, friend_requests, notifications_IDs, lessons_offers_IDs) "
+                     "values (?,?,?,?,?,?,?,'no', '' ,'' ,'' ,'')",
                      (username,
                       password,
                       email,
+                      platform_nickname,
                       ','.join(DataBaseFunctions.subjects_names(strong_subjects)),
                       ','.join(DataBaseFunctions.subjects_names(weak_subjects)),
                       str(os.urandom(24))))
@@ -955,18 +956,26 @@ class DataBaseFunctions:
 
     @staticmethod
     #מקבל מקצוע ומחזיר רשימה שכל איבר הוא רשימה המכילה שני אינדקסים: שם משתמש ורשימה נוספת של קלאסים משותפים לדרישה ולמשתמש
-    def specific_teachers_for_one_subject(subject=Subject('English',['10','11'])):
+    def specific_teachers_for_one_subject(subject):
         conn = sqlite3.connect('database.db')
         specific_teachers=[]#[ [username, [common_classes]],  ...  ]
         general_teachers=(DataBaseFunctions.get_teachers_in_general(subject.name))
         for user in general_teachers:
+            print("--------------------")
+            print("user=",user)
             classes = conn.execute("select classes from subjects where username=? and subject=? and status='strong'",
                                                                                                     (user,subject.name))
             for row in classes:
                 classes=row[0].split(',')
+                print("classes",classes)
             common_classes = (list(set(classes).intersection(subject.classes)))
+            print("common classes=", common_classes)
             if common_classes:
+                print("if common_classes = True!")
+                print("specific_teachers before change = ",specific_teachers)
                 specific_teachers.append([user,common_classes])
+                print("specific_teachers after change = ",specific_teachers)
+        return specific_teachers
 
     @staticmethod
     # מקבלת רשימת Subjects ושם של מקצוע. במידה והמקצוע קיים ברשימה, הפעולה תחזיר את המקצוע עצמו ובמידה שלא - תחזיר False.
@@ -991,7 +1000,7 @@ class DataBaseFunctions:
         # Subject(sub1.name, list(set(sub1.classes).intersection(sub2.classes)))
 
     @staticmethod
-    def send_lesson_request(platform, date, from_user, to_user, teacher, subject, platform_nickname, time_range, free_text):
+    def send_lesson_request(platform, date, from_user, to_user, teacher, subject,  time_range, free_text):
         conn = sqlite3.connect('database.db')
         lesson_offer_ID = DataBaseFunctions.random_id()
         print("from ",from_user)
@@ -1007,9 +1016,9 @@ class DataBaseFunctions:
 
 
         conn.execute("insert into lessons_offers "
-                     "(ID, place, date, from_user, teacher, subject, platform_nickname, time_range, free_text)"
-                     " values (?,?,?,?,?,?,?,?,?)",
-                     (lesson_offer_ID, platform, date, from_user, teacher, subject, platform_nickname, time_range, free_text))
+                     "(ID, place, date, from_user, teacher, subject, time_range, free_text)"
+                     " values (?,?,?,?,?,?,?,?)",
+                     (lesson_offer_ID, platform, date, from_user, teacher, subject, time_range, free_text))
 
         conn.commit()
 
@@ -1020,8 +1029,10 @@ class DataBaseFunctions:
         IDs = conn.execute("select lessons_offers_IDs from users where username=?", (username,))
         for row in IDs:
             IDs = row[0]
-        IDs = IDs.split(',')
-        return IDs
+        if IDs != None:
+            return IDs.split(',')
+        else:
+            return []
 
     @staticmethod
     def get_lesson_offer_object(id):#returns a Lesson_offer object
@@ -1037,9 +1048,8 @@ class DataBaseFunctions:
                             from_user=offer[3],
                             teacher=offer[4],
                             subject=offer[5],
-                            platform_nickname=offer[6],
-                            time_range=offer[7],
-                            free_text=offer[8])
+                            time_range=offer[6],
+                            free_text=offer[7])
 
     @staticmethod
     def get_lessons_offers_as_list(username):
@@ -1053,4 +1063,78 @@ class DataBaseFunctions:
                 Lessons_offers.append(DataBaseFunctions.get_lesson_offer_object(id))
         return Lessons_offers
 
-DataBaseFunctions.get_lessons_offers_as_list('yonamagic')
+    @staticmethod
+    def get_platform_nickname(username):
+        conn=sqlite3.connect('database.db')
+        nick = conn.execute("select platform_nickname from users where username=?", (username,))
+        for row in nick:
+            nick = row[0]
+        return nick
+
+
+    @staticmethod
+    def delete_lesson_offer_from_lessonsOffers_table(id):
+        conn_database = sqlite3.connect('database.db')
+        conn_database.execute("delete from lessons_offers where ID=?", (id,))
+        conn_database.commit()
+
+    @staticmethod
+    def delete_lesson_offer_from_users_table(username, id):
+        conn_database = sqlite3.connect('database.db')
+        command = conn_database.execute("select lessons_offers_IDs from users where username=?", (username,))
+
+        for row in command:
+            existing_lessons_offers=row[0]
+        existing_lessons_offers = existing_lessons_offers.split(',')
+        # existing_lessons_offers.remove(',')
+        print(existing_lessons_offers)
+        existing_lessons_offers.remove(id)
+        new_lessons_offers = ','.join(existing_lessons_offers)
+        print(new_lessons_offers)
+        conn_database.execute("update users set lessons_offers_IDs = ? where username=?" , (new_lessons_offers,username))
+        conn_database.commit()
+
+
+    @staticmethod
+    def accept_lesson_offer(username, id):
+        import Calendar_Functions
+        conn_database = sqlite3.connect('database.db')
+        conn_calendar = sqlite3.connect('calendar.db')
+        lesson_offer = DataBaseFunctions.get_lesson_offer_object(id=id)
+
+        Calendar_Functions.create_new_lesson(participants= lesson_offer.from_user+','+username,
+                                             location=lesson_offer.place,
+                                             date=lesson_offer.date,
+                                             time_range=lesson_offer.time_range,
+                                             subject=lesson_offer.subject,
+                                             teacher=lesson_offer.teacher)
+        conn_calendar.commit()
+        DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
+        DataBaseFunctions.delete_lesson_offer_from_users_table(username=username, id=id)
+        # conn_database.execute("delete from lessons_offers where ID=?", (id,))
+        # command = conn_database.execute("select lessons_offers_IDs from users where username=?", (username,))
+        #
+        # for row in command:
+        #     existing_lessons_offers=row[0]
+        # existing_lessons_offers = existing_lessons_offers.split(',')
+        # # existing_lessons_offers.remove(',')
+        # print(existing_lessons_offers)
+        # existing_lessons_offers.remove(id)
+        # new_lessons_offers = ','.join(existing_lessons_offers)
+        # print(new_lessons_offers)
+        # conn_database.execute("update users set lessons_offers_IDs = ? where username=?" , (new_lessons_offers,username))
+        # conn_database.commit()
+        DataBaseFunctions.send_msg(sender="הנהלת Syeto", addressee=username, topic="שיעור חדש נקבע!",
+                                                             content="היי! נראה שקבעת הרגע שיעור!")
+
+    @staticmethod
+    def deny_lesson_offer(username, id):
+        DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
+        DataBaseFunctions.delete_lesson_offer_from_users_table(username=username, id=id)
+
+from Subject import Subject
+s=Subject('מתמטיקה', ['חמש יחל לכיתה י'])
+# print(DataBaseFunctions.specific_teachers_for_all_subjects([s])
+# [0][0])
+#
+print(DataBaseFunctions.specific_teachers_for_one_subject(s))

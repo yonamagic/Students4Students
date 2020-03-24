@@ -152,43 +152,20 @@ def checkRegistration():
                 classes.append(single_class)
         weak_subjects.append(Subject(subject_name, classes))
 
-    # strong_subjects = []
-    # for sub in DataBaseFunctions.subjects:
-    #     if request.form.get("strong_" + str(sub)) != None:
-    #         current_subject = Subject(sub,[])
-    #         for i in range(10,13):
-    #             if request.form.get("strong_" + sub + "_class_" + str(i)) != None:
-    #                 current_subject.classes.append(i)
-    #         strong_subjects.append(current_subject)
-    # details_dict['strong_subjects'] = strong_subjects
-    #
-    #
-    # weak_subjects = []
-    # for sub in DataBaseFunctions.subjects:
-    #     if request.form.get("weak_"+str(sub)) != None:
-    #         current_subject = Subject(sub,[])
-    #         for i in range(10,13):
-    #             if request.form.get("weak_" + sub + "_class_" + str(i)) != None:
-    #                 current_subject.classes.append(i)
-    #         weak_subjects.append(current_subject)
-    # details_dict['weak_subjects'] = strong_subjects
-
-
-
 
     todo_bien = True#There are no problems in registration details
 
     if len(details_dict['username']) < 4 or len(details_dict['username']) > 14 or details_dict['username'].__contains__(' '):#username not in legal length
-        details_dict['username_comment'] = "Please enter a username between 4-14 characters with no spaces"
+        details_dict['username_comment'] = "הקפידו ששם המשתמש הוא בין 4-14 תווים ואינו מכיל רווחים"
         todo_bien=False
     if details_dict['confirm_password'] != details_dict['password']:
         details_dict['confirm_password_comment'] = "מממ... הסיסמות לא תואמות ):"
         todo_bien=False
     if DataBaseFunctions.user_exists(details_dict['username']):#username taken
-        details_dict['username_comment'] = "This username is taken"
+        details_dict['username_comment'] = "שם משתמש זה תפוס, בחרו כינוי שונה"
         todo_bien = False
     if len(details_dict['password']) < 8:#password is too short
-        details_dict['password_comment'] = "Please choose a password with a minimal length of 8 characters"
+        details_dict['password_comment'] = "בחרו סיסמה באורך מינימלי של 8 תווים"
         todo_bien = False
     if len(details_dict['email']) == 0:
         details_dict['email_comment']="אנא מלאו כתובת מייל תקנית"
@@ -196,6 +173,9 @@ def checkRegistration():
     if not details_dict['email'].__contains__('@'):
         details_dict['email_comment']="אנא מלאו כתובת מייל תקנית"
         todo_bien=False
+
+    if details_dict['confirm_password_comment'] == None:
+        details_dict['confirm_password_comment']=""
 
     if todo_bien==False:#Theres a problem
         return register(username=details_dict['username'],
@@ -211,6 +191,7 @@ def checkRegistration():
     DataBaseFunctions.create_user(username=request.form.get("username"),
                                   password=request.form.get("password"),
                                   email=request.form.get("email"),
+                                  platform_nickname="",
                                   strong_subjects=strong_subjects,
                                   weak_subjects=weak_subjects)
     session['user'] = details_dict['username']
@@ -344,7 +325,7 @@ def messageSent():
         return sendMessage(addressee=addressee,
                            topic=topic,
                            content=content,
-                           addressee_comment="Please enter an existing username")
+                           addressee_comment="השם הזה לא קיים במערכת, נסו אחד אחד.")
     print("User indeed exists")
 
     DataBaseFunctions.send_msg(sender=sender,
@@ -508,7 +489,7 @@ def teacher_or_students_offer_lesson(username):
 
 #/<selected_platform>/<selected_date>/<selected_timeA>/<selected_timeB>/<error_msg>
 @app.route('/offer_lesson/<username>/<teacher>', methods=['GET'])
-def offer_lesson(username, teacher, selected_platform="", selected_platform_nickname="", selected_date="", selected_timeA="", selected_timeB="", selected_subject="", free_text="", error_msg=""):
+def offer_lesson(username, teacher, selected_platform="",  selected_date="", selected_timeA="", selected_timeB="", selected_subject="", free_text="", error_msg=""):
     import Calendar_Functions
     subjects_list=[]
     if teacher == "True":
@@ -527,7 +508,6 @@ def offer_lesson(username, teacher, selected_platform="", selected_platform_nick
                            timesA=Calendar_Functions.get_times_for_lessons(),
                            timesB=Calendar_Functions.get_times_for_lessons(),
                            selected_platform=selected_platform,
-                           selected_platform_nickname=selected_platform_nickname,
                            selected_date=selected_date,
                            selected_timeA=selected_timeA,
                            selected_timeB=selected_timeB,
@@ -545,7 +525,6 @@ def process_lesson_request(username, teacher):
     else:
         teacher = session['user']
     platform = request.form.get("platforms_list")
-    platform_nickname = request.form.get("platform_nickname")
     date = request.form.get("dates")
     from_time = request.form.get("from_time_list")
     until_time = request.form.get("until_time_list")
@@ -560,17 +539,12 @@ def process_lesson_request(username, teacher):
     if not Calendar_Functions.is_after(until_time,from_time):
         error_msg = "אנא בחר טווח שעות הגיוני"
         todo_bien=False
-    print("platform nickname = ", platform_nickname)
-    if platform_nickname == "":
-        error_msg = "אנא הזן את הכינוי שלך באחת הפלטפורמות לוידאו צ'אט"
-        todo_bien=False
     #---------------------------------------------------------סיום בדיקת תקינות
     if not todo_bien:
         return offer_lesson(username=username,
                             teacher=teacher,
                             selected_subject=selected_subject,
                             selected_platform=platform,
-                            selected_platform_nickname=platform_nickname,
                             selected_date=date,
                             selected_timeA=from_time,
                             selected_timeB=until_time,
@@ -587,10 +561,21 @@ def process_lesson_request(username, teacher):
                                           to_user=username,
                                           teacher=teacher,
                                           subject=selected_subject,
-                                          platform_nickname=platform_nickname,
                                           time_range=from_time+'-'+until_time,
                                           free_text=free_text)
     return redirect('/profile?username='+username)
+
+@app.route('/accept_lesson_offer/<ID>')
+def accept_lesson_offer(ID):
+    (DataBaseFunctions.accept_lesson_offer(username=session['user'],
+                                          id = ID))
+    return redirect("/view_lessons_offers")
+
+@app.route('/deny_lesson_offer/<ID>')
+def deny_lesson_offer(ID):
+    (DataBaseFunctions.deny_lesson_offer(username=session['user'],
+                                          id = ID))
+    return redirect("/view_lessons_offers")
 #------------------------------------------------------------------------------------------------Non-Corona
 # @app.route('/offer_lesson_location', methods=['GET','POST'])
 # def offer_lesson_location():
@@ -635,9 +620,10 @@ def lessons_offers():
 
 @app.route('/view_lessons_offers/single_offer/<offer_id>')
 def view_a_single_lesson_offer(offer_id):
-    print("offer ",DataBaseFunctions.get_lesson_offer_object(offer_id))
+    offer = DataBaseFunctions.get_lesson_offer_object(offer_id)
     return render_template('view_a_single_lesson_offer.html',
-                           offer=DataBaseFunctions.get_lesson_offer_object(offer_id))
+                           offer=offer,
+                           platform_nickname=DataBaseFunctions.get_platform_nickname(offer.from_user))
 
 #
 #

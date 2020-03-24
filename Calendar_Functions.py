@@ -2,20 +2,45 @@ import sqlite3
 from _datetime import datetime, timedelta
 from DataBaseFunctions import DataBaseFunctions
 #---------------------------------------------------------------------------------------------------------------------
-def create_new_lesson(participants, location, date, time_range):#Creates a new lesson in DB
+def create_new_lesson(participants, location, date, time_range, subject, teacher):#Creates a new lesson in DB
     conn = sqlite3.connect('calendar.db')
-    date_ID = conn.execute("select ID from dates where date=? and place=?", (date,location))
-    for row in date_ID:
-        date_ID = row[0]
-    print("dateID=",date_ID)
+    date_ID = such_date_exists(date, location)
+    if not date_ID:
+        date_ID = create_new_date(date=date,
+                                  place=location)
     lesson_ID = DataBaseFunctions.random_id()
     create_lesson_in_dates_table(date_ID, lesson_ID)
-    create_lesson_in_lessons_table(lesson_ID, location, date, participants, time_range)
+    create_lesson_in_lessons_table(ID=lesson_ID,
+                                   location=location,
+                                   date=date,
+                                   subject=subject,
+                                   participants=participants,
+                                   teacher=teacher,
+                                   time_range=time_range)
 
-def create_lesson_in_lessons_table(ID, location, date, participants, time_range):#Responsible for lesson creation in lessons table
+
+#returns False if there is no such date in table, or the date_ID if there is
+def such_date_exists(date, location):
     conn = sqlite3.connect('calendar.db')
-    conn.execute("insert into lessons (ID, place, date, participants, time_range) values (?,?,?,?,?)",
-                 (ID, location, date, participants, time_range))
+    date_ID = conn.execute("SELECT ID FROM dates WHERE date = ? and place=?;", (date,location))
+    for row in date_ID:
+        return row[0]
+    return False
+
+def create_new_date(date, place):
+    conn = sqlite3.connect('calendar.db')
+    id = DataBaseFunctions.random_id()
+    conn.execute("insert into dates "
+                 "(ID, date, place, lessons_IDs) "
+                 "values (?,?,?,'')",
+                 (id, date, place))
+    conn.commit()
+    return id
+
+def create_lesson_in_lessons_table(ID, location, date, subject, participants, teacher, time_range):#Responsible for lesson creation in lessons table
+    conn = sqlite3.connect('calendar.db')
+    conn.execute("insert into lessons (ID, place, date, subject, participants, teacher, time_range) values (?,?,?,?,?,?,?)",
+                 (ID, location, date, subject, participants, teacher, time_range))
     conn.commit()
 
 def create_lesson_in_dates_table(date_ID, lesson_ID):#Responsible for lesson creation in dates table
@@ -189,3 +214,4 @@ def get_times_for_lessons(range='08:00-22:00', jumps_ranges=15):#returns a list 
 def is_after(time1, time2):#Returns True if time1 is after time2
     return datetime.strptime(time1, '%H:%M') > datetime.strptime(time2, '%H:%M')
 #---------------------------------------------------------------------------------------------------------------------
+print(such_date_exists("21/03/20", "Skype"))

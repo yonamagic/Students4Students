@@ -12,7 +12,7 @@
 </h1>
 
 <h2>{{offer.place}} - פלטפורמה</h2>
-<h3> {{offer.platform_nickname}}  -  {{offer.place}}  כינוי ב  </h3>
+<h3> {{platform_nickname}}  -  {{offer.place}}  כינוי ב  </h3>
 <h2>{{offer.date}} - בתאריך</h2>
 <h2>{{offer.time_range}} - בשעות</h2>
 
@@ -21,4 +21,7 @@
     <h2>...ונראה שהוא כתב לך משהו קטן</h2>
     <p>{{offer.free_text}}</p>
 {% endif %}
+
+<button onclick="location.href='/accept_lesson_offer/{{offer.ID}}'">סבבה נשמע טוב, קבענו!</button>
+<button onclick="location.href='/deny_lesson_offer/{{offer.ID}}'">לא מתאים לי ממש</button>
 {% endblock %}

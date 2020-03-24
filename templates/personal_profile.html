@@ -10,21 +10,21 @@
     <h1><font color="blue">{{session.user}}</font></h1>
 
     <form action="/editProfile">
-    <button type="submit" class="btn btn-primary"><font color="brown">Edit personal details</font></button>
+    <button type="submit" class="btn btn-primary"><font color="brown">ערוך פרטים אישיים</font></button>
     </form>
 
-<h2><font color="green">Strong subjects:</font></h2>
+<h2 align="right"><font color="green">מקצועות שבהם אני מסוגל/ת לתגבר</font></h2>
 {% for subject in strong_subjects %}
-    <h2>{{subject.name}} -</h2>
+    <h2 align="right">{{subject.name}} -</h2>
     {% for class in subject.classes %}
-        * {{class}}
-          <br>
+         <p align="right">* {{class}}</p>
+<!--          <br>-->
   {% endfor %}
 {% endfor %}
 
 <br><br>
 
-<h2><font color="brown">Weak subjects:</font></h2>
+<h2><font color="brown">מקצועות שבהם אזדקק לתיגבור</font></h2>
 {% for subject in weak_subjects %}
     <h2>{{subject.name}} -</h2>
     {% for class in subject.classes %}

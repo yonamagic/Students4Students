@@ -1,7 +1,7 @@
 {% extends "registeredLayout.html" %}
 
 {% block head %}
-<h1>Send a message!</h1>
+<h1>שליחת הודעה</h1>
 {% endblock %}
 
 {% block body %}
@@ -9,12 +9,12 @@
 
 
 <form action="/messageSent" method="post">
-<input type="text" name="addressee" value="{{addressee}}" placeholder="Send to:">
+<input type="text" name="addressee" value="{{addressee}}" placeholder="שלח ל:">
     <font color="red">{{addressee_comment}}</font>
     <br>
-<input type="text" name="topic" value="{{topic}}" placeholder="Topic"><br>
-<textarea rows="4" cols="50" name="content" placeholder="Message content here:">{{content}}</textarea><br>
-<button type="submit" class="block">Send</button>
+<input type="text" name="topic" value="{{topic}}" placeholder="נושא"><br>
+<textarea rows="4" cols="50" name="content" placeholder="תוכן ההודעה">{{content}}</textarea><br>
+<button type="submit" class="block">שלח</button>
 </form>
 
 

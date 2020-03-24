@@ -6,25 +6,25 @@
 
 {% block body %}
 <br><br><br>
-<button  onclick="location.href='/report_user?username={{username}}'"/>Report user</button>
+<button  onclick="location.href='/report_user?username={{username}}'"/>דווח על המשתמש הזה</button>
 
 {% if is_friend %}
 <!--It means that the user is NOT a friend already-->
     {% if friend_request_sent_already %}
-        <button  onclick="location.href='/cancel_friend_request?username={{username}}'"/>Cancel friend request</button>
+        <button  onclick="location.href='/cancel_friend_request?username={{username}}'"/>בטל את הצעת החברות</button>
     {% else %}
-        <button  onclick="location.href='/send_friend_request?username={{username}}'"/>Send friend request</button>
+        <button  onclick="location.href='/send_friend_request?username={{username}}'"/>שלח הצעת חברות</button>
     {%endif%}
 {% else %}
 <!--It means that the user is INDEED a friend already-->
-    <button  onclick="location.href='/remove_from_friends_list?username={{username}}'"/>Remove from friends_list</button>
+    <button  onclick="location.href='/remove_from_friends_list?username={{username}}'"/>הסר מרשימת החברים</button>
 {% endif %}
 
-    <button  onclick="location.href='/teacher_or_students_offer_lesson/{{username}}'"/>Ask for a lesson</button>
+    <button  onclick="location.href='/teacher_or_students_offer_lesson/{{username}}'"/>שלח הצעת שיעור</button>
 <br>
 
 <h1><font color="blue">{{username}}</font></h1>
-<h2><font color="green">Strong subjects:</font></h2>
+<h2><font color="green">מקצועות שבהם אני מסוגל/ת להעניק לתגבר</font></h2>
 {% for subject in strong_subjects %}
     <h2>{{subject.name}} -</h2>
     {% for class in subject.classes %}
@@ -35,7 +35,7 @@
 
 <br><br>
 
-<h2><font color="brown">Weak subjects:</font></h2>
+<h2><font color="brown">מקצועות שבהם אזדקק לתיגבור</font></h2>
 {% for subject in weak_subjects %}
     <h2>{{subject.name}} -</h2>
     {% for class in subject.classes %}

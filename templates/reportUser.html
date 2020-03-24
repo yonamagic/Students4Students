@@ -1,7 +1,9 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
 
-<h1>Report user: {{username}}</h1>
+<h1>דווח על המשתמש: {{username}}</h1>
 
 <form action="/report_done?username={{username}}" method="post">
-    <input type="text" name="report_content" placeholder="Why do you want to report this user?" size="100">
+    <input type="text" name="report_content" placeholder="מהי סיבת הדיווח?" size="100">
     <input type="submit"></input>
 </form>

@@ -1,47 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html dir="rtl" lang="he">
     <head>
         <meta charset="UTF-8">
         <!--<form action="/homePage" method="post">-->
-        hello, {{session.user}}
-                <button type="submit" class="btn btn-primary" onclick="location.href='/homePage'"><font color="blue">HOME</font></button>
+        שלום, {{session.user}}
+                <button type="submit" class="btn btn-primary" onclick="location.href='/homePage'"><font color="blue">מסך הבית</font></button>
         <!--</form>-->
         <!--<br>-->
         <!--<form action="/logout" method="post">-->
             {% if session.is_admin %}
-                <button type="submit" class="btn btn-primary" onclick="location.href='/admin_options'"><font color="blue">Admin Options</font></button>
+                <button type="submit" class="btn btn-primary" onclick="location.href='/admin_options'"><font color="blue">אפשרויות מנהל מערכת</font></button>
             {% endif %}
-                <button type="submit" class="btn btn-primary" onclick="location.href='/logout'"><font color="blue">Log Out</font></button>
+                <button type="submit" class="btn btn-primary" onclick="location.href='/logout'"><font color="blue">התנתק</font></button>
         <!--</form>-->
         <!--<br>-->
         <!--<form action="/profile" method="post">-->
-                <button type="submit" class="btn btn-primary" onclick="location.href='/profile?username={{session.user}}'"><font color="blue">Profile</font></button>
+                <button type="submit" class="btn btn-primary" onclick="location.href='/profile?username={{session.user}}'"><font color="blue">פרופיל אישי</font></button>
         <!--</form>-->
         <!--<br>-->
         <!--<form action="/potentialTeachers" method="post">-->
                 {% if not session.is_admin %}
-                    <button type="submit" class="btn btn-primary" onclick="location.href='/potentialTeachers'"><font color="blue">Find Teachers</font></button>
+                    <button type="submit" class="btn btn-primary" onclick="location.href='/potentialTeachers'"><font color="blue">מצא מורים</font></button>
                 {% endif %}
         <!--</form>-->
         <!--<br>-->
          <!--<form action="/inbox" method="post">-->
-                <button type="submit" class="btn btn-primary" onclick="location.href='/friends_list'"><font color="blue">Friends</font></button>
+                <button type="submit" class="btn btn-primary" onclick="location.href='/friends_list'"><font color="blue">רשימת החברים שלי</font></button>
                 <button type="submit" class="btn btn-primary" onclick="location.href='/inbox'"><font color="blue">Inbox</font></button>
-                <button type="submit" class="btn btn-primary" onclick="location.href='/forum_homepage'"><font color="blue">Forum</font></button>
+                <button type="submit" class="btn btn-primary" onclick="location.href='/forum_homepage'"><font color="blue">פורום</font></button>
         <!--</form>-->
         <!--<br>-->
-        <input type="text" id="searchTextBox" onclick="deleteTbText()" placeholder="Search Profiles" >
-        <button  onclick="pageTransfer()">Search users' profiles</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="text" id="search_username" onclick="deleteTbText()" placeholder="חפש משתמש ספציפי" >
+        <button  onclick="location.href='/profile?username='+document.getElementById('search_username').value">חפש!</button>
                         <font color="red">{{search_user_comment}}</font>
 
-        <script>
-            function pageTransfer() {
-              var username = (document.getElementById("searchTextBox").value);
-              var staticURL = "http://localhost:5000/profile?username=";
-              var newURL = (staticURL + username);
-              location.href = newURL;
-            }
-         </script>
 
 
 
