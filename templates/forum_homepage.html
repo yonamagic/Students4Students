@@ -2,7 +2,7 @@
 
 {% block body %}
 
-<h1>Forum Home Page</h1>
+<h1>פורום:</h1>
 
 {% for forum_name in forum_names %}
     <button class="forum_name" onclick="location.href='/forum/{{forum_name}}'">{{forum_name}}</button><br>

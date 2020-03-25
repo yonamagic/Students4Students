@@ -39,7 +39,7 @@ def create_new_date(date, place):
 
 def create_lesson_in_lessons_table(ID, location, date, subject, participants, teacher, time_range):#Responsible for lesson creation in lessons table
     conn = sqlite3.connect('calendar.db')
-    conn.execute("insert into lessons (ID, place, date, subject, participants, teacher, time_range) values (?,?,?,?,?,?,?)",
+    conn.execute("insert into lessons (ID, place, date, subject, participants, teacher, time_range, active) values (?,?,?,?,?,?,?,'True')",
                  (ID, location, date, subject, participants, teacher, time_range))
     conn.commit()
 
@@ -213,5 +213,8 @@ def get_times_for_lessons(range='08:00-22:00', jumps_ranges=15):#returns a list 
 
 def is_after(time1, time2):#Returns True if time1 is after time2
     return datetime.strptime(time1, '%H:%M') > datetime.strptime(time2, '%H:%M')
+
+def date_is_after(date1, date2):
+    return datetime.strptime(date1, '%d/%m/%y') > datetime.strptime(date2, '%d/%m/%y')
 #---------------------------------------------------------------------------------------------------------------------
 print(such_date_exists("21/03/20", "Skype"))

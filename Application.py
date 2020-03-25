@@ -1,5 +1,4 @@
 from os import abort
-
 from flask import Flask, render_template, request, session, redirect
 # from flask_socketio import SocketIO
 from Subject import Subject
@@ -73,6 +72,10 @@ def loginPage():
     staticVar.comment=""
     return redirect("/login" , code=302)
 
+# @app.route('/ttt')
+# def t():
+#     session['new_messages'] = "ח"
+#     return render_template("registeredLayout.html")
 
 @app.route('/login', methods=["POST","GET"])
 def login():
@@ -88,10 +91,11 @@ def checkUserEntryDetails():
     if correct == True:
         session['user'] = request.form.get("username")
         staticVar.connected_username = session['user']
+
         # return "Details are correct! You may login, " + username#Entry, I will write it later...
         return redirect('homePage', code=302)
     else:
-        staticVar.comment = "Username or password incorrect."
+        staticVar.comment = "שם המשתמש או הסיסמה שגויים, אנא נסו אחד אחר."
         return redirect('/login', code=302)
 
 @app.route('/logout', methods=['POST','GET'])
@@ -106,7 +110,8 @@ def logout():
 def register(username="", username_comment="",
              password="", password_comment="",
              confirm_password="", confirm_password_comment="",
-             email="", email_comment=""):
+             email="", email_comment="",
+             selected_strong_subjects=[], selected_weak_subjects=[]):
 
     return render_template('registerr.html',
                            username=username, password=password, confirm_password=confirm_password, email=email,
@@ -114,7 +119,9 @@ def register(username="", username_comment="",
                            password_comment=password_comment,
                            confirm_password_comment=confirm_password_comment,
                            email_comment=email_comment,
-                           subjects=DataBaseFunctions.subjects_and_classes)
+                           subjects=DataBaseFunctions.subjects_and_classes,
+                           selected_strong_subjects=selected_strong_subjects,
+                           selected_weak_subjects=selected_weak_subjects)
 
 
 
@@ -141,7 +148,8 @@ def checkRegistration():
         for single_class in subject[1]:
             if request.form.get("strong_"+subject_name+"_"+single_class) == "on":
                 classes.append(single_class)
-        strong_subjects.append(Subject(subject_name, classes))
+        if classes:
+            strong_subjects.append(Subject(subject_name, classes))
 
     weak_subjects=[]
     for subject in DataBaseFunctions.subjects_and_classes:
@@ -150,8 +158,8 @@ def checkRegistration():
         for single_class in subject[1]:
             if request.form.get("weak_"+subject_name+"_"+single_class) == "on":
                 classes.append(single_class)
-        weak_subjects.append(Subject(subject_name, classes))
-
+        if classes:
+            weak_subjects.append(Subject(subject_name, classes))
 
     todo_bien = True#There are no problems in registration details
 
@@ -182,6 +190,8 @@ def checkRegistration():
                         password=details_dict['password'],
                         confirm_password=details_dict['confirm_password'],
                         email=details_dict['email'],
+                        selected_strong_subjects=strong_subjects,
+                        selected_weak_subjects=weak_subjects,
                         username_comment=details_dict['username_comment'],
                         password_comment=details_dict['password_comment'],
                         confirm_password_comment=details_dict['confirm_password_comment'],
@@ -195,13 +205,49 @@ def checkRegistration():
                                   strong_subjects=strong_subjects,
                                   weak_subjects=weak_subjects)
     session['user'] = details_dict['username']
+    # session['new_messages'] = 0
+    # session['new_lesson_offers'] = 0
     return redirect('/homePage')#Every thing is ok, register me!
 
 
 
 @app.route('/editProfile')
 def editProfile():
-    return render_template('editProfile.html', subjects=DataBaseFunctions.subjects)
+    s=DataBaseFunctions.get_strong_subjects(session['user'])
+    for i in s:
+        print(i.name, i.classes)
+    return render_template('editProfile.html',
+                           subjects=DataBaseFunctions.subjects_and_classes,
+                           selected_strong_subjects=DataBaseFunctions.get_strong_subjects(session['user']),
+                           selected_weak_subjects=DataBaseFunctions.get_weak_subjects(session['user'])
+                           )
+
+@app.route('/profileEditingDone', methods=['POST'])
+def profileEditingDone():
+    strong_subjects = []
+    for subject in DataBaseFunctions.subjects_and_classes:
+        subject_name = subject[0]
+        classes = []
+        for single_class in subject[1]:
+            if request.form.get("strong_" + subject_name + "_" + single_class) == "on":
+                classes.append(single_class)
+        if classes:
+            strong_subjects.append(Subject(subject_name, classes))
+    print("Hey!", ','.join(DataBaseFunctions.subjects_names(strong_subjects)))
+    weak_subjects = []
+    for subject in DataBaseFunctions.subjects_and_classes:
+        subject_name = subject[0]
+        classes = []
+        for single_class in subject[1]:
+            if request.form.get("weak_" + subject_name + "_" + single_class) == "on":
+                classes.append(single_class)
+        if classes:
+            weak_subjects.append(Subject(subject_name, classes))
+
+    DataBaseFunctions.edit_user_subjects(username=session['user'],
+                                         strong_subjects=strong_subjects,
+                                         weak_subjects=weak_subjects)
+    return redirect('/profile?username='+session['user'])
 
 @app.route('/homePage', methods=['POST','GET'])
 def homePage():
@@ -219,7 +265,7 @@ def profile():
     username = request.args.get("username")# Just for now
     print("username = ", username)
     if not DataBaseFunctions.user_exists(username):
-        return render_template('homePage.html', search_user_comment="No such username exists")
+        return render_template('homePage.html', search_user_comment="שם משתמש לא קיים, נסו להזין אחד אחר.")
     print((session['user']))
     if not username or username==session['user']:#if there is no specified username or the specified name is sessin['user']
         username = session['user']
@@ -576,41 +622,6 @@ def deny_lesson_offer(ID):
     (DataBaseFunctions.deny_lesson_offer(username=session['user'],
                                           id = ID))
     return redirect("/view_lessons_offers")
-#------------------------------------------------------------------------------------------------Non-Corona
-# @app.route('/offer_lesson_location', methods=['GET','POST'])
-# def offer_lesson_location():
-#     import Calend
-#     username = request.args.get("username")
-#     return render_template('offer_lesson_location.html', locations=Calend.locations, username=username)
-#
-# @app.route('/offer_lesson_date', methods=['GET','POST'])
-# def offer_lesson_date():
-#     import Calend
-#     username = request.args.get("username")
-#     location = request.args.get("location")
-#     return render_template('offer_lesson_date.html',
-#                           upcoming_dates=['12/03/20','13/03/20'],
-#                            username=username, location=location)
-#
-#
-# @app.route('/offer_lesson_timerange', methods=['GET','POST'])
-# def offer_lesson_timerange():
-#     import Calend
-#     username = request.args.get("username")
-#     location = request.args.get("location")
-#     date = request.args.get("date")
-#     return render_template('offer_lesson_timerange.html',
-#                           available_time_ranges=['14:00-15:00', '15:15-16:15'],
-#                            username=username, location=location, date=date)
-#
-# @app.route('/send_lesson_offer', methods=['POST','GET'])
-# def send_lesson_offer():
-#     username = request.args.get("username")
-#     location = request.args.get("location")
-#     date = request.args.get("date")
-#     time_range = request.form.get("time_range")
-#     return str(username+","+ location+","+  date+","+ time_range)
-#------------------------------------------------------------------------------------------------Non-Corona
 
 
 @app.route('/view_lessons_offers')
@@ -625,63 +636,24 @@ def view_a_single_lesson_offer(offer_id):
                            offer=offer,
                            platform_nickname=DataBaseFunctions.get_platform_nickname(offer.from_user))
 
-#
-#
-#
-# @app.route('/offer_lesson_location', methods=['GET'])
-# def offer_lesson_location():
-#     import Calend
-#     username = request.args.get("username")
-#     return render_template('offer_lesson_location.html', locations=Calend.locations, username=username)
-#
-#
-#
-#
-#
-# @app.route('/send_lesson_offer', methods=['GET'])
-# def send_lesson_offer():
-#     username = request.args.get("username")
-#     date = request.args.get("date")
-#     time_range = request.args.get("time_range")
+@app.route('/my_lessons')
+def my_lessons():
+    return render_template('my_lessons.html', DataBaseFunctions=DataBaseFunctions,
+                                               lessons=DataBaseFunctions.get_lessons(username=session['user']),
+                           todays_date=DataBaseFunctions.get_date()[:-2])
 
-@app.route('/typingChatRoom')
-def typingChatRoom(methods=['GET']):
-    if not connected() or (connected() and request.args.get("self_username") != session['user']):#For preventing scams and hacks
-        return "Error" + "\r\n" \
-               + "You tried to enter a chat room you do not belong..."
-    else:
-        return render_template('typingChatRoom.html')
-
-
-# @app.route('/inbox')
-# def inbox():
-#     pass
-
-
-
-@app.route("/response" , methods=["POST" , "GET"])
-def response():
-    string=''
-    # print("Yesssss " + request.form.get("username") , request.form.get("password"))
-    for i in range(len(subjects)):
-        for j in range(3):
-            checked = request.form.get("currentID"+str(i)+'_'+str(j))
-            if checked == None:
-                string += (subjects[i] + " for classes: ")
-
-                print ("currentID"+str(i)+'_'+str(j) + " Not selected")
-            else:
-                print("currentID"+str(i)+'_'+str(j) + " SELECTED")
-    return " "
-    # string=''
-    # for i in range(3):
-    #     print (request.form.get(str(i)))
-    #     if request.form.get(str(i)) == None:
-    #         string = string + "No "
-    #     else:
-    #         string = string + "Yes "
-    #     print("string = " + string)
-    # return string
-
+@app.route('/my_lessons/<lesson_ID>')
+def view_one_lesson(lesson_ID):
+    lesson = DataBaseFunctions.get_lesson_by_ID(lesson_ID)
+    return render_template("view_a_single_lesson.html",
+                           lesson=lesson,
+                           todays_date=DataBaseFunctions.get_date()[:-2],
+                           platform_nickname = DataBaseFunctions.get_platform_nickname(
+                               username=DataBaseFunctions.get_other_user_username(lesson=lesson,
+                                                                                  self_username=session['user'])))
+@app.route('/my_lessons/cancel_lesson/<lesson_ID>')
+def cancel_lesson(lesson_ID):
+    DataBaseFunctions.cancel_lesson(lesson_ID)
+    return redirect('/my_lessons')
 if __name__ == '__main__':
     app.run(debug=True)#, host='0.0.0.0')

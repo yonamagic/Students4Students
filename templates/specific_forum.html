@@ -2,13 +2,21 @@
 
 {% block body %}
 
-<h1>Forum: {{forum_name}}</h1>
+<h1>פורום: {{forum_name}}</h1>
 
-<button class="block" onclick="location.href='/forum/{{forum_name}}/create_post'">Write a new post</button><br>
+<button class="block" onclick="location.href='/forum/{{forum_name}}/create_post'"><font size="5"><b>כתוב פוסט חדש</b></font></button><br>
 <br><br><br>
 
 {% for post in posts %}
-    <button class="block" onclick="location.href='/post/{{post.post_ID}}'"><b>By:</b> {{post.narrator}}         <b>topic:</b> {{post.topic}}     <b>date:</b> {{post.date}}</button><br>
+<!--    <button class="block" onclick="location.href='/post/{{post.post_ID}}'"><b>By:</b> {{post.narrator}}         <b>topic:</b> {{post.topic}}     <b>date:</b> {{post.date}}</button><br>-->
+    <button class="block" onclick="location.href='/post/{{post.post_ID}}'">
+        <b>מאת:</b> {{post.narrator}}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>נושא:</b>{{post.topic}}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <font size="2">{{post.date}}</font>
+    </button>
+<br>
 {% endfor %}
 
 

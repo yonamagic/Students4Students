@@ -1,0 +1,35 @@
+{% extends "registeredLayout.html" %}
+
+{%block body %}
+
+{% if lesson.date == todays_date %}
+    {% set time_string = "היום" %}
+{% else %}
+    {% set time_string = "בתאריך "+lesson.date %}
+{% endif %}
+{% set other_user = lesson.participants.replace(',','').replace(session.user,'') %}
+{% if lesson.teacher == session.user %}
+    <h1>אתה תלמד את  <a href="/profile?username={{other_user}}">{{other_user}}</a> {{time_string}} בשעות {{lesson.time_range}}</h1>
+{% else %}
+
+    <h1>    <a href="/profile?username={{other_user}}">{{other_user}}</a>  ילמד אותך <font color="green">{{lesson.subject}}</font> {{time_string}} בשעות {{lesson.time_range}}</h1>
+<!--<a href="/profile?username={{other_user}}">{{other_user}}</a>-->
+{%endif%}
+
+
+<h2>{{lesson.place}} - פלטפורמה</h2>
+<h3> כינוי ב{{platform_nickname}} -  {{lesson.place}}</h3>
+<h2>{{lesson.date}} - בתאריך</h2>
+<h2>{{lesson.time_range}} - בשעות</h2>
+
+
+<button onclick="if (confirm()) location.href='cancel_lesson/{{lesson.ID}}'">בטל את השיעור</button>
+
+<script>function cancel_lesson(){
+    if (confirm()){
+        location.href='cancel_lesson/{{lesson.ID}}'
+    }
+}</script>
+
+
+{% endblock %}

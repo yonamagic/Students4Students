@@ -1,0 +1,46 @@
+{% extends "registeredLayout.html" %}
+
+{% block body %}
+<br><br>
+{% if lessons %}
+   נראה שקבעתם כמה שיעורים! יפה, תמשיכו ככה!
+{% else %}
+    נראה שלא קבעת שיעורים לבינתיים...
+{% endif %}
+<br><br>
+{% for lesson in lessons %}
+<br>
+        {% set other_user = lesson.participants.replace(',','').replace(session.user,'') %}
+        {% if lesson.date == todays_date %}
+            {% set time_string = "היום " %}
+        {% else %}
+            {% set time_string = "בתאריך "+lesson.date %}
+        {% endif %}
+        <button class="stylish" onclick="location.href='/my_lessons/{{lesson.ID}}'">
+        יש לך שיעור עם {{other_user}} {{time_string}} בשעות {{lesson.time_range}}
+        </button>
+{% endfor %}
+
+        {# set other_user_plat_nick = DataBaseFunctions.get_platform_nickname(other_user) #}
+
+
+<style>
+.stylish {
+  display: block;
+  width: 100%;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 28px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.block:hover {
+  background-color: #ddd;
+  color: black;
+}
+</style>
+
+{% endblock %}

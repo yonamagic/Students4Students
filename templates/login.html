@@ -8,12 +8,12 @@
 {% block body %}
 <h1>Sign In Bro!</h1>
 <form action="/checkUserEntryDetails" method="post">
-  username: <input name="username" type="text" placeholder="username" name="username"><br>
-  password: <input name="password" type="text" placeholder="password" name="password"><br>
+  שם משתמש: <input name="username" type="text" placeholder="שם משתמש" name="username"><br><br>
+  סיסמה: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="password" type="text" placeholder="סיסמה" name="password"><br>
     <small style="color:red">{{comment}}</small><br>
 
 
-  <input type="submit" value="Submit">
+  <input type="submit" >
 </form>
 {% endblock %}
 

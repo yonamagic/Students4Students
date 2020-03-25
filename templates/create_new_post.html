@@ -3,10 +3,10 @@
 {% block body %}
 <br><br><br>
 <form action="/forum/{{forum_name}}/new_post_submitted" method="post">
-    <input type="text" placeholder="topic" name="topic">
+    <input type="text" placeholder="נושא הפוסט:" name="topic">
     <br><br>
-    <textarea type="text" placeholder="Enter content:" name="content"></textarea>
-    <button type="submit">send</button>
+    <textarea type="text" placeholder="תוכן:" name="content"></textarea>
+    <button type="submit">שלח</button>
 </form>
 
 {% endblock %}

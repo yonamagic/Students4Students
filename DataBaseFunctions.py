@@ -1,20 +1,22 @@
+from _datetime import datetime, timedelta
+
 import sqlite3
 from Subject import Subject
 import os
 from Message import Message
 
-def get_date():
-    import datetime
-    date = str(datetime.datetime.now()).split(' ')[0]
-    date = date.split('-')
-    date.reverse()
-    date = '/'.join(date)
-    return date
-
 class DataBaseFunctions:
 
     subjects = ['Math', 'English', 'History', 'Arabic', 'Bible']
 
+    @staticmethod
+    def get_date():
+        import datetime
+        date = str(datetime.datetime.now()).split(' ')[0]
+        date = date.split('-')
+        date.reverse()
+        date = '/'.join(date)
+        return date
 
     @staticmethod
     def user_exists(username):
@@ -74,7 +76,6 @@ class DataBaseFunctions:
         # for r in com:
         #     print (r)
         # conn.commit()
-
 
     @staticmethod#returns a list of a user's friends list
     def get_friends_list(username):
@@ -458,7 +459,7 @@ class DataBaseFunctions:
         conn = sqlite3.connect("database.db", timeout=2)
         msgID = str(DataBaseFunctions.random_id())
         conn.execute("insert into messages (messageID, topic, sender, content, date, is_read) "
-                     "values (?,?,?,?,?,?)", (msgID, topic, sender, content, get_date(), "no")
+                     "values (?,?,?,?,?,?)", (msgID, topic, sender, content, DataBaseFunctions.get_date(), "no")
                      )
         conn.commit()
         return msgID
@@ -546,7 +547,7 @@ class DataBaseFunctions:
         return Comment(id=comment[0],
                        content=comment[1],
                        narrator=comment[2],
-                       date=get_date())
+                       date=DataBaseFunctions.get_date())
 
     @staticmethod  # returns a list of Comments objects by a list of comments IDs
     def get_all_comments_list(comments_IDs):
@@ -583,7 +584,7 @@ class DataBaseFunctions:
     def add_comment(post_id, content,narrator):
         conn = sqlite3.connect("database.db", timeout=2)
         comment_id = DataBaseFunctions.random_id()
-        date = get_date()
+        date = DataBaseFunctions.get_date()()
         DataBaseFunctions.create_comment(id = comment_id,
                                          content=content,
                                          narrator=narrator,
@@ -636,7 +637,7 @@ class DataBaseFunctions:
     def create_post_in_forum_posts(post_id, narrator, topic, content):
         conn = sqlite3.connect("database.db", timeout=2)
         conn.execute("insert into forum_posts (post_ID, narrator, topic, content, date, comments_IDs)"
-                     " values (?,?,?,?,?,?)", (post_id, narrator, topic, content, get_date(), ""))
+                     " values (?,?,?,?,?,?)", (post_id, narrator, topic, content, DataBaseFunctions.get_date(), ""))
         conn.commit()
 
     @staticmethod
@@ -732,7 +733,7 @@ class DataBaseFunctions:
     def create_notification_in_notifications_table(note_id, topic, content):
         conn = sqlite3.connect("database.db", timeout=2)
         conn.execute("insert into notifications (ID, topic, content, date, is_read)"
-                     " values (?,?,?,?,?)", (note_id, topic, content, get_date(), "no"))
+                     " values (?,?,?,?,?)", (note_id, topic, content, DataBaseFunctions.get_date()(), "no"))
         conn.commit()
 
 
@@ -743,6 +744,10 @@ class DataBaseFunctions:
         for row in friend_requests:
             friend_requests = row[0]
         friend_requests = friend_requests.split(',')
+        try:
+            friend_requests.remove('')
+        except:
+            pass
         return friend_requests
 
     @staticmethod
@@ -781,7 +786,7 @@ class DataBaseFunctions:
     def report_user(username, report_content):
         conn = sqlite3.connect("database.db", timeout=2)
         ID = DataBaseFunctions.random_id()
-        date = get_date()
+        date = DataBaseFunctions.get_date()
         conn.execute("insert into reports (ID, reported_user, content, date) values (?,?,?,?)",
                      (ID, username, report_content, date))
         conn.commit()
@@ -1132,9 +1137,180 @@ class DataBaseFunctions:
         DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
         DataBaseFunctions.delete_lesson_offer_from_users_table(username=username, id=id)
 
-from Subject import Subject
-s=Subject('מתמטיקה', ['חמש יחל לכיתה י'])
-# print(DataBaseFunctions.specific_teachers_for_all_subjects([s])
-# [0][0])
-#
-print(DataBaseFunctions.specific_teachers_for_one_subject(s))
+
+    @staticmethod
+    def get_lesson_by_ID(lesson_ID):
+        from Lesson import Lesson
+        conn = sqlite3.connect('calendar.db')
+        lesson = conn.execute("select * from lessons where ID=?", (lesson_ID,))
+        for row in lesson:
+            return Lesson(ID=row[0],
+                          place=row[1],
+                          date=row[2],
+                          subject=row[3],
+                          participants=row[4],
+                          teacher=row[5],
+                          time_range=row[6])
+    @staticmethod#מחזיר רשימה של טיפוסי Lesson החל מהיום (מסודרים על פי תאריך קיום השיעור)
+    def get_lessons(username='yonamagic'):
+        from Lesson import Lesson
+        conn = sqlite3.connect('calendar.db')
+        IDs=[]
+        lessons = []
+        command = conn.execute("select ID from lessons")
+        for row in command:
+            IDs.append(row[0])
+
+        for id in IDs:
+            participants = conn.execute("select participants from lessons where ID=?", (id,))
+            for row in participants:
+                participants=row[0]
+            if username in participants:
+                participants = participants.split(',')
+                platform_nicknames = {
+                    participants[0] : DataBaseFunctions.get_platform_nickname(participants[0]),
+                    participants[1]: DataBaseFunctions.get_platform_nickname(participants[1])
+                }
+                lesson =  conn.execute("select * from lessons where ID=?", (id,))
+                for detail in lesson:
+                    lesson_is_active = detail[7]
+                    if (not DataBaseFunctions.date_is_after(DataBaseFunctions.get_date()[:-2], detail[2]))\
+                            and lesson_is_active=="True":
+                        print("lesson", detail[0], detail[7])
+
+                        lessons.append(Lesson(ID=detail[0],
+                                          place=detail[1],
+                                          date=detail[2],
+                                          subject=detail[3],
+                                          participants=detail[4],
+                                          # platform_nicknames=platform_nicknames,
+                                          teacher=detail[5],
+                                          time_range=detail[6]))
+
+        return DataBaseFunctions.sort_lessons_by_date_and_time(lessons)
+
+    @staticmethod
+    def time_is_after(time1, time2):  # Returns True if time1 is after time2
+        return datetime.strptime(time1, '%H:%M') > datetime.strptime(time2, '%H:%M')
+
+    @staticmethod
+    def date_is_after(date1, date2):
+        return datetime.strptime(date1, '%d/%m/%y') > datetime.strptime(date2, '%d/%m/%y')
+
+    @staticmethod
+    def sort_lessons_by_date_and_time(lessons):
+        for i in range(len(lessons)):
+            for cnt in range(len(lessons)-1):
+                if DataBaseFunctions.date_is_after(lessons[cnt].date, lessons[cnt+1].date):
+                    temp = lessons[cnt]
+                    lessons[cnt] = lessons[cnt+1]
+                    lessons[cnt+1] = temp
+                if lessons[cnt].date == lessons[cnt+1].date and \
+                        DataBaseFunctions.time_is_after(lessons[cnt].time_range.split('-')[0], lessons[cnt].time_range.split('-')[1]):
+                    temp = lessons[cnt]
+                    lessons[cnt] = lessons[cnt+1]
+                    lessons[cnt+1] = temp
+        return lessons
+
+    @staticmethod#מחזירה את שם המשתמש של המשתמש השני בשיעור שנקבע (שאינו self_username)
+    def get_other_user_username(lesson, self_username):
+        return lesson.participants.replace(',','').replace(self_username,'')
+
+
+    @staticmethod#מוחק את נתוני השיעור מטבלת dates ומשנה את סטטוס active של השיעור בטבלת lessons לFalse
+    def cancel_lesson(ID):
+        DataBaseFunctions.set_lesson_not_active_in_lessons_table(ID)
+        DataBaseFunctions.delete_lesson_from_dates_table(date_ID=DataBaseFunctions.get_date_ID_by_lesson_ID(ID),
+                                                         lesson_ID=ID)
+
+    @staticmethod
+    def set_lesson_not_active_in_lessons_table(lesson_ID):
+        conn = sqlite3.connect('calendar.db')
+        conn.execute("update lessons set active='False' where ID=?", (lesson_ID,))
+        # conn.execute("delete from lessons where ID=?", (lesson_ID,))
+        conn.commit()
+
+    @staticmethod
+    def get_date_ID_by_lesson_ID(lesson_ID):
+        conn = sqlite3.connect('calendar.db')
+        dates_IDs = conn.execute("select ID from dates")
+        print(dates_IDs)
+        for ID in dates_IDs:
+            ID=ID[0]
+            lessons_IDs = conn.execute("select lessons_IDs from dates where ID=?", (ID,))
+            for row in lessons_IDs:
+                lessons_IDs=row[0]
+            if lesson_ID in lessons_IDs:
+                print(ID)
+                return ID
+
+    @staticmethod
+    def delete_lesson_from_dates_table(date_ID, lesson_ID):
+        conn = sqlite3.connect('calendar.db')
+        lessons_IDs = conn.execute("select lessons_IDs from dates where ID =?",(date_ID,))
+        for row in lessons_IDs:
+            lessons_IDs=row[0]
+        print(lessons_IDs)
+        lessons_IDs=lessons_IDs.split(',')
+        print(lessons_IDs)
+
+        lessons_IDs.remove(lesson_ID)
+        print(lessons_IDs)
+        lessons_IDs=','.join(lessons_IDs)
+        print(lessons_IDs)
+        conn.execute("update dates set lessons_IDs=? where ID=?", (lessons_IDs, date_ID))
+        conn.commit()
+
+
+
+    @staticmethod
+    def delete_subs_from_subjects_table(username):
+        conn = sqlite3.connect('database.db')
+        conn.execute("delete from subjects where username=?", (username,))
+        conn.commit()
+
+    @staticmethod
+    def edit_user_subjects(username, strong_subjects, weak_subjects):
+        conn = sqlite3.connect('database.db')
+        strong_subjects_names =','.join(DataBaseFunctions.subjects_names(strong_subjects))
+        weak_subjects_names =','.join(DataBaseFunctions.subjects_names(weak_subjects))
+        print("Strong and weak")
+        print(strong_subjects_names, weak_subjects_names)
+        conn.execute("update users "
+                     "set strong_subjects=?, weak_subjects=? "
+                     "where username=?",
+                     (strong_subjects_names,weak_subjects_names,username))
+        conn.commit()
+
+        DataBaseFunctions.delete_subs_from_subjects_table(username)
+
+        DataBaseFunctions.create_subs_in_subjects_table(conn=conn,
+                                                        subs=strong_subjects,
+                                                        status='strong',
+                                                        username=username)
+        DataBaseFunctions.create_subs_in_subjects_table(conn=conn,
+                                                        subs=weak_subjects,
+                                                        status='weak',
+                                                        username=username)
+
+
+
+
+
+
+    # @staticmethod
+    # def get_inbox_ID(username):
+    #     conn = sqlite3.connect('database.db')
+    #     id = conn.execute("select inboxID from users where username=?", (username,))
+    #     for row in id:
+    #         id=row[0]
+    #     return id
+    #
+    # @staticmethod
+    # def number_of_msgs(username):
+    #     conn = sqlite3.connect('database.db')
+    #     inbox_ID = DataBaseFunctions.get_inbox_ID(username)
+    #     msgs_list = conn.execute("select messagesIDs from inboxes where inboxID = ?", (inbox_ID,))
+    #     for row in msgs_list:
+    #         msgs_list=row[0]
+    #     return len(msgs_list.split(','))

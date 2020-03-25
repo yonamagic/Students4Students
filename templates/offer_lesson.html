@@ -52,7 +52,7 @@
 
 <br><br>
 
-בחר טווח שעות לשיעור
+בחר טווח שעות לשיעור - מ:
 <select id="from_time_list" name='from_time_list'>
 {% for timeA in timesA %}
     {% if selected_timeA == timeA %}
@@ -65,6 +65,7 @@
 {% endfor %}
 </select>
 
+    עד:
 <select id="until_time_list" name='until_time_list'>
 {% for timeB in timesB %}
     {% if selected_timeB == timeB %}

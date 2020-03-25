@@ -3,22 +3,22 @@
 {% block body %}
 
 <h1>{{post.topic}}</h1>
-By: {{post.narrator}}<br>
-date: {{post.date}}
+מאת: {{post.narrator}}<br>
+תאריך: {{post.date}}
 <br><br>
 <p style="width:500px;height:100px;border:1px solid #000;">{{post.content}}</p>
 
 <br><br><br>
 {% for comment in post.comments %}
     <div style="width:500px;height:200px;border:1px solid #000;">
-        <h2>By: <font color="blue">{{comment.narrator}}</font></h2>
-        Date: {{comment.date}}
+        <h2>מאת: <font color="blue">{{comment.narrator}}</font></h2>
+        תאריך: {{comment.date}}
         <h3>{{comment.content}}</h3>
     </div>
     <br>
 {% endfor %}
 
-<button type=button onClick="location.href='/post/write_comment/{{post_id}}'">Write a comment</button>
+<button type=button onClick="location.href='/post/write_comment/{{post_id}}'">הוסף תגובה</button>
 
 
 {% endblock %}

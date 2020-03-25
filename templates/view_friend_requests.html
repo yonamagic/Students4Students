@@ -2,7 +2,13 @@
 
 {% block body %}
 
-<h1>Friend Requests</h1>
+<h1>בקשות חברות</h1>
+{% if users %}
+נראה שיש פה הצעות חברות...
+{% else %}
+אין הצעות חברות חדשות
+{% endif %}
+<br><br>
 {% for name in users %}
     {% if name %}
         <a href="/profile?username={{name}}"><font size="5"><b>{{name}}</b></font></a>
