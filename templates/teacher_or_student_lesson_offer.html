@@ -3,6 +3,11 @@
 <br><br>
 האם תרצה ללמד או ללמוד?
     <br><br><br>
+{% if show_teach_option %}
     <button onclick="location.href='/offer_lesson/{{username}}/True'">ללמד - ארצה להעביר שיעור פרטי</button>
+{%endif%}
+{% if show_can_be_taught_option %}
     <button onclick="location.href='/offer_lesson/{{username}}/False'">ללמוד - ארצה לקבל שיעור פרטי</button>
+{%endif%}
+
 {% endblock %}

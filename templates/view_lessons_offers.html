@@ -15,7 +15,7 @@
         {% set desire = "רוצה ללמד אותך" %}
     {%endif%}
         <button class="stylish" onclick="location.href='/view_lessons_offers/single_offer/{{offer.ID}}'">
-              {{desire}} {{offer.subject}} {{offer.from_user}}
+             <b>{{offer.from_user}}</b> {{desire}} <b>{{offer.subject}}</b>
         </button>
 {% endfor %}
 

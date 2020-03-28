@@ -100,9 +100,14 @@ def checkUserEntryDetails():
 
 @app.route('/logout', methods=['POST','GET'])
 def logout():
-    del session['user']
-    staticVar.connected_username = ""
-    return redirect('/')
+    try:
+        del session['user']
+        staticVar.connected_username = ""
+        return redirect('/')
+
+    except:
+        staticVar.connected_username = ""
+        return redirect('/')
 
 
 #First registration page,
@@ -274,7 +279,6 @@ def profile():
                                strong_subjects=DataBaseFunctions.get_strong_subjects(username),
                                weak_subjects=DataBaseFunctions.get_weak_subjects(username))
     else:#user exists and it is not session['user']
-
         return render_template('user_profile.html',
                                username=username,
                                strong_subjects = DataBaseFunctions.get_strong_subjects(username),
@@ -282,7 +286,11 @@ def profile():
                                is_friend = not DataBaseFunctions.is_friend(self_user = session['user'],
                                                                  username=username,),#It gets the opposite somewhy
                                friend_request_sent_already = DataBaseFunctions.is_in_friend_requests(self_user=username,
-                                                                                                     username=session['user']))
+                                                                                                     username=session['user']),
+                               chance_for_a_lesson=DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
+                                                                                subs2=DataBaseFunctions.get_weak_subjects(username))
+                                                    or  DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_weak_subjects(session['user']),
+                                                                                    subs2=DataBaseFunctions.get_strong_subjects(username)))
 
 
 @app.route('/report_user', methods=['POST','GET'])
@@ -382,14 +390,19 @@ def messageSent():
 
 @app.route('/viewMessage', methods=['POST','GET'])
 def viewMessage():
-    # msg_id = request.args.get("msg_id")
-    msg = DataBaseFunctions.get_message(request.args.get("msg_id"))
-    DataBaseFunctions.make_msg_read(request.args.get("msg_id"))
-    return render_template('viewMessage.html',
-                           sender=msg.sender,
-                           topic=msg.topic,
-                           content=msg.content)
-
+    msg_id = request.args.get("msg_id")
+    if connected():
+        if DataBaseFunctions.whos_msg_is_this(msg_id) != session['user']:
+            return redirect('/messages')
+        else:
+            msg = DataBaseFunctions.get_message(msg_id)
+            DataBaseFunctions.make_msg_read(request.args.get("msg_id"))
+            return render_template('viewMessage.html',
+                                   sender=msg.sender,
+                                   topic=msg.topic,
+                                   content=msg.content)
+    else:
+        return redirect('/')
 @app.route('/friends_list')
 def friends_list():
     print((DataBaseFunctions.get_friends_list(session['user'])))
@@ -427,11 +440,11 @@ def view_friend_requests():
 @app.route('/accept_friend_request', methods=['GET'])
 def accept_friend_request():
     username = request.args.get("username")
-    DataBaseFunctions.add_to_friends_list(session['user'], username)
-    DataBaseFunctions.add_to_friends_list(username, session['user'])
-    DataBaseFunctions.remove_from_friend_requests(session['user'], username)
+    if DataBaseFunctions.is_in_friend_requests(session['user'], username):
+        DataBaseFunctions.add_to_friends_list(session['user'], username)
+        DataBaseFunctions.add_to_friends_list(username, session['user'])
+        DataBaseFunctions.remove_from_friend_requests(session['user'], username)
     return redirect('/friend_requests')
-
 @app.route('/deny_friend_request', methods=['GET'])
 def deny_friend_request():
     username = request.args.get("username")
@@ -531,7 +544,17 @@ def view_admin_msg(msg_id):
 
 @app.route('/teacher_or_students_offer_lesson/<username>')
 def teacher_or_students_offer_lesson(username):
-    return render_template('teacher_or_student_lesson_offer.html', username=username)
+    print("Can be a teacher:", not not DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
+                                                                                subs2=DataBaseFunctions.get_weak_subjects(username)))
+    print("can be a student:", not not DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_weak_subjects(session['user']),
+                                                                                    subs2=DataBaseFunctions.get_strong_subjects(username)))
+    return render_template('teacher_or_student_lesson_offer.html',
+                           username=username,
+                           show_teach_option = not not DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
+                                                                                subs2=DataBaseFunctions.get_weak_subjects(username)),
+                           show_can_be_taught_option = not not DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_weak_subjects(session['user']),
+                                                                                    subs2=DataBaseFunctions.get_strong_subjects(username))
+                           )
 
 #/<selected_platform>/<selected_date>/<selected_timeA>/<selected_timeB>/<error_msg>
 @app.route('/offer_lesson/<username>/<teacher>', methods=['GET'])
@@ -585,6 +608,10 @@ def process_lesson_request(username, teacher):
     if not Calendar_Functions.is_after(until_time,from_time):
         error_msg = "אנא בחר טווח שעות הגיוני"
         todo_bien=False
+    if Calendar_Functions.time_range_length(from_time=from_time, until_time=until_time) < 30\
+            or Calendar_Functions.time_range_length(from_time=from_time, until_time=until_time) > 60:
+        error_msg = "אורך השיעור צריך להיות בין 30 דקות לשעה :)"
+        todo_bien=False
     #---------------------------------------------------------סיום בדיקת תקינות
     if not todo_bien:
         return offer_lesson(username=username,
@@ -631,6 +658,8 @@ def lessons_offers():
 
 @app.route('/view_lessons_offers/single_offer/<offer_id>')
 def view_a_single_lesson_offer(offer_id):
+    if DataBaseFunctions.whos_lesson_offer_is_this(offer_id=offer_id) != session['user']:
+        return redirect('/view_lessons_offers')
     offer = DataBaseFunctions.get_lesson_offer_object(offer_id)
     return render_template('view_a_single_lesson_offer.html',
                            offer=offer,

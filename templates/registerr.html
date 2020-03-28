@@ -5,41 +5,44 @@
 {% endblock %}
 
 {% block body %}
-{{selected_strong_subjects}}
-<h1>הזינו את פרטיכם כדי ליצור משתמש:</h1>
-<form action="/checkRegistration" method="post">
-<input type="text" name="username" id="username" placeholder="שם משתמש" value="{{username}}">
-     <small style="color:red">{{username_comment}}</small><br>
 
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% set input_class = "w3-input" %}
+{% set check_input_class = "w3-check" %}
+<h1>הזינו את פרטיכם כדי ליצור משתמש:</h1>
+<br><br><br>
+<form action="/checkRegistration" method="post">
+<input type="text" class="{{input_class}}" name="username" id="username" placeholder="שם משתמש" value="{{username}}">
+     <small style="color:red">{{username_comment}}</small><br>
 <br>
 
-<input type="password" name="password" id="password" placeholder="סיסמה" value="{{password}}">
+<input type="password" class="{{input_class}}" name="password" id="password" placeholder="סיסמה" value="{{password}}">
     <small style="color:red">{{password_comment}}</small><br>
 
     <br>
 
-<input type="password" name="confirm_password" placeholder="אשר סיסמה" value="{{confirm_password}}">
+<input type="password" class="{{input_class}}" name="confirm_password" placeholder="אשר סיסמה" value="{{confirm_password}}">
 <small style="color:red">{{confirm_password_comment}}</small><br>
 
 
 <br>
 
 
-<input type="text" name="email"  placeholder="כתובת אי-מייל" value="{{email}}">
+<input type="text" class="{{input_class}}" name="email"  placeholder="כתובת אי-מייל" value="{{email}}">
      <small style="color:red">{{email_comment}}</small><br>
 
 <br>
 
 <h2>במה תוכלו לעזור לתלמידים אחרים?</h2>
 {% for subject in subjects %}
-    <font size="5">{{subject[0]}}</font>
+    <font size="6">{{subject[0]}}</font>
     {% for class in subject[1] %}
         {% if subject[1].index(class) != 0 %}
             {% for space in range(subject[0]|length+3) %}
                 &nbsp;
             {% endfor %}
         {% endif %}
-        <input type="checkbox" name="strong_{{subject[0]}}_{{class}}" id="strong_{{subject[0]}}_{{class}}" >{{class}}
+        <input type="checkbox" class="{{check_input_class}}" name="strong_{{subject[0]}}_{{class}}" id="strong_{{subject[0]}}_{{class}}" ><font size="4">{{class}}</font>
         {% for strong_sub in selected_strong_subjects %}
             {% if strong_sub.name == subject[0] %}
                 {% if class in strong_sub.classes%}
@@ -56,14 +59,14 @@
 
 <h2>במה לא יזיק לכם תגבור קטן? :)</h2>
 {% for subject in subjects %}
-    <font size="5">{{subject[0]}}</font>
+    <font size="6">{{subject[0]}}</font>
     {% for class in subject[1] %}
         {% if subject[1].index(class) != 0 %}
             {% for space in range(subject[0]|length+3) %}
                 &nbsp;
             {% endfor %}
         {% endif %}
-        <input type="checkbox" name="weak_{{subject[0]}}_{{class}}" id="weak_{{subject[0]}}_{{class}}">{{class}}
+        <input type="checkbox" class="{{check_input_class}}" name="weak_{{subject[0]}}_{{class}}" id="weak_{{subject[0]}}_{{class}}"><font size="4">{{class}}</font>
         {% for weak_sub in selected_weak_subjects %}
             {% if weak_sub.name == subject[0] %}
                 {% if class in weak_sub.classes%}

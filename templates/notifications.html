@@ -2,7 +2,13 @@
 
 {%block body%}
 
-<h1>{{session.user}}, these are your notifications:</h1>
+<h1>כאן תוכלו לצפות בחדשות מפי מנהלי המערכת</h1>
+
+{% if notifications %}
+<!--    <h1>נראה שיש חדשות!</h1>-->
+{% else %}
+    <h2>לא קיבלתם חדשות בינתיים... בדקו במועד מאוחר יותר</h2>
+{% endif %}
 
 {% for note in notifications%}
     {% if note.is_read == "yes" %}
@@ -10,7 +16,9 @@
     {% else %}
         {% set block = "not_read" %}
     {% endif %}
-    <button class={{block}} onclick="location.href='/notifications/view_note/{{note.ID}}'"><b>topic:</b> {{note.topic}}     <b>date:</b> {{note.date}}</button>
+    <button class={{block}} onclick="location.href='/notifications/view_note/{{note.ID}}'"><font size="4"><b>{{note.topic}}</b></font>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <font size="2">{{note.date}}</font></button>
     <br>
 {% endfor %}
 

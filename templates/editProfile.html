@@ -5,9 +5,13 @@
 {% endblock %}
 
 {% block body %}
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <form action="profileEditingDone" method="post">
 
-
+    <label class="container">One
+  <input type="checkbox" align="right" checked="checked">
+  <span class="checkmark"></span>
+</label>
 
     <h2>במה תוכלו לעזור לתלמידים אחרים?</h2>
 {% for subject in subjects %}
@@ -21,10 +25,9 @@
                 &nbsp;
             {% endfor %}
         {% endif %}
-        <input type="checkbox" name="strong_{{subject[0]}}_{{class}}" id="strong_{{subject[0]}}_{{class}}" >{{class}}
+        <input type="checkbox"  name="strong_{{subject[0]}}_{{class}}" id="strong_{{subject[0]}}_{{class}}" >{{class}}
         {% for strong_sub in selected_strong_subjects %}
             {% if strong_sub.name == subject[0] %}
-    <font color="blue">{{strong_sub.classes}}</font>
                 {% if class in strong_sub.classes%}
                  <script>document.getElementById("strong_{{subject[0]}}_{{class}}").checked=true</script>
                 {% endif %}
@@ -49,7 +52,7 @@
                 &nbsp;
             {% endfor %}
         {% endif %}
-        <input type="checkbox" name="weak_{{subject[0]}}_{{class}}" id="weak_{{subject[0]}}_{{class}}">{{class}}
+        <input type="checkbox"  name="weak_{{subject[0]}}_{{class}}" id="weak_{{subject[0]}}_{{class}}">{{class}}
         {% for weak_sub in selected_weak_subjects %}
             {% if weak_sub.name == subject[0] %}
                 {% if class in weak_sub.classes%}

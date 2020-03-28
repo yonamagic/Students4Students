@@ -72,6 +72,8 @@ class DataBaseFunctions:
         # DataBaseFunctions.edit_subjects_in_subjects_table(username=username, subjects=strong_subjects+weak_subjects)
         # DataBaseFunctions.create_weak_subs_in_users_table(conn,weak_subjects, username)
         conn.commit()
+        DataBaseFunctions.send_msg("הנהלת Syeto", username, "ברוכים הבאים לסייטו!", "בהצלחה!"
+                                                                                    "אנחנו כאן לכל שאלה ובעיה - שלחו הודעה למנהלי המערכת.")
 
         # for r in com:
         #     print (r)
@@ -485,7 +487,6 @@ class DataBaseFunctions:
 
         print(str(new_msg_id))
 
-
         if str(current_msgs):
             new_msgs_IDs = str(current_msgs) + ',' + str(new_msg_id)
         else:
@@ -498,6 +499,32 @@ class DataBaseFunctions:
                      "WHERE inboxID = ?", (new_msgs_IDs, inboxID))
 
         conn.commit()
+
+
+    @staticmethod
+    def whos_msg_is_this(msg_id):
+        conn = sqlite3.connect('database.db')
+        inboxes_IDs = conn.execute("select messagesIDs from inboxes")
+        for one_inbox_IDs in inboxes_IDs:
+            if msg_id in one_inbox_IDs[0].split(','):
+
+                 return DataBaseFunctions.whos_inbox_is_this(inbox_ID=DataBaseFunctions.whos_messages_is_this(one_inbox_IDs[0]))
+
+    @staticmethod
+    def whos_messages_is_this(inbox_msgs_IDs):
+        conn = sqlite3.connect('database.db')
+        inbox_ID = conn.execute("select inboxID from inboxes where messagesIDs =?", (inbox_msgs_IDs,))
+
+        for row in inbox_ID:
+            return row[0]
+
+    @staticmethod
+    def whos_inbox_is_this(inbox_ID):
+        conn = sqlite3.connect('database.db')
+        user = conn.execute("select username from users where inboxID=?", (inbox_ID,))
+        for row in user:
+            return row[0]
+
 
     @staticmethod#returns a Post object
     def get_post_object(post_id):
@@ -584,7 +611,7 @@ class DataBaseFunctions:
     def add_comment(post_id, content,narrator):
         conn = sqlite3.connect("database.db", timeout=2)
         comment_id = DataBaseFunctions.random_id()
-        date = DataBaseFunctions.get_date()()
+        date = DataBaseFunctions.get_date()
         DataBaseFunctions.create_comment(id = comment_id,
                                          content=content,
                                          narrator=narrator,
@@ -671,6 +698,8 @@ class DataBaseFunctions:
         notes_IDs = conn.execute("select notifications_IDs from users where username=?", (username,))
         for row in notes_IDs:
             notes_IDs=row[0]
+        if not notes_IDs:
+            return []
         notes_IDs=notes_IDs.split(',')
         for note in notes_IDs:
             notifications.append(DataBaseFunctions.get_notification_object(note))
@@ -713,7 +742,10 @@ class DataBaseFunctions:
             for row in existing_notes:
                 existing_notes = row[0]
             print (existing_notes)
-            new_notes_IDs = existing_notes + ',' + note_id
+            if existing_notes != '':
+                new_notes_IDs = existing_notes + ',' + note_id
+            else:
+                new_notes_IDs = note_id
             conn.execute("update users set notifications_IDs=? where username=?", (new_notes_IDs,user))
 
         conn.commit()
@@ -733,7 +765,7 @@ class DataBaseFunctions:
     def create_notification_in_notifications_table(note_id, topic, content):
         conn = sqlite3.connect("database.db", timeout=2)
         conn.execute("insert into notifications (ID, topic, content, date, is_read)"
-                     " values (?,?,?,?,?)", (note_id, topic, content, DataBaseFunctions.get_date()(), "no"))
+                     " values (?,?,?,?,?)", (note_id, topic, content, DataBaseFunctions.get_date(), "no"))
         conn.commit()
 
 
@@ -1137,6 +1169,17 @@ class DataBaseFunctions:
         DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
         DataBaseFunctions.delete_lesson_offer_from_users_table(username=username, id=id)
 
+    @staticmethod
+    def whos_lesson_offer_is_this(offer_id):
+        conn = sqlite3.connect('database.db')
+        users = conn.execute("select username from users")
+        for row in users:
+            user = row[0]
+            lessons_offers = conn.execute("select lessons_offers_IDs from users where username=?", (user,))
+            for r in lessons_offers:
+                lessons_offers=r[0]
+            if offer_id in lessons_offers.split(','):
+                return user
 
     @staticmethod
     def get_lesson_by_ID(lesson_ID):
@@ -1314,3 +1357,13 @@ class DataBaseFunctions:
     #     for row in msgs_list:
     #         msgs_list=row[0]
     #     return len(msgs_list.split(','))
+
+
+print(DataBaseFunctions.whos_msg_is_this("QDaB0"))
+# import threading
+# def d():
+#     # while not datetime.now()==
+#     print("It is working!")
+#
+# x = threading.Thread(target=d)
+# x.start()

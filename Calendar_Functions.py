@@ -216,5 +216,11 @@ def is_after(time1, time2):#Returns True if time1 is after time2
 
 def date_is_after(date1, date2):
     return datetime.strptime(date1, '%d/%m/%y') > datetime.strptime(date2, '%d/%m/%y')
+
+#מחזיר את הפרש הזמנים בדקות
+def time_range_length(from_time, until_time):
+    difference = str(datetime.strptime(until_time, '%H:%M') - datetime.strptime(from_time, '%H:%M'))
+    minutes = int(difference[difference.find(":")+1:difference.rfind(":")])
+    hours = int(difference[:difference.find(":")]) * 60
+    return (hours+minutes)
 #---------------------------------------------------------------------------------------------------------------------
-print(such_date_exists("21/03/20", "Skype"))

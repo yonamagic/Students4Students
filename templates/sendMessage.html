@@ -9,7 +9,8 @@
 
 
 <form action="/messageSent" method="post">
-<input type="text" name="addressee" value="{{addressee}}" placeholder="שלח ל:">
+<input type="text" name="addressee" id="addressee" value="{{addressee}}" placeholder="שלח ל:">
+    <input type="button" onclick="document.getElementById('addressee').value='Syeto_Admins';" value="ייעד את ההודעה למנהלי המערכת">
     <font color="red">{{addressee_comment}}</font>
     <br>
 <input type="text" name="topic" value="{{topic}}" placeholder="נושא"><br>

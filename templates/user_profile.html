@@ -20,7 +20,9 @@
     <button  onclick="location.href='/remove_from_friends_list?username={{username}}'"/>הסר מרשימת החברים</button>
 {% endif %}
 
+{% if chance_for_a_lesson %}
     <button  onclick="location.href='/teacher_or_students_offer_lesson/{{username}}'"/>שלח הצעת שיעור</button>
+{% endif %}
 <br>
 
 <h1><font color="blue">{{username}}</font></h1>
