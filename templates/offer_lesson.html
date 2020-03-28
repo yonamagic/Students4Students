@@ -33,6 +33,7 @@
   <option value={{platform}} id={{platform}} {{selected}}>{{platform}}</option>
 {% endfor %}
 </select>
+    <br>   <font color="blue"> הערה לשלב האב-טיפוס: כרגע אפשר דרך Zoom, לתיאום שיעור בפלטפורמה אחרת - תאמו ביניכם :)</font>
 
 
 <br><br>
@@ -78,10 +79,15 @@
 {% endfor %}
 </select>
   <br><br>
-  <input type="text" name="free_text" size="50" placeholder="טקסט חופשי (הודעה קצרה, שם משתמש בסקייפ וכו')" value={{free_text}}>
+  <input type="text" name="free_text" size="50" placeholder="טקסט חופשי (הודעה קצרה וכו')" value={{free_text}}>
 
    <h3><font color="red">{{error_msg}}</font></h3>
 
+    {% if Im_the_teacher=="True" %}
+        <h2><font color="green">שימ/י לב 3> :  מאחר ואת/ה המלמד בשיעור זה, <br>תצטרכ/י לשלוח למשתמש הלומד הודעה עם קישור לשיחת Zoom כמה דקות לפני תחילת השיעור (באמצעות שליחת הודעה לתיבת ההודעות).</font></h2>
+    {% else %}
+        <h2><font color="green">שימ/י לב 3> :  במידה שהשיעור יאושר על ידי המשתמש השני,<br> הוא יונחה לשלוח לך קישור לשיחת Zoom כחמש דקות לפני השיעור. בדוק/בדקי את תיבת ההודעות לפני השיעור.</font></h2>
+    {% endif %}
   <input type="submit">
 
 </form>

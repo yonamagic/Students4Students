@@ -544,10 +544,10 @@ def view_admin_msg(msg_id):
 
 @app.route('/teacher_or_students_offer_lesson/<username>')
 def teacher_or_students_offer_lesson(username):
-    print("Can be a teacher:", not not DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
-                                                                                subs2=DataBaseFunctions.get_weak_subjects(username)))
-    print("can be a student:", not not DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_weak_subjects(session['user']),
-                                                                                    subs2=DataBaseFunctions.get_strong_subjects(username)))
+    # print("Can be a teacher:", not not DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
+    #                                                                             subs2=DataBaseFunctions.get_weak_subjects(username)))
+    # print("can be a student:", not not DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_weak_subjects(session['user']),
+    #                                                                                 subs2=DataBaseFunctions.get_strong_subjects(username)))
     return render_template('teacher_or_student_lesson_offer.html',
                            username=username,
                            show_teach_option = not not DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
@@ -562,7 +562,7 @@ def offer_lesson(username, teacher, selected_platform="",  selected_date="", sel
     import Calendar_Functions
     subjects_list=[]
     if teacher == "True":
-        print(teacher)
+        # print(teacher)
         subjects_list = DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
                                                        subs2=DataBaseFunctions.get_weak_subjects(username))#מה שמשותף למקצועות החזקים של סשן והחלשים של יוזר
     else:
@@ -572,7 +572,7 @@ def offer_lesson(username, teacher, selected_platform="",  selected_date="", sel
                            username=username,
                            Im_the_teacher=teacher,
                            subjects_list=subjects_list,
-                           platforms=['Skype', 'Zoom'],
+                           platforms=['Zoom'],
                            dates=Calendar_Functions.get_upcoming_dates(),
                            timesA=Calendar_Functions.get_times_for_lessons(),
                            timesB=Calendar_Functions.get_times_for_lessons(),
@@ -640,8 +640,24 @@ def process_lesson_request(username, teacher):
 
 @app.route('/accept_lesson_offer/<ID>')
 def accept_lesson_offer(ID):
-    (DataBaseFunctions.accept_lesson_offer(username=session['user'],
+
+    lesson_ID = (DataBaseFunctions.accept_lesson_offer(username=session['user'],
                                           id = ID))
+    print("less ID = ", lesson_ID)
+    lesson = DataBaseFunctions.get_lesson_by_ID(lesson_ID=lesson_ID)
+    participants = lesson.participants.split(',')
+    lesson_ending_time = lesson.time_range.split('-')[1]
+    print("Teacher is ", lesson.teacher)
+    print("addressee",participants[0])
+    # שולח שתי הדעות, אחת למורה ואחת לתלמיד
+    for i in range(2):
+        DataBaseFunctions.activate_thread(function=DataBaseFunctions.send_lesson_feedback_msg,
+                                          args=[participants[i], lesson_ending_time, lesson.date, lesson.teacher == participants[i]])
+    # ------------------------------------------------------------------------------------------------
+    # DataBaseFunctions.send_lesson_feedback_msg(addressee=participants[0],
+    #                                            lesson_ending_time=lesson_ending_time,
+    #                                            lesson_ending_date=lesson.date,
+    #                                            teacher=lesson.teacher)
     return redirect("/view_lessons_offers")
 
 @app.route('/deny_lesson_offer/<ID>')
@@ -662,8 +678,8 @@ def view_a_single_lesson_offer(offer_id):
         return redirect('/view_lessons_offers')
     offer = DataBaseFunctions.get_lesson_offer_object(offer_id)
     return render_template('view_a_single_lesson_offer.html',
-                           offer=offer,
-                           platform_nickname=DataBaseFunctions.get_platform_nickname(offer.from_user))
+                           offer=offer)#,
+                           # platform_nickname=DataBaseFunctions.get_platform_nickname(offer.from_user))
 
 @app.route('/my_lessons')
 def my_lessons():

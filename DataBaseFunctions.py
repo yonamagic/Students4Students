@@ -954,8 +954,13 @@ class DataBaseFunctions:
     subjects_and_classes = [
         # [subject, [classes]]
         [ 'מתמטיקה' , ['חמש יחל לכיתה י','חמש יחל לכיתה יא','חמש יחל לכיתה יב','ארבע יחל לכיתה י','ארבע יחל לכיתה יא','ארבע יחל לכיתה יב','שלוש יחל לכיתה י','שלוש יחל לכיתה יא']],
-        ['אנגלית',['חמש יחל לכיתה י', 'חמש יחל לכיתה יא', 'חמש יחל לכיתה יב', 'ארבע יחל לכיתה י', 'ארבע יחל לכיתה יא', 'ארבע יחל לכיתה יב', 'שלוש יחל לכיתה י', 'שלוש יחל לכיתה יא', 'שלוש יחל לכיתה יב']]
-
+        ['אנגלית',['חמש יחל לכיתה י', 'חמש יחל לכיתה יא', 'חמש יחל לכיתה יב', 'ארבע יחל לכיתה י', 'ארבע יחל לכיתה יא', 'ארבע יחל לכיתה יב', 'שלוש יחל לכיתה י', 'שלוש יחל לכיתה יא', 'שלוש יחל לכיתה יב']],
+        ['הסטוריה',['לכיתה י', 'לכיתה יא', 'לכיתה יב']]
+        # ['', []],
+        # ['', []],
+        # ['', []],
+        # ['', []],
+        # ['', []]
     ]
 
     @staticmethod
@@ -1139,7 +1144,7 @@ class DataBaseFunctions:
         conn_calendar = sqlite3.connect('calendar.db')
         lesson_offer = DataBaseFunctions.get_lesson_offer_object(id=id)
 
-        Calendar_Functions.create_new_lesson(participants= lesson_offer.from_user+','+username,
+        lesson_ID = Calendar_Functions.create_new_lesson(participants= lesson_offer.from_user+','+username,
                                              location=lesson_offer.place,
                                              date=lesson_offer.date,
                                              time_range=lesson_offer.time_range,
@@ -1163,7 +1168,7 @@ class DataBaseFunctions:
         # conn_database.commit()
         DataBaseFunctions.send_msg(sender="הנהלת Syeto", addressee=username, topic="שיעור חדש נקבע!",
                                                              content="היי! נראה שקבעת הרגע שיעור!")
-
+        return lesson_ID
     @staticmethod
     def deny_lesson_offer(username, id):
         DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
@@ -1359,11 +1364,32 @@ class DataBaseFunctions:
     #     return len(msgs_list.split(','))
 
 
-print(DataBaseFunctions.whos_msg_is_this("QDaB0"))
-# import threading
-# def d():
-#     # while not datetime.now()==
-#     print("It is working!")
-#
-# x = threading.Thread(target=d)
-# x.start()
+    @staticmethod
+    def send_lesson_feedback_msg(addressee="yonamagic", lesson_ending_time="14:42", lesson_ending_date='28/03/20', teacher="True"):
+        import time
+        print("send_lesson_feedback_msg STARTED")
+        while not (datetime.now().strftime('%H:%M') == lesson_ending_time
+                    and datetime.now().strftime('%d/%m/%y') == lesson_ending_date):
+            time.sleep(50)
+
+        content = "היי! מקווים שהשיעור שעברת היה מועיל... נשמח אם תוכל/י להקדיש כמה רגעים ולמלא את המשוב הקצרצר הזה :)"
+        content += '\r\n'
+        if teacher:
+            content += "https://docs.google.com/forms/d/e/1FAIpQLSdNRTjsXWK6JttoSlss0srcvf09p4bN_IPK_wv-AjmCGA0Dgw/viewform"
+        else:
+            content += "https://docs.google.com/forms/d/e/1FAIpQLSdgMGdrMhqdKHg_p8nnCDkbgfq1xA_9wYj0uG3iP31btwXaew/viewform"
+        DataBaseFunctions.send_msg(sender="הנהלת Syeto",
+                                   addressee=addressee,
+                                   topic="משוב קצר לגבי השיעור שעברת",
+                                   content=content)
+        # print(datetime.now().strftime('%H:%M') == lesson_ending_time)
+        # while datetime.now().minute != datetime.strptime()
+
+    @staticmethod
+    def activate_thread(function, args):#args=[addressee, lesson_ending_time, lesson_ending_date, teacher]
+        import threading
+        process_thread = threading.Thread(target=function, args=args)
+        process_thread.start()
+        print("start_thread DONE")
+
+# DataBaseFunctions.activate_thread(DataBaseFunctions.send_lesson_feedback_msg, ['yonamagic', "14:43", '28/03/20', "True"])

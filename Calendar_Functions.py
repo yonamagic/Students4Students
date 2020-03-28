@@ -17,7 +17,7 @@ def create_new_lesson(participants, location, date, time_range, subject, teacher
                                    participants=participants,
                                    teacher=teacher,
                                    time_range=time_range)
-
+    return lesson_ID
 
 #returns False if there is no such date in table, or the date_ID if there is
 def such_date_exists(date, location):
