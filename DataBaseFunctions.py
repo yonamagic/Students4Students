@@ -954,9 +954,24 @@ class DataBaseFunctions:
     subjects_and_classes = [
         # [subject, [classes]]
         [ 'מתמטיקה' , ['חמש יחל לכיתה י','חמש יחל לכיתה יא','חמש יחל לכיתה יב','ארבע יחל לכיתה י','ארבע יחל לכיתה יא','ארבע יחל לכיתה יב','שלוש יחל לכיתה י','שלוש יחל לכיתה יא']],
-        ['אנגלית',['חמש יחל לכיתה י', 'חמש יחל לכיתה יא', 'חמש יחל לכיתה יב', 'ארבע יחל לכיתה י', 'ארבע יחל לכיתה יא', 'ארבע יחל לכיתה יב', 'שלוש יחל לכיתה י', 'שלוש יחל לכיתה יא', 'שלוש יחל לכיתה יב']],
-        ['הסטוריה',['לכיתה י', 'לכיתה יא', 'לכיתה יב']]
-        # ['', []],
+        ['אנגלית',['חמש יחל לכיתה י', 'חמש יחל לכיתה יא', 'חמש יחל לכיתה יב', 'ארבע יחל לכיתה י', 'ארבע יחל לכיתה יא', 'ארבע יחל לכיתה יב', 'שלוש יחל לכיתה י', 'שלוש יחל לכיתה יא', 'שלוש יחל לכיתה יב', 'דוברי אנכלית - כיתה ט', 'דוברי אנכלית - כיתה י', 'דוברי אנכלית - כיתה יא']],
+        ['הסטוריה',['לכיתה ט', 'לכיתה י', 'לכיתה יא', 'לכיתה יב']],
+        ['עברית', ['לכיתה ט', 'לכיתה י', 'לכיתה יא']],
+        ['אזרחות', ['לכיתה ט', 'לכיתה י', 'לכיתה יא', 'לכיתה יב']],
+        ['כימיה כמקצוע חובה (2 יחל)', ['לכיתה ט', 'לכיתה י']],
+        ['כימיה כמקצוע מורחב (5 יחל)', ['לכיתה יא', 'לכיתה יב']],
+        ['ביולוגיה כמקצוע חובה (2 יחל)', ['לכיתה ט', 'לכיתה י']],
+        ['ביולוגיה כמקצוע מורחב (5 יחל)', ['לכיתה יא', 'לכיתה יב']],
+        ['מדעי המחשב', ['Java', 'C', 'C#', 'C++', 'Assembly', 'Python', 'HTML', 'JavaScript', 'CSS']],
+        ['תנ"ך כמקצוע חובה (2 יחל)', ['לכיתה ט', 'לכיתה י', 'לכיתה יא', 'לכיתה יב']],
+        ['ערבית כמקצור חובה', ['לכיתה ט', 'לכיתה י']],
+        ['ערבית כמקצור מורחב', ['לכיתה יא', 'לכיתה יב']],
+        ['פיזיקה כמקצוע חובה (2 יחל)', ['לכיתה י']],
+        ['פיזיקה כמקצוע מורחב (5 יחל)', ['לכיתה יא', 'לכיתה יב']],
+        ['ספרות כמקצור חובה', ['לכיתה ט', 'לכיתה י']],
+        ['ספרות כמקצור מורחב', ['לכיתה יא', 'לכיתה יב']],
+        ['קולנוע', ['לכיתה י','לכיתה יא', 'לכיתה יב']]
+
         # ['', []],
         # ['', []],
         # ['', []],
@@ -1237,6 +1252,16 @@ class DataBaseFunctions:
 
         return DataBaseFunctions.sort_lessons_by_date_and_time(lessons)
 
+    # @staticmethod
+    # def get_all_lessons():
+    #     from Lesson import Lesson
+    #     conn = sqlite3.connect('calendar.db')
+    #     lessons = []
+    #     IDs = conn.execute("select ID from lessons")
+    #     for ID in IDs:
+    #         print(ID)
+    #         # lessons.append(Lesson(ID=ID[0]))
+
     @staticmethod
     def time_is_after(time1, time2):  # Returns True if time1 is after time2
         return datetime.strptime(time1, '%H:%M') > datetime.strptime(time2, '%H:%M')
@@ -1244,6 +1269,45 @@ class DataBaseFunctions:
     @staticmethod
     def date_is_after(date1, date2):
         return datetime.strptime(date1, '%d/%m/%y') > datetime.strptime(date2, '%d/%m/%y')
+
+    @staticmethod#מחזיר אמת אם התאריך (כstr) תואם לפורמט וההיפך
+    def date_matches_time_format(date):
+        try:
+            date = datetime.strptime(date, '%d/%m/%y')
+            return True
+        except:
+            return False
+
+    @staticmethod#מחזיר את התאריך האחרון שקיים בטבלת dates
+    def first_date_exists():
+        conn = sqlite3.connect('calendar.db')
+        dates = []
+        comm = conn.execute("select date from dates")
+        for row in comm:
+            dates.append(row[0])
+        for i in range(len(dates)):
+            for j in range(len(dates)-1):
+                if DataBaseFunctions.date_is_after(dates[j],dates[j+1]):
+                    temp = dates[j]
+                    dates[j] = dates[j+1]
+                    dates[j+1] = temp
+        return dates
+
+    @staticmethod#מחזיר את התאריך האחרון שקיים בטבלת dates
+    def dates_list():
+        conn = sqlite3.connect('calendar.db')
+        dates = []
+        comm = conn.execute("select date from dates")
+        for row in comm:
+            dates.append(row[0])
+        for i in range(len(dates)):
+            for j in range(len(dates)-1):
+                if DataBaseFunctions.date_is_after(dates[j],dates[j+1]):
+                    temp = dates[j]
+                    dates[j] = dates[j+1]
+                    dates[j+1] = temp
+        return dates#אין לי כוח לעשות פעולה יעילה face it
+
 
     @staticmethod
     def sort_lessons_by_date_and_time(lessons):
@@ -1268,8 +1332,8 @@ class DataBaseFunctions:
     @staticmethod#מוחק את נתוני השיעור מטבלת dates ומשנה את סטטוס active של השיעור בטבלת lessons לFalse
     def cancel_lesson(ID):
         DataBaseFunctions.set_lesson_not_active_in_lessons_table(ID)
-        DataBaseFunctions.delete_lesson_from_dates_table(date_ID=DataBaseFunctions.get_date_ID_by_lesson_ID(ID),
-                                                         lesson_ID=ID)
+        # DataBaseFunctions.delete_lesson_from_dates_table(date_ID=DataBaseFunctions.get_date_ID_by_lesson_ID(ID),
+        #                                                  lesson_ID=ID)
 
     @staticmethod
     def set_lesson_not_active_in_lessons_table(lesson_ID):
@@ -1393,3 +1457,29 @@ class DataBaseFunctions:
         print("start_thread DONE")
 
 # DataBaseFunctions.activate_thread(DataBaseFunctions.send_lesson_feedback_msg, ['yonamagic', "14:43", '28/03/20', "True"])
+
+    @staticmethod#מחזיר רשימה של כל השיעורים שנקבעו במערכת בטווח תאריכים מסויים
+    def get_all_lessons(from_date, until_date):
+            from Lesson import Lesson
+            conn = sqlite3.connect('calendar.db')
+            lessons = []
+            IDs = conn.execute("select * from lessons where active='True'")
+            for ID in IDs:
+                # print("ID = " , ID)
+                # print(DataBaseFunctions.date_is_after(ID[2],from_date))
+                # print("ID[2]",ID[2])
+                # print()
+                # print(DataBaseFunctions.date_is_after(from_date,ID[2]))
+                if (DataBaseFunctions.date_is_after(ID[2],from_date) or ID[2]==from_date)\
+                    and (DataBaseFunctions.date_is_after(until_date,ID[2]) or ID[2]==until_date):
+                        print(ID)
+                        lessons.append(Lesson(ID=ID[0],
+                                              place=ID[1],
+                                              date=ID[2],
+                                              subject=ID[3],
+                                              participants=ID[4],
+                                              teacher=ID[5],
+                                              time_range=ID[6]))
+            return DataBaseFunctions.sort_lessons_by_date_and_time(lessons)
+
+# DataBaseFunctions.get_all_lessons("24/03/20","26/03/20")

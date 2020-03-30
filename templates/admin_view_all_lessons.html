@@ -1,0 +1,38 @@
+{% extends "registeredLayout.html" %}
+
+{%block body%}
+{% if not lessons %}
+    <h1>נראה שלא נקבעו שיעורים לזמן המבוקש. מנהל המערכת: נסה/י להזין תחום זמנים שונה.</h1>
+{% endif %}
+{% for lesson in lessons %}
+<br><br><br>
+{% if lesson.participants.split(',')[0] == lesson.teacher %}
+    {% set teacher = lesson.participants.split(',')[0] %}
+    {% set learner = lesson.participants.split(',')[1] %}
+{% else %}
+    {% set teacher = lesson.participants.split(',')[1] %}
+    {% set learner = lesson.participants.split(',')[0] %}
+{% endif %}
+<span class="label info">{{lesson.date}}: &nbsp;&nbsp;{{teacher}} ילמד את {{learner}} {{lesson.subject}} ב <b>{{lesson.place}}</b> בשעות <b>{{lesson.time_range}}</b></span>
+<button onclick="location.href='/admin_options/cancel_lesson/{{lesson.ID}}?from_date={{from_date}}&until_date={{until_date}}'">בטל שיעור זה</button>
+{% endfor %}
+
+<br><br><br><br><br>
+<button onclick="location.href='/admin_options/view_all_lessons/select_date_range'">בחר טווח תאריכים חדש</button>
+
+
+
+<style>
+.label {
+  color: white;
+  padding: 8px;
+  font-family: Arial;
+}
+.success {background-color: #4CAF50;} /* Green */
+.info {background-color: #2196F3;} /* Blue */
+.warning {background-color: #ff9800;} /* Orange */
+.danger {background-color: #f44336;} /* Red */
+.other {background-color: #e7e7e7; color: black;} /* Gray */
+</style>
+{% endblock %}
+

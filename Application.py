@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, session, redirect
 from Subject import Subject
 
 from DataBaseFunctions import DataBaseFunctions
-from User import User
+# from User import User
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -542,6 +542,54 @@ def view_admin_msg(msg_id):
                            topic=msg.topic,
                            content=msg.content)
 
+
+
+
+
+@app.route('/admin_options/view_all_lessons/select_date_range', methods=['POST','GET'])
+def select_date_range():
+    print(DataBaseFunctions.dates_list()[0])
+    print("dates and stuff")
+    return render_template('select_date_range_admin.html',
+                                   first_date_exists=DataBaseFunctions.dates_list()[0],
+                                   last_date_exists=DataBaseFunctions.dates_list()[-1])
+
+
+@app.route('/admin_options/view_all_lessons', methods=['POST', 'GET'])
+def view_all_lessons():
+    from_date = str(request.args.get("from_date"))
+    until_date = str(request.args.get("until_date"))
+    if DataBaseFunctions.date_matches_time_format(from_date) and DataBaseFunctions.date_matches_time_format(until_date):
+        if DataBaseFunctions.date_is_after(until_date, from_date) or from_date==until_date:
+            lessons = DataBaseFunctions.get_all_lessons(from_date=from_date, until_date=until_date)
+            return render_template('admin_view_all_lessons.html', lessons=lessons, from_date=from_date, until_date=until_date)
+    return redirect('/admin_options/view_all_lessons/select_date_range')
+
+
+@app.route('/admin_options/cancel_lesson/<lesson_ID>', methods=['GET'])
+def cancel_lesson_by_admin(lesson_ID):
+    lesson = DataBaseFunctions.get_lesson_by_ID(lesson_ID)
+    DataBaseFunctions.cancel_lesson(lesson_ID)
+    participants = lesson.participants.split(',')
+    for each in participants:
+        if each == participants[0]:
+            other_participant = participants[1]
+        else:
+            other_participant = participants[0]
+
+        content = "שלום " + each + ", נראה כי מנהלי המערכת ביטלו את השיעור שקבעת עם " + other_participant +\
+                  " בתאריך " + lesson.date + \
+                  " בשעות " + lesson.time_range + "." +\
+                  '\r\n'+\
+                  "אנא התעדכנ/י בשאר השיעורים שלך על ידי לחיצה על כפתור 'השיעורים שלי' בתפריט."
+
+        DataBaseFunctions.send_msg(sender="הנהלת Syeto", addressee=each, topic="שיעור שקבעת התבטל", content=content)
+    return redirect('/admin_options/view_all_lessons?from_date=' + request.args.get('from_date') + '&until_date=' + request.args.get('until_date'))
+
+
+
+
+
 @app.route('/teacher_or_students_offer_lesson/<username>')
 def teacher_or_students_offer_lesson(username):
     # print("Can be a teacher:", not not DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
@@ -700,5 +748,7 @@ def view_one_lesson(lesson_ID):
 def cancel_lesson(lesson_ID):
     DataBaseFunctions.cancel_lesson(lesson_ID)
     return redirect('/my_lessons')
+
+
 if __name__ == '__main__':
     app.run(debug=True)#, host='0.0.0.0')

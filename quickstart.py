@@ -40,3 +40,7 @@ def get_Lesson_list(date):
         lessons.append(get_Lesson_object(id))
     return lessons
 
+import os
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+my_file = os.path.join(THIS_FOLDER, 'database.db')
+print(my_file)
