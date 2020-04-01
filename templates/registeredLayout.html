@@ -2,6 +2,7 @@
 <html dir="rtl" lang="he">
     <head>
         <meta charset="UTF-8">
+
         <!--<form action="/homePage" method="post">-->
         שלום, {{session.user}}
                         <button type="submit" class="button button1" onclick="location.href='/logout'"><font color="">התנתק</font></button>
@@ -23,13 +24,21 @@
         <!--<br>-->
         <!--<form action="/potentialTeachers" method="post">-->
                 {% if not session.is_admin %}
-                    <button type="submit" class="button button1" onclick="location.href='/potentialTeachers'"><font color="">מצא מורים</font></button>
+                    <button type="submit" class="button button1" onclick="location.href='/potential_teachers'"><font color="">מצא מורים</font></button>
+                    <button type="submit" class="button button1" onclick="location.href='/potential_students'"><font color="">מצא תלמידים</font></button>
                 {% endif %}
         <!--</form>-->
         <!--<br>-->
          <!--<form action="/inbox" method="post">-->
                 <button type="submit" class="button button1" onclick="location.href='/friends_list'"><font color="">רשימת החברים שלי</font></button>
-                <button type="submit" class="button button1" onclick="location.href='/inbox'"><font color="">Inbox</font></button>
+<!--                <button type="submit" class="button button1"  onclick="location.href='/inbox'"><font color="">Inbox</font></button></font></button>-->
+
+
+                <button type="submit" class="button button1"  onclick="location.href='/inbox'"><font color="">
+                    <div class="badge1" data-badge="{{session.new_lessons_offers + session.new_messages}}">Inbox</div>
+                </font></button>
+
+
                 <button type="submit" class="button button1" onclick="location.href='/forum_homepage'"><font color="">פורום</font></button>
         <!--</form>-->
         <!--<br>-->
@@ -77,6 +86,27 @@
   color: white;
 }
 
-</style>
 
+
+
+.badge1 {
+   position:relative;
+}
+.badge1[data-badge]:after {
+   content:attr(data-badge);
+   position:relative;
+   top:-20px;
+   right:-10px;
+   font-size:2em;
+   background:green;
+   color:white;
+   width:18px;height:18px;
+   text-align:center;
+   line-height:18px;
+   border-radius:50%;
+   box-shadow:0 0 1px #333;
+}
+.badge1[data-badge=””]:after {
+content: none;
+}
 </style>

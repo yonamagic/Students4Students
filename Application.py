@@ -1,5 +1,5 @@
 from os import abort
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, g
 # from flask_socketio import SocketIO
 from Subject import Subject
 
@@ -8,6 +8,8 @@ from DataBaseFunctions import DataBaseFunctions
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
+# app.secret_key = "MySecretKey1234"
+
 # socketio = SocketIO(app)
 
 #For registration page
@@ -24,24 +26,6 @@ app.secret_key = 'secret_key'
 def ip():
     return request.remote_addr
 
-@app.route('/chat/<username1>/<username2>')
-def chat(username1,username2):
-            print(username1,username2)
-    # if connected():
-    #     if session['user'] == username1 or session['user'] == username2:
-            return "username1="+username1+" username2="+username2 +\
-                   render_template('typingChatRoom.html', username1='yoni', username2='aviv')
-    # return "You cant get in"
-
-
-def messageReceived(methods=['GET', 'POST']):
-    print('message was received!!!')
-
-# @socketio.on('my event')
-# def handle_my_custom_event(json, methods=['GET', 'POST']):
-#     print('received my event: ' + str(json))
-#     socketio.emit('my response', json, callback=messageReceived)
-
 
 #Just so I can determine the "Details incorrect" message
 class staticVar:
@@ -53,8 +37,19 @@ class staticVar:
 def connected():
     return 'user' in session
 
+
+@app.before_request
+def update_lessons_requests_quantity():
+    if 'user' in session:
+        session['new_lessons_offers'] = DataBaseFunctions.number_of_lessons_requests(session['user'])
+        session['new_messages'] = DataBaseFunctions.number_of_new_messages(session['user'])
+        session['friend_requests'] = DataBaseFunctions.number_of_friend_requests(session['user'])
+
 @app.route('/', methods=['GET','POST'])
 def index():
+
+    # DataBaseFunctions.update_new_lessons_requests(session)
+    # return session['user']
     # print(str(session['user']))
     staticVar.comment=""
     if connected():
@@ -100,12 +95,12 @@ def checkUserEntryDetails():
 
 @app.route('/logout', methods=['POST','GET'])
 def logout():
-    try:
+    if 'user' in session:
         del session['user']
         staticVar.connected_username = ""
         return redirect('/')
 
-    except:
+    else:
         staticVar.connected_username = ""
         return redirect('/')
 
@@ -210,6 +205,7 @@ def checkRegistration():
                                   strong_subjects=strong_subjects,
                                   weak_subjects=weak_subjects)
     session['user'] = details_dict['username']
+    # session['new_lessons_requests'] = 0
     # session['new_messages'] = 0
     # session['new_lesson_offers'] = 0
     return redirect('/homePage')#Every thing is ok, register me!
@@ -254,9 +250,12 @@ def profileEditingDone():
                                          weak_subjects=weak_subjects)
     return redirect('/profile?username='+session['user'])
 
+
 @app.route('/homePage', methods=['POST','GET'])
 def homePage():
     if connected():
+        # session['new_lessons_requests'] = 0
+
         if DataBaseFunctions.is_admin(session['user']):
             session['is_admin'] = True
         else:
@@ -318,23 +317,20 @@ def report_done():
 
 
 
-@app.route('/potentialTeachers' , methods=['POST','GET'])
+@app.route('/potential_teachers' , methods=['POST','GET'])
 def potential__teachers():
     weak_subjects = DataBaseFunctions.get_weak_subjects(session['user'])
-    return render_template('potential_teachers.html',
-                           subjects=DataBaseFunctions.specific_teachers_for_all_subjects(weak_subjects))
+    return render_template('potential_teachers_or_students.html',
+                           subjects=DataBaseFunctions.specific_users_for_all_subjects(weak_subjects, 'teacher'),
+                           teachers_or_students = 'teachers')
 
-    # subjects = DataBaseFunctions.subjects_as_list_of_Subjects(username=session['user'],
-    #                                                           subs=DataBaseFunctions.get_weak_subjects(session['user']),
-    #                                                           status='weak')
-    # teachers = (DataBaseFunctions.teachers_by_subjects(DataBaseFunctions.potential_teachers(weak_subjects=subjects,
-    #                                                                                         username=session['user'])))
-    # print("teachers=",teachers)
-    # return render_template('potentialTeachers.html',
-    #                        DataBaseFunctions=DataBaseFunctions,
-    #                        my_weak_subjects=DataBaseFunctions.get_weak_subjects(session['user']),
-    #                        teachers=teachers,
-    #                        my_username=session['user'])
+
+@app.route('/potential_students' , methods=['POST','GET'])
+def potential__students():
+    strong_subjects = DataBaseFunctions.get_strong_subjects(session['user'])
+    return render_template('potential_teachers_or_students.html',
+                           subjects=DataBaseFunctions.specific_users_for_all_subjects(strong_subjects, 'student'),
+                           teachers_or_students='students')
 
 
 
@@ -502,92 +498,124 @@ def comment_sent(post_id):
                                   narrator=session['user'])
     return redirect('/post/'+post_id)
 
+
 @app.route("/admin_options")
 def admin_options():
-    return render_template("admin_options.html")
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
+            return render_template("admin_options.html")
+    return redirect('/homePage')
 
 @app.route("/admin_options/view_reports")
 def view_reports():
-    return render_template("view_reports_by_usernames.html", reported_users=DataBaseFunctions.get_reports_dict_list())
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
+            return render_template("view_reports_by_usernames.html", reported_users=DataBaseFunctions.get_reports_dict_list())
+    return redirect('/homePage')
     #DataBaseFunctions.get_list_of_reported_usernames())
 
 @app.route("/view_user_reports")
 def view_user_reports():
-    username = request.args.get("username")
-    return render_template("view_user_reports.html", reports=DataBaseFunctions.get_reports_list(username))
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
+            username = request.args.get("username")
+            return render_template("view_user_reports.html", reports=DataBaseFunctions.get_reports_list(username))
+    return redirect('/homePage')
 
 @app.route("/admin_options/send_notification", methods=['POST','GET'])
 def send_notification():
-    return render_template("send_notification.html")
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
+            return render_template("send_notification.html")
+    return redirect('/homePage')
+
 
 @app.route("/admin_options/send_notification/notification_sent", methods = ['POST','GET'])
 def notification_sent():
-    topic = request.form.get("topic")
-    content= request.form.get("content")
-    DataBaseFunctions.send_notification_to_all_users(topic=topic, content=content)
-    return redirect("/admin_options")
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
+
+            topic = request.form.get("topic")
+            content= request.form.get("content")
+            DataBaseFunctions.send_notification_to_all_users(topic=topic, content=content)
+            return redirect("/admin_options")
+    return redirect('/homePage')
 
 
 @app.route('/admin_options/admin_messages', methods=['GET'])
 def admin_messages():
-    messages = DataBaseFunctions.admins_messages_list()
-    return render_template('admin_messages.html', messages=messages)
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
+
+            messages = DataBaseFunctions.admins_messages_list()
+            return render_template('admin_messages.html', messages=messages)
+    return redirect('/homePage')
+
 
 @app.route('/admin_options/admin_messages/view_admin_msg/<msg_id>')
 def view_admin_msg(msg_id):
-    msg = DataBaseFunctions.get_message(msg_id)
-    DataBaseFunctions.make_msg_read(msg_id)
-    return render_template('view_admin_msg.html',
-                           sender=msg.sender,
-                           topic=msg.topic,
-                           content=msg.content)
-
-
-
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
+            msg = DataBaseFunctions.get_message(msg_id)
+            DataBaseFunctions.make_msg_read(msg_id)
+            return render_template('view_admin_msg.html',
+                                   sender=msg.sender,
+                                   topic=msg.topic,
+                                   content=msg.content)
+    return redirect('/homePage')
 
 
 @app.route('/admin_options/view_all_lessons/select_date_range', methods=['POST','GET'])
 def select_date_range():
-    print(DataBaseFunctions.dates_list()[0])
-    print("dates and stuff")
-    return render_template('select_date_range_admin.html',
-                                   first_date_exists=DataBaseFunctions.dates_list()[0],
-                                   last_date_exists=DataBaseFunctions.dates_list()[-1])
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
+            print(DataBaseFunctions.dates_list()[0])
+            print("dates and stuff")
+            return render_template('select_date_range_admin.html',
+                                           first_date_exists=DataBaseFunctions.dates_list()[0],
+                                           last_date_exists=DataBaseFunctions.dates_list()[-1])
+    return redirect('/homePage')
 
 
 @app.route('/admin_options/view_all_lessons', methods=['POST', 'GET'])
 def view_all_lessons():
-    from_date = str(request.args.get("from_date"))
-    until_date = str(request.args.get("until_date"))
-    if DataBaseFunctions.date_matches_time_format(from_date) and DataBaseFunctions.date_matches_time_format(until_date):
-        if DataBaseFunctions.date_is_after(until_date, from_date) or from_date==until_date:
-            lessons = DataBaseFunctions.get_all_lessons(from_date=from_date, until_date=until_date)
-            return render_template('admin_view_all_lessons.html', lessons=lessons, from_date=from_date, until_date=until_date)
-    return redirect('/admin_options/view_all_lessons/select_date_range')
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
+            from_date = str(request.args.get("from_date"))
+            until_date = str(request.args.get("until_date"))
+            if DataBaseFunctions.date_matches_time_format(from_date) and DataBaseFunctions.date_matches_time_format(until_date):
+                if DataBaseFunctions.date_is_after(until_date, from_date) or from_date==until_date:
+                    lessons = DataBaseFunctions.get_all_lessons(from_date=from_date, until_date=until_date)
+                    return render_template('admin_view_all_lessons.html', lessons=lessons, from_date=from_date, until_date=until_date)
+            return redirect('/admin_options/view_all_lessons/select_date_range')
+    return redirect('/homePage')
 
 
 @app.route('/admin_options/cancel_lesson/<lesson_ID>', methods=['GET'])
 def cancel_lesson_by_admin(lesson_ID):
-    lesson = DataBaseFunctions.get_lesson_by_ID(lesson_ID)
-    DataBaseFunctions.cancel_lesson(lesson_ID)
-    participants = lesson.participants.split(',')
-    for each in participants:
-        if each == participants[0]:
-            other_participant = participants[1]
-        else:
-            other_participant = participants[0]
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
 
-        content = "שלום " + each + ", נראה כי מנהלי המערכת ביטלו את השיעור שקבעת עם " + other_participant +\
-                  " בתאריך " + lesson.date + \
-                  " בשעות " + lesson.time_range + "." +\
-                  '\r\n'+\
-                  "אנא התעדכנ/י בשאר השיעורים שלך על ידי לחיצה על כפתור 'השיעורים שלי' בתפריט."
+            lesson = DataBaseFunctions.get_lesson_by_ID(lesson_ID)
+            DataBaseFunctions.cancel_lesson(lesson_ID)
+            participants = lesson.participants.split(',')
+            for each in participants:
+                if each == participants[0]:
+                    other_participant = participants[1]
+                else:
+                    other_participant = participants[0]
 
-        DataBaseFunctions.send_msg(sender="הנהלת Syeto", addressee=each, topic="שיעור שקבעת התבטל", content=content)
-    return redirect('/admin_options/view_all_lessons?from_date=' + request.args.get('from_date') + '&until_date=' + request.args.get('until_date'))
+                content = "שלום " + each + ", נראה כי מנהלי המערכת ביטלו את השיעור שקבעת עם " + other_participant +\
+                          " בתאריך " + lesson.date + \
+                          " בשעות " + lesson.time_range + "." +\
+                          '\r\n'+\
+                          "אנא התעדכנ/י בשאר השיעורים שלך על ידי לחיצה על כפתור 'השיעורים שלי' בתפריט."
+
+                DataBaseFunctions.send_msg(sender="הנהלת Syeto", addressee=each, topic="שיעור שקבעת התבטל", content=content)
+            return redirect('/admin_options/view_all_lessons?from_date=' + request.args.get('from_date') + '&until_date=' + request.args.get('until_date'))
 
 
-
+    return redirect('/homePage')
 
 
 @app.route('/teacher_or_students_offer_lesson/<username>')

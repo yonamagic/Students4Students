@@ -81,7 +81,7 @@ class DataBaseFunctions:
 
     @staticmethod#returns a list of a user's friends list
     def get_friends_list(username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         friends = conn.execute("select friends_list from users where username=?", (username,))
         for row in friends:
             friends=row[0]
@@ -94,7 +94,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def add_to_friends_list(self_user, username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         friends = conn.execute("select friends_list from users where username=?", (self_user,))
         for row in friends:
             friends = row[0]
@@ -115,7 +115,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def remove_from_friends_list(self_user, username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         friends = conn.execute("select friends_list from users where username=?", (self_user,))
         for row in friends:
             friends = row[0]
@@ -134,7 +134,7 @@ class DataBaseFunctions:
 
     # @staticmethod#Edits the column "strong_subjects" in users table
     # def edit_user_strong_subjects(username, strong_subjects):
-    #     conn = sqlite3.connect("database.db", timeout=2)
+    #     conn = sqlite3.connect('database.db', timeout=2)
     #     conn.execute("update users set strong_subjects = ? where username = ?",
     #                  (DataBaseFunctions.subjects_list_to_string(strong_subjects),
     #                   username))
@@ -142,7 +142,7 @@ class DataBaseFunctions:
 
     # @staticmethod#Edits the column "weak_subjects" in users table
     # def edit_user_weak_subjects(username, weak_subjects):
-    #     conn = sqlite3.connect("database.db", timeout=2)
+    #     conn = sqlite3.connect('database.db', timeout=2)
     #     conn.execute("update users set weak_subjects = ? where username = ?",
     #                  (DataBaseFunctions.subjects_list_to_string(weak_subjects),
     #                   username))
@@ -152,7 +152,7 @@ class DataBaseFunctions:
     # @staticmethod#Adds info to subjects table accordingly
     # def edit_subjects_in_subjects_table(username, subjects):
     #     DataBaseFunctions.delete_user_from_subjects_table(username)
-    #     conn = sqlite3.connect("database.db", timeout=2)
+    #     conn = sqlite3.connect('database.db', timeout=2)
     #     for subject in subjects:
     #         conn.execute("insert into subjects (username, subject, classes) values (?,?,?)",
     #                      (username, subject.name, str(subject.classes)[1:-1].replace(' ', '')))
@@ -160,7 +160,7 @@ class DataBaseFunctions:
 
     @staticmethod#Deletes all rows in subjects table where username fits to parameter
     def delete_user_from_subjects_table(username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         conn.execute("delete from subjects where username=?", (username,))
         conn.commit()
 
@@ -323,7 +323,7 @@ class DataBaseFunctions:
 
     @staticmethod#returns a list of messages using user's msgs IDs
     def messages_list(username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         inboxID = conn.execute("select inboxID from users where username=?", (username,))
         ###############makes it the actual value
         for i in inboxID:
@@ -372,7 +372,7 @@ class DataBaseFunctions:
 
     @staticmethod#returns a list of admin messages
     def admins_messages_list():
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         inboxID = "admins"
         messages_IDs = conn.execute("select messagesIDs from inboxes where inboxID=?", (inboxID,))
         #####################Kanal
@@ -423,7 +423,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def get_message(msg_id):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         msg = conn.execute("select * from messages where messageID = ?", (msg_id,))
         for row in msg:
             msg = row
@@ -443,7 +443,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def make_msg_read(id):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         conn.execute("UPDATE messages "
                            "SET is_read = 'yes' "
                            "WHERE messageID = ?", (id,))
@@ -458,7 +458,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def create_msg(sender, topic, content):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         msgID = str(DataBaseFunctions.random_id())
         conn.execute("insert into messages (messageID, topic, sender, content, date, is_read) "
                      "values (?,?,?,?,?,?)", (msgID, topic, sender, content, DataBaseFunctions.get_date(), "no")
@@ -471,7 +471,7 @@ class DataBaseFunctions:
 
     @staticmethod#Send a message - adds info to the database
     def send_msg(sender, addressee, topic, content):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         inboxID = conn.execute("select inboxID from users where username=?", (addressee,))
         for row in inboxID:
             inboxID = row[0]
@@ -529,7 +529,7 @@ class DataBaseFunctions:
     @staticmethod#returns a Post object
     def get_post_object(post_id):
         from Post import Post
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         post = conn.execute("select * from forum_posts where post_ID = ? ", (post_id,))
         for row in post:
             post = row
@@ -553,7 +553,7 @@ class DataBaseFunctions:
 
     @staticmethod#returns a list of Post objects by forum name
     def get_forum_posts(forum_name):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         posts_IDs = conn.execute("select posts_IDs from forums where forum_name=?",(forum_name,))
         for row in posts_IDs:
             posts_IDs=row[0].split(',')
@@ -562,7 +562,7 @@ class DataBaseFunctions:
     @staticmethod#returns a Comment object by comment id
     def get_comment_object(comment_id):
         from Comment import Comment
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         comment = conn.execute("select * from post_comments where comment_ID = ? ", (comment_id,))
         for row in comment:
             comment = row
@@ -589,7 +589,7 @@ class DataBaseFunctions:
 
     @staticmethod#returns a list of comments of a certain post
     def get_post_comments(post_ID):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         comments_IDs = conn.execute("select comments_IDs from forum_posts where post_ID=?",(post_ID,))
         for row in comments_IDs:
             comments_IDs = row[0].split(',')
@@ -600,7 +600,7 @@ class DataBaseFunctions:
 
     # @staticmethod#recieves a post topic and returns its id
     # def get_post_id(post_topic):
-    #     conn = sqlite3.connect("database.db", timeout=2)
+    #     conn = sqlite3.connect('database.db', timeout=2)
     #     id = conn.execute("select post_ID from forum_posts where topic=?",(post_topic,))
     #     for row in id:
     #         id=row[0]
@@ -609,7 +609,7 @@ class DataBaseFunctions:
 
     @staticmethod#adds a new comment to a post (by its id - parameter)
     def add_comment(post_id, content,narrator):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         comment_id = DataBaseFunctions.random_id()
         date = DataBaseFunctions.get_date()
         DataBaseFunctions.create_comment(id = comment_id,
@@ -622,13 +622,13 @@ class DataBaseFunctions:
 
     @staticmethod#creates comment (updates database)
     def create_comment(id, content, narrator, date):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         conn.execute("insert into post_comments (comment_ID, content, narrator_username, date) values (?,?,?,?)",(id,content,narrator,date))
         conn.commit()
 
     @staticmethod#attaches a comment to a post - update a post's "comments_IDs" value
     def attach_comment_to_post(post_id, comment_id):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         current_IDs = conn.execute("select comments_IDs from forum_posts where post_ID=?",(post_id,))
         for row in current_IDs:
             current_IDs=row[0]
@@ -643,7 +643,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def get_forum_names():
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         com = conn.execute("select forum_name from forums")
         names=[]
         for row in com:
@@ -652,7 +652,7 @@ class DataBaseFunctions:
 
     @staticmethod#adds a new post (id) to the "forums" db and returns its id
     def create_post_in_forums(forum_name, new_post_id):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         current_posts_IDs = conn.execute("select posts_IDs from forums where forum_name=?", (forum_name,))
         for row in current_posts_IDs:
             current_posts_IDs = row[0]
@@ -662,7 +662,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def create_post_in_forum_posts(post_id, narrator, topic, content):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         conn.execute("insert into forum_posts (post_ID, narrator, topic, content, date, comments_IDs)"
                      " values (?,?,?,?,?,?)", (post_id, narrator, topic, content, DataBaseFunctions.get_date(), ""))
         conn.commit()
@@ -681,7 +681,7 @@ class DataBaseFunctions:
     @staticmethod
     def get_notification_object(id):
         from Notification import Notification
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         note = conn.execute("select * from notifications where ID=?", (id,))
         for row in note:
             note = row
@@ -693,7 +693,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def get_all_notifications_as_list(username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         notifications = []
         notes_IDs = conn.execute("select notifications_IDs from users where username=?", (username,))
         for row in notes_IDs:
@@ -727,7 +727,7 @@ class DataBaseFunctions:
 
     @staticmethod#Returns a list of all usernames
     def get_all_users():
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         users = []
         all=conn.execute("select username from users")
         for row in all:
@@ -736,7 +736,7 @@ class DataBaseFunctions:
 
     @staticmethod#Updates users table
     def create_notification_in_users_table(note_id):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         for user in DataBaseFunctions.get_all_users():
             existing_notes = conn.execute("select notifications_IDs from users where username=?", (user,))
             for row in existing_notes:
@@ -751,7 +751,7 @@ class DataBaseFunctions:
         conn.commit()
 
     def create_notification_in_users_table_for_a_single_user(note_id, username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         existing_notes = conn.execute("select notifications_IDs from users where username=?", (username,))
         for row in existing_notes:
             existing_notes = row[0]
@@ -763,7 +763,7 @@ class DataBaseFunctions:
 
     @staticmethod#updates notifications table
     def create_notification_in_notifications_table(note_id, topic, content):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         conn.execute("insert into notifications (ID, topic, content, date, is_read)"
                      " values (?,?,?,?,?)", (note_id, topic, content, DataBaseFunctions.get_date(), "no"))
         conn.commit()
@@ -771,7 +771,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def get_friend_requests(username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         friend_requests = conn.execute("select friend_requests from users where username=?", (username,))
         for row in friend_requests:
             friend_requests = row[0]
@@ -784,7 +784,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def add_to_friend_requests(self_user, username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         requests = conn.execute("select friend_requests from users where username=?", (self_user,))
         for row in requests:
             requests = row[0]
@@ -800,7 +800,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def remove_from_friend_requests(self_user, username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         friend_requests = DataBaseFunctions.get_friend_requests(self_user)
         friend_requests.remove(username)
         friend_requests = ','.join(friend_requests)
@@ -816,7 +816,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def report_user(username, report_content):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         ID = DataBaseFunctions.random_id()
         date = DataBaseFunctions.get_date()
         conn.execute("insert into reports (ID, reported_user, content, date) values (?,?,?,?)",
@@ -824,7 +824,7 @@ class DataBaseFunctions:
         conn.commit()
     @staticmethod
     def get_list_of_reported_usernames():
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         usernames = []
         all = conn.execute("select username from reportings")
         for row in all:
@@ -833,7 +833,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def send_msg_to_admins(sender,  topic, content):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         inboxID = "admins"
         current_msgs = conn.execute("select messagesIDs from inboxes where inboxID=?", (inboxID,))
         for row in current_msgs:
@@ -861,7 +861,7 @@ class DataBaseFunctions:
     @staticmethod#returns a Report Object
     def get_Report(ID):
         from Report import Report
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         rep = conn.execute("select * from reports where ID=?", (ID,))
         for r in rep:
             rep=r
@@ -871,7 +871,7 @@ class DataBaseFunctions:
                       date=rep[3])
     @staticmethod
     def get_user_reports_IDs(username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         command = conn.execute("select ID from reports where reported_user=?", (username,))
         IDs=[]
         for i in command:
@@ -880,7 +880,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def get_reports_list(username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         reports=[]
         IDs = DataBaseFunctions.get_user_reports_IDs(username)
         for id in IDs:
@@ -889,13 +889,13 @@ class DataBaseFunctions:
 
     @staticmethod
     def get_num_of_reports(username):
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         command = conn.execute("select ID from reports where reported_user=?", (username,))
         return len(list(command))
 
     @staticmethod
     def get_all_reported_users():
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         command = conn.execute("select reported_user from reports")
         users=[]
         for i in command:
@@ -913,42 +913,10 @@ class DataBaseFunctions:
                 'username' : user,
                 'num_of_reports' : DataBaseFunctions.get_num_of_reports(user)
             })
-
         return dicts
-# print(DataBaseFunctions.add_to_friend_requests("yonamagic","newone"))
-# print(DataBaseFunctions.get_all_users())
-# DataBaseFunctions.create_new_post("Math","Yoni","new one","just some trying outs")
-# DataBaseFunctions.get_comment_object("123")
-# DataBaseFunctions.get_post_comments("1234")
-# import datetime
-# print(str(datetime.datetime.now()).split(' '))
-# DataBaseFunctions.send_msg("yonamagic", "aviv", "Try msg", "Hello aviv, this is a msg!")
-# DataBaseFunctions.edit_user_strong_subjects(sqlite3.connect("database.db", timeout=2),"yoni", [Subject("Mathematics",[10,11]), Subject("Bio",[10,12])])
-# DataBaseFunctions.delete_user_from_subjects_table('helloMeyyy')
-# print(str([1,2,3])[1:-1].replace(' ', ''))
-# DataBaseFunctions.edit_subjects_in_subjects_table('yoni',[Subject("Math",[10,11]), Subject("Arabic",[10,11,12])])
-# DataBaseFunctions.edit_subjects_in_subjects_table(username='newYoni', subjects=[Subject("Math",[10,11])]+[Subject("Arabic",[10,11,12])])
-# l=([Message("1","Hi","Me","sup","22.1"),Message("1","Hi","Me","sup","22.1"),Message("1","Hi","Me","sup","22.1")])
-#
-# print(l)
-# for i in l:
-#     print(i.sender)
-
-# #מקבלת שם משתמש של הסשן ורשימה של Subjects גרועים ומחזירה רשימה של משתמשים שיכולים לעזור על פי המקצועות החזקים שלהם בפורמט הבא:
-# #[[[<רשימה של שמות >] , <שם מקצוע>],...]
-# def get_teachers(self_username, weak_subjects):
-#     pass
 
 
-    @staticmethod
-    #מקבלת שם של מקצוע ומחזירה רשימה של שמות המשתמשים שמקצוע זה נכלל ברשימת המקצועות החזקים שלהם
-    def get_teachers_in_general(subject):
-        conn = sqlite3.connect('database.db')
-        teachers=[]
-        teachers_from_db = conn.execute("select username from subjects where subject=? and status='strong'", (subject,))
-        for r in teachers_from_db:
-            teachers.append(r[0])
-        return teachers
+
 
 
     subjects_and_classes = [
@@ -999,29 +967,23 @@ class DataBaseFunctions:
             weak_subjects.append(Subject(row[1], row[3].split(',')))
         return weak_subjects
 
-    @staticmethod
-    #מקבל רשימה של Subject גרועים ומחזיר רשימה של רשימות, בתוכה כל איבר מכיל רשימה שאיברה השמאלי הוא שם מקצוע והשני רשימה המכילה רשימות, כל אחת מהן מכילה באינדקס הראשון שם של משתמש ובשני רשימה של קלאסים
-    def specific_teachers_for_all_subjects(subjects):
-        list = []
-        for subject in subjects:
-            # print(subject.name)
-            # print(subject.classes)
-            # print(specific_teachers_for_one_subject(subject))
-            list.append([subject.name, DataBaseFunctions.specific_teachers_for_one_subject(subject)])
-        return list
-
 
     @staticmethod
     #מקבל מקצוע ומחזיר רשימה שכל איבר הוא רשימה המכילה שני אינדקסים: שם משתמש ורשימה נוספת של קלאסים משותפים לדרישה ולמשתמש
-    def specific_teachers_for_one_subject(subject):
+    def specific_users_for_one_subject(subject, teacher_or_student):
         conn = sqlite3.connect('database.db')
-        specific_teachers=[]#[ [username, [common_classes]],  ...  ]
-        general_teachers=(DataBaseFunctions.get_teachers_in_general(subject.name))
+        specific_users=[]#[ [username, [common_classes]],  ...  ]
+        general_teachers = (DataBaseFunctions.get_users_in_general(subject.name, teacher_or_student))
+        if teacher_or_student == 'teacher':
+            subject_key_word='strong'
+        else:
+            subject_key_word='weak'
         for user in general_teachers:
             print("--------------------")
             print("user=",user)
-            classes = conn.execute("select classes from subjects where username=? and subject=? and status='strong'",
-                                                                                                    (user,subject.name))
+
+            classes = conn.execute("select classes from subjects where username=? and subject=? and status=?",
+                                                                                                    (user,subject.name, subject_key_word))
             for row in classes:
                 classes=row[0].split(',')
                 print("classes",classes)
@@ -1029,10 +991,37 @@ class DataBaseFunctions:
             print("common classes=", common_classes)
             if common_classes:
                 print("if common_classes = True!")
-                print("specific_teachers before change = ",specific_teachers)
-                specific_teachers.append([user,common_classes])
-                print("specific_teachers after change = ",specific_teachers)
-        return specific_teachers
+                print("specific_users before change = ",specific_users)
+                specific_users.append([user,common_classes])
+                print("specific_users after change = ",specific_users)
+        return specific_users
+
+    @staticmethod
+    # מקבל רשימה של Subject גרועים ומחזיר רשימה של רשימות, בתוכה כל איבר מכיל רשימה שאיברה השמאלי הוא שם מקצוע והשני רשימה המכילה רשימות, כל אחת מהן מכילה באינדקס הראשון שם של משתמש ובשני רשימה של קלאסים
+    def specific_users_for_all_subjects(subjects, teacher_or_student):
+        list = []
+        for subject in subjects:
+            list.append([subject.name, DataBaseFunctions.specific_users_for_one_subject(subject, teacher_or_student)])
+
+            # if teacher_or_student == 'teacher':
+            #     list.append([subject.name, DataBaseFunctions.specific_teachers_for_one_subject(subject)])
+            # else:
+            #     list.append([subject.name, DataBaseFunctions.specific_students_for_one_subject(subject)])
+        return list
+
+    @staticmethod
+    # מקבלת שם של מקצוע ומחזירה רשימה של שמות המשתמשים שמקצוע זה נכלל ברשימת המקצועות החזקים שלהם
+    def get_users_in_general(subject, teacher_or_student):
+        conn = sqlite3.connect('database.db')
+        users = []
+        if teacher_or_student == 'teacher':
+            subject_key_word = 'strong'
+        else:
+            subject_key_word = 'weak'
+        users_from_db = conn.execute("select username from subjects where subject=? and status=?", (subject,subject_key_word))
+        for r in users_from_db:
+            users.append(r[0])
+        return users
 
     @staticmethod
     # מקבלת רשימת Subjects ושם של מקצוע. במידה והמקצוע קיים ברשימה, הפעולה תחזיר את המקצוע עצמו ובמידה שלא - תחזיר False.
@@ -1082,7 +1071,7 @@ class DataBaseFunctions:
 
     @staticmethod
     def get_lessons_offers_IDs(username):#returns a list of lessons_offers IDs according to a certain usrname
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         IDs = conn.execute("select lessons_offers_IDs from users where username=?", (username,))
         for row in IDs:
             IDs = row[0]
@@ -1094,7 +1083,7 @@ class DataBaseFunctions:
     @staticmethod
     def get_lesson_offer_object(id):#returns a Lesson_offer object
         from Lesson_offer import Lesson_offer
-        conn = sqlite3.connect("database.db", timeout=2)
+        conn = sqlite3.connect('database.db', timeout=2)
         offer = conn.execute("select * from lessons_offers where ID=?", (id,))
         for row in offer:
             offer=row
@@ -1450,7 +1439,7 @@ class DataBaseFunctions:
         # while datetime.now().minute != datetime.strptime()
 
     @staticmethod
-    def activate_thread(function, args):#args=[addressee, lesson_ending_time, lesson_ending_date, teacher]
+    def activate_thread(function, args=[]):#args=[addressee, lesson_ending_time, lesson_ending_date, teacher]
         import threading
         process_thread = threading.Thread(target=function, args=args)
         process_thread.start()
@@ -1482,4 +1471,43 @@ class DataBaseFunctions:
                                               time_range=ID[6]))
             return DataBaseFunctions.sort_lessons_by_date_and_time(lessons)
 
+
+    @staticmethod
+    def number_of_lessons_requests(username):
+        conn  =sqlite3.connect('database.db')
+        reqs = conn.execute("select lessons_offers_IDs from users where username=?", (username,))
+        for row in reqs:
+            reqs = row[0]
+        reqs = reqs.split(',')
+        reqs.remove('')
+        return len(reqs)
+
+    @staticmethod
+    def number_of_new_messages(username):
+        conn  =sqlite3.connect('database.db')
+        inbox_ID = conn.execute("select inboxID from users where username=?", (username,))
+        for row in inbox_ID:
+            inbox_ID=row[0]
+        msgs_IDs = conn.execute("select messagesIDs from inboxes where inboxID=?", (inbox_ID,))
+        for row in msgs_IDs:
+            msgs_IDs=row[0].split(',')
+        count=0
+        for msg_ID in msgs_IDs:
+            msg_is_read = conn.execute("select is_read from messages where messageID=?", (msg_ID,))
+            for row in msg_is_read:
+                msg_is_read=row[0]
+            if msg_is_read == "no":
+                count+=1
+        return count
+
+    @staticmethod
+    def number_of_friend_requests(username):
+        conn  =sqlite3.connect('database.db')
+        reqs = conn.execute("select friend_requests from users where username=?", (username,))
+        for row in reqs:
+            reqs=row[0].split(',')
+        reqs.remove('')
+        return len(reqs)
 # DataBaseFunctions.get_all_lessons("24/03/20","26/03/20")
+# print(DataBaseFunctions.number_of_new_messages('abcdef'))
+print(DataBaseFunctions.number_of_lessons_requests('segev'))
