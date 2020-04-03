@@ -19,6 +19,14 @@ class DataBaseFunctions:
         return date
 
     @staticmethod
+    def get_time():
+        import datetime
+        date = str(datetime.datetime.now()).split(' ')[1]
+        date=date.split(':')
+        return (date[0]+':'+date[1])
+
+
+    @staticmethod
     def user_exists(username):
         conn = sqlite3.connect('database.db')
         com = conn.execute("select username from users where username==? ", (username,))
@@ -1105,8 +1113,15 @@ class DataBaseFunctions:
 
         if offers_IDs != ['']:
             for id in offers_IDs:
-                print("+"+id+"+")
-                Lessons_offers.append(DataBaseFunctions.get_lesson_offer_object(id))
+                lesson_offer = DataBaseFunctions.get_lesson_offer_object(id)
+                # lesson_date = lesson_offer.date
+                # todays_date = DataBaseFunctions.get_date()[:-2]
+                # lesson_time = lesson_offer.time_range.split('-')[0]
+                # current_time = DataBaseFunctions.get_time()
+                # print(lesson_date, todays_date, lesson_time, current_time)
+                # if ( not DataBaseFunctions.date_is_after(todays_date, lesson_date) ) :
+                #         if  not DataBaseFunctions.time_is_after(current_time, lesson_time):
+                Lessons_offers.append(lesson_offer)
         return Lessons_offers
 
     @staticmethod
@@ -1155,7 +1170,7 @@ class DataBaseFunctions:
                                              subject=lesson_offer.subject,
                                              teacher=lesson_offer.teacher)
         conn_calendar.commit()
-        DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
+        # DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
         DataBaseFunctions.delete_lesson_offer_from_users_table(username=username, id=id)
         # conn_database.execute("delete from lessons_offers where ID=?", (id,))
         # command = conn_database.execute("select lessons_offers_IDs from users where username=?", (username,))
@@ -1175,7 +1190,7 @@ class DataBaseFunctions:
         return lesson_ID
     @staticmethod
     def deny_lesson_offer(username, id):
-        DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
+        # DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
         DataBaseFunctions.delete_lesson_offer_from_users_table(username=username, id=id)
 
     @staticmethod
@@ -1416,7 +1431,17 @@ class DataBaseFunctions:
     #         msgs_list=row[0]
     #     return len(msgs_list.split(','))
 
+    @staticmethod
+    def send_no_user_reply_for_lesson_offer_msg(addressee='yonamagic', topic='', content='', lesson_starting_time='13:21', lesson_date='03/04/20'):
+        import time
+        while not (datetime.now().strftime('%H:%M') == lesson_starting_time
+                    and datetime.now().strftime('%d/%m/%y') == lesson_date):
+            time.sleep(50)
 
+        DataBaseFunctions.send_msg(sender="הנהלת Syeto",
+                                   addressee=addressee,
+                                   topic=topic,
+                                   content=content)
     @staticmethod
     def send_lesson_feedback_msg(addressee="yonamagic", lesson_ending_time="14:42", lesson_ending_date='28/03/20', teacher="True"):
         import time
@@ -1437,6 +1462,8 @@ class DataBaseFunctions:
                                    content=content)
         # print(datetime.now().strftime('%H:%M') == lesson_ending_time)
         # while datetime.now().minute != datetime.strptime()
+
+
 
     @staticmethod
     def activate_thread(function, args=[]):#args=[addressee, lesson_ending_time, lesson_ending_date, teacher]
@@ -1479,7 +1506,8 @@ class DataBaseFunctions:
         for row in reqs:
             reqs = row[0]
         reqs = reqs.split(',')
-        reqs.remove('')
+        if '' in reqs:
+            reqs.remove('')
         return len(reqs)
 
     @staticmethod
@@ -1506,8 +1534,31 @@ class DataBaseFunctions:
         reqs = conn.execute("select friend_requests from users where username=?", (username,))
         for row in reqs:
             reqs=row[0].split(',')
-        reqs.remove('')
+        if '' in reqs:
+            reqs.remove('')
         return len(reqs)
+
+    @staticmethod
+    def update_last_login(username):
+        current_date = DataBaseFunctions.get_date()
+        current_time = DataBaseFunctions.get_time()
+        time = current_date + ' ' + current_time
+        conn = sqlite3.connect('database.db')
+        conn.execute("update users set last_login = ? where username = ?", (time,username))
+        conn.commit()
+        print("Updated")
+
+
+    @staticmethod
+    def update_lessons_offers(username):# מוחק מטבלת הusers את הצעות השיערו שעבר זמנן
+        lessons_offers_IDs = DataBaseFunctions.get_lessons_offers_IDs(username)
+        lessons_offers = DataBaseFunctions.get_lessons_offers_as_list(username)
+        for lesson_offer in lessons_offers:
+            if DataBaseFunctions.date_is_after(DataBaseFunctions.get_date()[:-2], lesson_offer.date) or\
+                DataBaseFunctions.time_is_after(DataBaseFunctions.get_time(), lesson_offer.time_range.split('-')[0]):
+                DataBaseFunctions.delete_lesson_offer_from_users_table(username, lesson_offer.ID)
+# DataBaseFunctions.update_last_login('yonamagic')
 # DataBaseFunctions.get_all_lessons("24/03/20","26/03/20")
 # print(DataBaseFunctions.number_of_new_messages('abcdef'))
-print(DataBaseFunctions.number_of_lessons_requests('segev'))
+# print(DataBaseFunctions.get_time())
+# DataBaseFunctions.send_no_user_reply_for_lesson_offer_msg(topic='YoYO')

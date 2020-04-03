@@ -6,6 +6,7 @@
 
 {% block body %}
 <br><br><br>
+<button  onclick="location.href='/sendMessage?addressee={{username}}'"/>שלח הודעה</button>
 <button  onclick="location.href='/report_user?username={{username}}'"/>דווח על המשתמש הזה</button>
 
 {% if is_friend %}

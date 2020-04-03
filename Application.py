@@ -38,12 +38,25 @@ def connected():
     return 'user' in session
 
 
+# מוחק את הצעות השיעורים מטבלת הusres אם הן לא עדכניות
+@app.before_request
+def update_lessons_offers():
+    if 'user' in session:
+        DataBaseFunctions.update_lessons_offers(session['user'])
+
+# מעדכן את זמן ההתחברות האחרון של המשתמש
+@app.before_request
+def update_last_login():
+    if 'user' in session:
+        DataBaseFunctions.update_last_login(session['user'])
+
+# מעדכן את ערכי ההודעות החדשות (כל מה שיש בInbox) ב-session
 @app.before_request
 def update_lessons_requests_quantity():
     if 'user' in session:
         session['new_lessons_offers'] = DataBaseFunctions.number_of_lessons_requests(session['user'])
         session['new_messages'] = DataBaseFunctions.number_of_new_messages(session['user'])
-        session['friend_requests'] = DataBaseFunctions.number_of_friend_requests(session['user'])
+        session['new_friend_requests'] = DataBaseFunctions.number_of_friend_requests(session['user'])
 
 @app.route('/', methods=['GET','POST'])
 def index():
@@ -355,9 +368,11 @@ def messages():
     # print("read="+messages_list[0].is_read)
     return render_template('messages.html', messages = messages_list)
 
-@app.route('/sendMessage')
+@app.route('/sendMessage', methods=['GET'])
 def sendMessage(addressee="", topic="", content="", addressee_comment=""):
     print("comment="+addressee_comment)
+    if request.args.get("addressee"):
+        addressee=request.args.get("addressee")
     return render_template('sendMessage.html',
                            addressee_comment=addressee_comment,
                            addressee=addressee,

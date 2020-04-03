@@ -3,56 +3,35 @@
     <head>
         <meta charset="UTF-8">
 
-        <!--<form action="/homePage" method="post">-->
         שלום, {{session.user}}
-                        <button type="submit" class="button button1" onclick="location.href='/logout'"><font color="">התנתק</font></button>
+            <button type="submit" class="button button1" onclick="location.href='/logout'"><font color="">התנתק</font></button>
 
-                <button type="submit" class="button button1" onclick="location.href='/homePage'"><font >מסך הבית</font></button>
-                <button type="submit" class="button button1" onclick="location.href='/my_lessons'"><font color="">השיעורים שלי</font></button>
+            <button type="submit" class="button button1" onclick="location.href='/homePage'"><font >מסך הבית</font></button>
+            <button type="submit" class="button button1" onclick="location.href='/my_lessons'"><font color="">השיעורים שלי</font></button>
 
-        <!--</form>-->
-        <!--<br>-->
-        <!--<form action="/logout" method="post">-->
             {% if session.is_admin %}
                 <button type="submit" class="button button1" onclick="location.href='/admin_options'"><font color="">אפשרויות מנהל מערכת</font></button>
             {% endif %}
-        <!--</form>-->
-        <!--<br>-->
-        <!--<form action="/profile" method="post">-->
                 <button type="submit" class="button button1" onclick="location.href='/profile?username={{session.user}}'"><font color="">פרופיל אישי</font></button>
-        <!--</form>-->
-        <!--<br>-->
-        <!--<form action="/potentialTeachers" method="post">-->
-                {% if not session.is_admin %}
-                    <button type="submit" class="button button1" onclick="location.href='/potential_teachers'"><font color="">מצא מורים</font></button>
-                    <button type="submit" class="button button1" onclick="location.href='/potential_students'"><font color="">מצא תלמידים</font></button>
-                {% endif %}
-        <!--</form>-->
-        <!--<br>-->
-         <!--<form action="/inbox" method="post">-->
-                <button type="submit" class="button button1" onclick="location.href='/friends_list'"><font color="">רשימת החברים שלי</font></button>
-<!--                <button type="submit" class="button button1"  onclick="location.href='/inbox'"><font color="">Inbox</font></button></font></button>-->
+            {% if not session.is_admin %}
+                <button type="submit" class="button button1" onclick="location.href='/potential_teachers'"><font color="">מצא מורים</font></button>
+                <button type="submit" class="button button1" onclick="location.href='/potential_students'"><font color="">מצא תלמידים</font></button>
+            {% endif %}
+            <button type="submit" class="button button1" onclick="location.href='/friends_list'"><font color="">רשימת החברים שלי</font></button>
+            <button type="submit" class="button button1"  onclick="location.href='/inbox'"><font color="">
+                <div class="badge1" data-badge="{{session.new_lessons_offers + session.new_messages + session.new_friend_requests}}">Inbox</div>
+            </font></button>
 
 
-                <button type="submit" class="button button1"  onclick="location.href='/inbox'"><font color="">
-                    <div class="badge1" data-badge="{{session.new_lessons_offers + session.new_messages}}">Inbox</div>
-                </font></button>
-
-
-                <button type="submit" class="button button1" onclick="location.href='/forum_homepage'"><font color="">פורום</font></button>
-        <!--</form>-->
-        <!--<br>-->
+            <button type="submit" class="button button1" onclick="location.href='/forum_homepage'"><font color="">פורום</font></button>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="text" id="search_username" onclick="deleteTbText()"  placeholder="חפש משתמש ספציפי" >
-        <button  onclick="location.href='/profile?username='+document.getElementById('search_username').value">חפש!</button>
+            <input type="text" id="search_username" onclick="deleteTbText()"  placeholder="חפש משתמש ספציפי" >
+            <button  onclick="location.href='/profile?username='+document.getElementById('search_username').value">חפש!</button>
                         <font color="red">{{search_user_comment}}</font>
 
 
 
 
-        <!--<form action="/about" method="post">-->
-                <!--<button type="submit" class="btn btn-primary">About</button>-->
-        <!--</form>-->
         {% block head%}{% endblock %}
     </head>
     <body>
