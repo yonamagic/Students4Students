@@ -7,7 +7,10 @@
             <button type="submit" class="button button1" onclick="location.href='/logout'"><font color="">התנתק</font></button>
 
             <button type="submit" class="button button1" onclick="location.href='/homePage'"><font >מסך הבית</font></button>
-            <button type="submit" class="button button1" onclick="location.href='/my_lessons'"><font color="">השיעורים שלי</font></button>
+            <button class="button button1" onclick="location.href='/my_lessons'">
+            <div class="badge1" data-badge="{{session.lessons}}">השיעורים שלי</div>
+            </button>
+<!--            <button type="submit" class="button button1" onclick="location.href='/my_lessons'"><font color="">השיעורים שלי</font></button>-->
 
             {% if session.is_admin %}
                 <button type="submit" class="button button1" onclick="location.href='/admin_options'"><font color="">אפשרויות מנהל מערכת</font></button>

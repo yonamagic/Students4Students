@@ -1170,24 +1170,15 @@ class DataBaseFunctions:
                                              subject=lesson_offer.subject,
                                              teacher=lesson_offer.teacher)
         conn_calendar.commit()
-        # DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
         DataBaseFunctions.delete_lesson_offer_from_users_table(username=username, id=id)
-        # conn_database.execute("delete from lessons_offers where ID=?", (id,))
-        # command = conn_database.execute("select lessons_offers_IDs from users where username=?", (username,))
-        #
-        # for row in command:
-        #     existing_lessons_offers=row[0]
-        # existing_lessons_offers = existing_lessons_offers.split(',')
-        # # existing_lessons_offers.remove(',')
-        # print(existing_lessons_offers)
-        # existing_lessons_offers.remove(id)
-        # new_lessons_offers = ','.join(existing_lessons_offers)
-        # print(new_lessons_offers)
-        # conn_database.execute("update users set lessons_offers_IDs = ? where username=?" , (new_lessons_offers,username))
-        # conn_database.commit()
+        DataBaseFunctions.send_msg(sender="הנהלת Syeto", addressee=lesson_offer.from_user, topic="שיעור חדש נקבע!",
+                                                             content="היי! נראה ש"+ username + " אישר את הצעת השיעור שלך!"+ '\r\n'
+                                   + "ניתן לראות את כל השיעורים שקבעת באמצעות לחיצה על כפתור 'השיעורים שלי' בתפריט :)")
         DataBaseFunctions.send_msg(sender="הנהלת Syeto", addressee=username, topic="שיעור חדש נקבע!",
-                                                             content="היי! נראה שקבעת הרגע שיעור!")
+                                                             content="היי! נראה שאישרת את הצעת השיעור של "+ lesson_offer.from_user + "!" +  '\r\n'
+                                   + "ניתן לראות את כל השיעורים שקבעת באמצעות לחיצה על כפתור 'השיעורים שלי' בתפריט :)")
         return lesson_ID
+
     @staticmethod
     def deny_lesson_offer(username, id):
         # DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
@@ -1204,6 +1195,15 @@ class DataBaseFunctions:
                 lessons_offers=r[0]
             if offer_id in lessons_offers.split(','):
                 return user
+
+
+    @staticmethod# מחזיר את משתתפי השיעור על פי הID שלו (כרשימה של משתתפים)
+    def whos_lesson_is_this(ID):
+        conn = sqlite3.connect('calendar.db')
+        parts = conn.execute("select participants from lessons where ID=?", (ID,))
+        for row in parts:
+            parts=row[0]
+        return parts.split(',')
 
     @staticmethod
     def get_lesson_by_ID(lesson_ID):
@@ -1475,19 +1475,21 @@ class DataBaseFunctions:
 # DataBaseFunctions.activate_thread(DataBaseFunctions.send_lesson_feedback_msg, ['yonamagic', "14:43", '28/03/20', "True"])
 
     @staticmethod#מחזיר רשימה של כל השיעורים שנקבעו במערכת בטווח תאריכים מסויים
-    def get_all_lessons(from_date, until_date):
+    def get_all_lessons(usernames, from_date, until_date):
             from Lesson import Lesson
             conn = sqlite3.connect('calendar.db')
             lessons = []
             IDs = conn.execute("select * from lessons where active='True'")
             for ID in IDs:
-                # print("ID = " , ID)
+                print("ID = " , ID)
                 # print(DataBaseFunctions.date_is_after(ID[2],from_date))
                 # print("ID[2]",ID[2])
                 # print()
                 # print(DataBaseFunctions.date_is_after(from_date,ID[2]))
+
                 if (DataBaseFunctions.date_is_after(ID[2],from_date) or ID[2]==from_date)\
-                    and (DataBaseFunctions.date_is_after(until_date,ID[2]) or ID[2]==until_date):
+                    and (DataBaseFunctions.date_is_after(until_date,ID[2]) or ID[2]==until_date)\
+                        and set(usernames).intersection(set(DataBaseFunctions.whos_lesson_is_this(ID[0]))):
                         print(ID)
                         lessons.append(Lesson(ID=ID[0],
                                               place=ID[1],
@@ -1538,6 +1540,8 @@ class DataBaseFunctions:
             reqs.remove('')
         return len(reqs)
 
+    # @staticmethod
+    # def
     @staticmethod
     def update_last_login(username):
         current_date = DataBaseFunctions.get_date()
@@ -1550,15 +1554,39 @@ class DataBaseFunctions:
 
 
     @staticmethod
-    def update_lessons_offers(username):# מוחק מטבלת הusers את הצעות השיערו שעבר זמנן
-        lessons_offers_IDs = DataBaseFunctions.get_lessons_offers_IDs(username)
+    def update_lessons_offers_that_have_passed(username):# מוחק מטבלת הusers את הצעות השיערו שעבר זמנן
+        # lessons_offers_IDs = DataBaseFunctions.get_lessons_offers_IDs(username)
         lessons_offers = DataBaseFunctions.get_lessons_offers_as_list(username)
         for lesson_offer in lessons_offers:
             if DataBaseFunctions.date_is_after(DataBaseFunctions.get_date()[:-2], lesson_offer.date) or\
-                DataBaseFunctions.time_is_after(DataBaseFunctions.get_time(), lesson_offer.time_range.split('-')[0]):
+                    (DataBaseFunctions.time_is_after(DataBaseFunctions.get_time(), lesson_offer.time_range.split('-')[0]) and\
+                                                     DataBaseFunctions.get_date()[:-2] == lesson_offer.date):
                 DataBaseFunctions.delete_lesson_offer_from_users_table(username, lesson_offer.ID)
-# DataBaseFunctions.update_last_login('yonamagic')
-# DataBaseFunctions.get_all_lessons("24/03/20","26/03/20")
-# print(DataBaseFunctions.number_of_new_messages('abcdef'))
-# print(DataBaseFunctions.get_time())
-# DataBaseFunctions.send_no_user_reply_for_lesson_offer_msg(topic='YoYO')
+
+    @staticmethod# מוחק מטבלת הusers את הצעות השיעור שנקבעו שיעורים בזמן חופף לשלהם
+    def update_lessons_offers_that_are_no_longer_relevant(username):
+        lessons_offers = DataBaseFunctions.get_lessons_offers_as_list(username)
+        for lesson_offer in lessons_offers:
+            if DataBaseFunctions.lesson_exists_at_this_date_and_time(username=username,
+                                                                     date=lesson_offer.date,
+                                                                     from_time=lesson_offer.time_range.split('-')[0],
+                                                                     until_time=lesson_offer.time_range.split('-')[1]):
+                DataBaseFunctions.delete_lesson_offer_from_users_table(username=username,
+                                                                       id=lesson_offer.ID)
+
+
+    @staticmethod
+    def number_of_lessons(username):
+        return len(DataBaseFunctions.get_lessons(username))
+
+    @staticmethod# מחזיר אמת אם קיים שיעור חופף לפרמטרים
+    def lesson_exists_at_this_date_and_time(username, date, from_time, until_time):
+        import Calendar_Functions
+        lessons = DataBaseFunctions.get_lessons(username)
+        for less in lessons:
+            if date == less.date:
+                less_time_range = Calendar_Functions.get_times_for_lessons(range=less.time_range, jumps_ranges=1)
+                origin_time_range = Calendar_Functions.get_times_for_lessons(range=from_time+'-'+until_time, jumps_ranges=1)
+                if list(set(less_time_range).intersection(set(origin_time_range))) :
+                    return True
+        return False

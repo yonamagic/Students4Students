@@ -2,17 +2,9 @@
 <html dir="rtl" lang="en">
     <head>
         <meta charset="UTF-8">
-        <form action="/" method="post">
-                <button type="submit" class="btn btn-primary"><font color="blue">מסך בית</font></button>
-        </form>
-        <br>
-        <form action="/loginPage" method="post">
-            <button type="submit" class="btn btn-primary"><font color="blue">התחבר</font></button>
-        </form>
-        <br>
-        <form action="/register" method="post">
-            <button type="submit" class="btn btn-primary"><font color="blue">הירשם</font></button>
-        </form>
+            <button onclick="location.href='/'" class="button button1"><font color="">מסך בית</font></button>
+            <button onclick="location.href='/loginPage'" class="button button1"><font color="">התחבר</font></button>
+            <button onclick="location.href='/register'" class="button button1"><font color="">הירשם</font></button>
 
         <!--<form action="/about" method="post">-->
             <!--<button type="submit" class="btn btn-primary">About</button>-->
@@ -20,7 +12,61 @@
         <!--</form>-->
         {% block head%}{% endblock %}
     </head>
+
     <body>
         {% block body%}{% endblock %}
     </body>
 </html>
+
+
+
+<style>
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.button1 {
+  background-color: white;
+  color: black;
+  border: 2px solid #008CBA;
+}
+
+.button1:hover {
+  background-color: #008CBA;
+  color: white;
+}
+
+
+
+
+.badge1 {
+   position:relative;
+}
+.badge1[data-badge]:after {
+   content:attr(data-badge);
+   position:relative;
+   top:-20px;
+   right:-10px;
+   font-size:2em;
+   background:green;
+   color:white;
+   width:18px;height:18px;
+   text-align:center;
+   line-height:18px;
+   border-radius:50%;
+   box-shadow:0 0 1px #333;
+}
+.badge1[data-badge=””]:after {
+content: none;
+}
+</style>

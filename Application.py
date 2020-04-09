@@ -8,18 +8,6 @@ from DataBaseFunctions import DataBaseFunctions
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
-# app.secret_key = "MySecretKey1234"
-
-# socketio = SocketIO(app)
-
-#For registration page
-# subjects = [Subject('Math',[10,11]), Subject('Arabic',[10,11,12]), Subject('History',[10])]
-
-# SESSION_TYPE = 'redis'
-
-# socketio = SocketIO(app)
-
-# request.remote_addr   -    ip
 
 
 @app.route('/ip')
@@ -39,10 +27,12 @@ def connected():
 
 
 # מוחק את הצעות השיעורים מטבלת הusres אם הן לא עדכניות
+# עושה זאת גם אם נקבעו שיעורים אחרים בזמנים חופפים
 @app.before_request
 def update_lessons_offers():
     if 'user' in session:
-        DataBaseFunctions.update_lessons_offers(session['user'])
+        DataBaseFunctions.update_lessons_offers_that_have_passed(session['user'])
+        DataBaseFunctions.update_lessons_offers_that_are_no_longer_relevant(session['user'])
 
 # מעדכן את זמן ההתחברות האחרון של המשתמש
 @app.before_request
@@ -57,7 +47,7 @@ def update_lessons_requests_quantity():
         session['new_lessons_offers'] = DataBaseFunctions.number_of_lessons_requests(session['user'])
         session['new_messages'] = DataBaseFunctions.number_of_new_messages(session['user'])
         session['new_friend_requests'] = DataBaseFunctions.number_of_friend_requests(session['user'])
-
+        session['lessons'] = DataBaseFunctions.number_of_lessons(session['user'])
 @app.route('/', methods=['GET','POST'])
 def index():
 
@@ -69,9 +59,12 @@ def index():
         return render_template('homePage.html', user=session['user'])
     return render_template("index.html")
 
+
+
+
 @app.route('/about', methods=['GET','POST'])
 def about():
-    return render_template("about.html")
+    return render_template("index2.html")
 
 
 #This is just to make the red comment disappear
@@ -587,6 +580,7 @@ def select_date_range():
             print(DataBaseFunctions.dates_list()[0])
             print("dates and stuff")
             return render_template('select_date_range_admin.html',
+                                            all_usernames=','.join(DataBaseFunctions.get_all_users()),
                                            first_date_exists=DataBaseFunctions.dates_list()[0],
                                            last_date_exists=DataBaseFunctions.dates_list()[-1])
     return redirect('/homePage')
@@ -598,9 +592,11 @@ def view_all_lessons():
         if DataBaseFunctions.is_admin(session['user']):
             from_date = str(request.args.get("from_date"))
             until_date = str(request.args.get("until_date"))
+            usernames = (str(request.args.get("usernames"))).replace(' ','').split(',')
+            print("usernames = ", usernames)
             if DataBaseFunctions.date_matches_time_format(from_date) and DataBaseFunctions.date_matches_time_format(until_date):
                 if DataBaseFunctions.date_is_after(until_date, from_date) or from_date==until_date:
-                    lessons = DataBaseFunctions.get_all_lessons(from_date=from_date, until_date=until_date)
+                    lessons = DataBaseFunctions.get_all_lessons(usernames=usernames, from_date=from_date, until_date=until_date)
                     return render_template('admin_view_all_lessons.html', lessons=lessons, from_date=from_date, until_date=until_date)
             return redirect('/admin_options/view_all_lessons/select_date_range')
     return redirect('/homePage')
@@ -699,7 +695,13 @@ def process_lesson_request(username, teacher):
     if not Calendar_Functions.is_after(until_time,from_time):
         error_msg = "אנא בחר טווח שעות הגיוני"
         todo_bien=False
-    if Calendar_Functions.time_range_length(from_time=from_time, until_time=until_time) < 30\
+    elif DataBaseFunctions.lesson_exists_at_this_date_and_time(session['user'], date, from_time, until_time):
+        error_msg = "נראה שכבר קבעתם שיעור בתאריך ושעה חופפים/זהים... נסו להציע מועד אחר."
+        todo_bien = False
+    elif DataBaseFunctions.lesson_exists_at_this_date_and_time(username, date, from_time, until_time):
+        error_msg = "נראה שהמשתמש הזה כבר קבע שיעור בתאריך ושעה חופפים/זהים... נסו להציע מועד אחר."
+        todo_bien = False
+    elif Calendar_Functions.time_range_length(from_time=from_time, until_time=until_time) < 30\
             or Calendar_Functions.time_range_length(from_time=from_time, until_time=until_time) > 60:
         error_msg = "אורך השיעור צריך להיות בין 30 דקות לשעה :)"
         todo_bien=False
@@ -740,7 +742,8 @@ def accept_lesson_offer(ID):
     lesson_ending_time = lesson.time_range.split('-')[1]
     print("Teacher is ", lesson.teacher)
     print("addressee",participants[0])
-    # שולח שתי הדעות, אחת למורה ואחת לתלמיד
+
+    # שולח שתי הדעות לאחר השיעור, אחת למורה ואחת לתלמיד
     for i in range(2):
         DataBaseFunctions.activate_thread(function=DataBaseFunctions.send_lesson_feedback_msg,
                                           args=[participants[i], lesson_ending_time, lesson.date, lesson.teacher == participants[i]])

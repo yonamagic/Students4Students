@@ -1,28 +1,33 @@
 {% extends "guestLayout.html" %}
 
 {% block body %}
+<h2>הזן/הזיני את המשתמשים שבשיעורים שקבעו תרצה/י לצפות (אם יש יותר מאחד, הפרד את שמותיהם באמצעות פסיקים ללא רווחים)</h2>
+<input type="text" placeholder="שמות משתמשים" id="usernames" name="usernames">
+&nbsp;&nbsp;&nbsp;
+<button onclick="set_usernames_to_all()">בחר בכל המשתמשים</button>
 <h2>הזן/הזיני את טווח התאריכים הרלוונטי לחיפוש שלך (בפורמט: DD/MM/YY)</h2>
-<!--<form action="/admin_options/view_all_lessons/get_from_time()" method="get">-->
     <input type="text" id="from_date" placeholder="מתאריך" name="from_date">
     <input type="text" id="until_date" placeholder="עד תאריך" name="until_date">
-<!--<input type="submit">-->
-    <button onclick="location.href='/admin_options/view_all_lessons?from_date=' + document.getElementById('from_date').value + '&until_date=' + document.getElementById('until_date').value">
-<!--    <button onclick=show_from()>-->
+<button onclick="set_dates_to_show_all()">ברצוני לצפות בכל השיעורים</button>
+
+<br><br><br>
+
+    <button onclick="location.href='/admin_options/view_all_lessons?from_date=' +
+     document.getElementById('from_date').value +
+      '&until_date=' + document.getElementById('until_date').value +
+        '&usernames=' + document.getElementById('usernames').value">
         צפה
     </button>
-<script>function show_from(){
-console.log('/admin_options/view_all_lessons/' + document.getElementById('from_date').value + '/' + document.getElementById('until_date').value);
-}
-function get_from_time(){
-return document.getElementById('from_date').value;
-}</script>
-</form>
-<br>
-<button onclick="set_dates_to_show_all()">ברצוני לצפות בכל השיעורים</button>
+
 <script>function set_dates_to_show_all(){
-    document.getElementById('from_date').value = '{{first_date_exists}}'
-    document.getElementById('until_date').value = '{{last_date_exists}}'
-}</script>
+            document.getElementById('from_date').value = '{{first_date_exists}}'
+            document.getElementById('until_date').value = '{{last_date_exists}}'
+        }
+
+        function set_usernames_to_all(){
+            document.getElementById('usernames').value = '{{all_usernames}}'
+        }
+</script>
 <br>
 <font size="4" color="dark pink">*הערה: אנא וודא/י שהזנת טווח תאריכים הגיוני ועל פי הפורמט המבוקש</font>
 {% endblock %}
