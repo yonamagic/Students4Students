@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block body %}
-
+<br><br><br>
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 {% set input_class = "w3-input" %}
 {% set check_input_class = "w3-check" %}
 <h1>הזינו את פרטיכם כדי ליצור משתמש:</h1>
-<h1>אל תדאגו, זה רק נראה ארוך ;)</h1>
+<h2>אל תדאגו, זה רק נראה ארוך ;)</h2>
 <br><br><br>
 <form action="/checkRegistration" method="post">
 <input type="text" class="{{input_class}}" name="username" id="username" placeholder="שם משתמש" value="{{username}}">
@@ -36,13 +36,13 @@
 
 <h2>במה תוכלו לעזור לתלמידים אחרים?</h2>
 {% for subject in subjects %}
-    <font size="6">{{subject[0]}}</font>
+    <font size="6">{{subject[0]}}</font><br>
     {% for class in subject[1] %}
-        {% if subject[1].index(class) != 0 %}
+        {# if subject[1].index(class) != 0 #}
             {% for space in range(subject[0]|length+3) %}
                 &nbsp;
             {% endfor %}
-        {% endif %}
+        {# endif #}
         <input type="checkbox" class="{{check_input_class}}" name="strong_{{subject[0]}}_{{class}}" id="strong_{{subject[0]}}_{{class}}" ><font size="4">{{class}}</font>
         {% for strong_sub in selected_strong_subjects %}
             {% if strong_sub.name == subject[0] %}
@@ -60,13 +60,14 @@
 
 <h2>במה לא יזיק לכם תגבור קטן? :)</h2>
 {% for subject in subjects %}
-    <font size="6">{{subject[0]}}</font>
+    <font size="6">{{subject[0]}}</font><br>
     {% for class in subject[1] %}
-        {% if subject[1].index(class) != 0 %}
+        {# if subject[1].index(class) != 0 #}
             {% for space in range(subject[0]|length+3) %}
                 &nbsp;
             {% endfor %}
-        {% endif %}
+        {# endif #}
+
         <input type="checkbox" class="{{check_input_class}}" name="weak_{{subject[0]}}_{{class}}" id="weak_{{subject[0]}}_{{class}}"><font size="4">{{class}}</font>
         {% for weak_sub in selected_weak_subjects %}
             {% if weak_sub.name == subject[0] %}
@@ -84,25 +85,6 @@
 
 <button type="submit" class="stylish"><font size="6">Done</font></button>
 </form>
-
-<style>
-.stylish {
-  display: block;
-  width: 100%;
-  border: none;
-  background-color: #4CAF50;
-  color: white;
-  padding: 14px 28px;
-  font-size: 16px;
-  cursor: pointer;
-  text-align: center;
-}
-
-.block:hover {
-  background-color: #ddd;
-  color: black;
-}
-</style>
 
 
 {% endblock %}

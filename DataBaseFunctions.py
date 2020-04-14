@@ -541,7 +541,7 @@ class DataBaseFunctions:
         post = conn.execute("select * from forum_posts where post_ID = ? ", (post_id,))
         for row in post:
             post = row
-            print("A",post)
+            # print("A",post)
         # print("comments: ", post[5].split(','))
         # print("Hi ",DataBaseFunctions.get_all_comments_list(post[5]))
         return Post(post_ID = post[0],
@@ -574,9 +574,9 @@ class DataBaseFunctions:
         comment = conn.execute("select * from post_comments where comment_ID = ? ", (comment_id,))
         for row in comment:
             comment = row
-        print("comment is: " , comment)
-        print(isinstance(comment,tuple))
-        print(type(comment))
+        # print("comment is: " , comment)
+        # print(isinstance(comment,tuple))
+        # print(type(comment))
         if not isinstance(comment,tuple) :
             return None
         return Comment(id=comment[0],
@@ -592,7 +592,7 @@ class DataBaseFunctions:
             if comment_object is not None:
                 comments.append(DataBaseFunctions.get_comment_object(id))
         comments.reverse()
-        print("comments are: ", comments)
+        # print("comments are: ", comments)
         return comments
 
     @staticmethod#returns a list of comments of a certain post
@@ -830,6 +830,88 @@ class DataBaseFunctions:
         conn.execute("insert into reports (ID, reported_user, content, date) values (?,?,?,?)",
                      (ID, username, report_content, date))
         conn.commit()
+
+
+    @staticmethod
+    def report_post(post_id, content, forum):
+        conn = sqlite3.connect('database.db')
+        conn.execute("insert into post_reports (post_ID, content, forum, deleted) values (?,?,?,'no')",
+                     (post_id, content, forum))
+        conn.commit()
+
+    @staticmethod
+    def post_is_deleted(post_id):
+        conn = sqlite3.connect('database.db')
+        deleted = conn.execute("select deleted from post_reports where post_ID=?", (post_id,))
+        for row in deleted:
+            if row[0] == 'yes':
+                return True
+            return False
+
+    @staticmethod
+    def get_reported_posts_IDs():
+        conn = sqlite3.connect('database.db')
+        IDs = conn.execute("select ID from post_reports")
+        reps_IDs = []
+        for row in IDs:
+            reps_IDs.append(row[0])
+        return reps_IDs
+
+    @staticmethod
+    def reported_posts_as_list_of_dictionaries():
+        conn = sqlite3.connect('database.db')
+        dicts_list = []
+        posts = conn.execute("select * from post_reports")
+        for row in posts:
+            dicts_list.append({
+                'post_ID' : row[0],
+                'content' : row[1],
+                'forum' : row[2],
+                'deleted' : row[3]
+            })
+        return dicts_list
+
+    @staticmethod
+    def delete_post(post_id):
+        DataBaseFunctions.delete_post_from_forums_table(post_id)
+        # DataBaseFunctions.delete_post_from_posts_table(post_id)
+        DataBaseFunctions.set_deleted_in_postReports_table(post_id)
+
+    @staticmethod
+    def set_deleted_in_postReports_table(post_id):
+        conn = sqlite3.connect('database.db')
+        conn.execute("update post_reports set deleted = 'yes' where post_ID=?", (post_id,))
+        conn.commit()
+
+    @staticmethod
+    def delete_post_from_forums_table(post_id):
+        conn = sqlite3.connect('database.db')
+        forums = conn.execute("select * from forums")
+        for row in forums:
+            forum_name = row[0]
+            posts_IDs = row[1]
+            if post_id in posts_IDs:
+                posts_IDs = posts_IDs.split(',')
+                posts_IDs.remove(post_id)
+                posts_IDs = ','.join(posts_IDs)
+                print("posts_IDs = " , posts_IDs)
+                conn.execute("update forums set posts_IDs = ? where forum_name=?", (posts_IDs,forum_name))
+                conn.commit()
+                break
+
+    @staticmethod
+    def get_forum_name_by_post_id(post_id):
+        conn = sqlite3.connect('database.db')
+        forums = conn.execute("select forum_name from forums")
+        for row in forums:
+            forum_name = row[0]
+            posts = DataBaseFunctions.get_forum_posts(forum_name)
+            posts_IDs = []
+            for i in posts:
+                posts_IDs.append(i.post_ID)
+            if post_id in posts_IDs:
+                return forum_name
+
     @staticmethod
     def get_list_of_reported_usernames():
         conn = sqlite3.connect('database.db', timeout=2)

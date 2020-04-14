@@ -7,4 +7,5 @@
 <br>
 <p>{{content}}</p>
 <button type="submit" onclick="location.href='/messages'">חזור לתיבת ההודעות</button>
+<button type="submit" onclick="location.href='/sendMessage?addressee={{sender}}&topic=<Re:>תשובה להודעה: {{topic}}'">השב להודעה זו</button>
 {% endblock %}

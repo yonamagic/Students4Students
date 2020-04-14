@@ -6,19 +6,20 @@
 
 
 {% block body %}
+<div style="position: relative;top: 70px;">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  {% set input_class = "w3-input" %}
+  <h1>התחברות</h1><br>
+  <form action="/checkUserEntryDetails" method="post">
+    <input name="username" class="{{input_class}}" type="text" placeholder="שם משתמש" name="username"><br><br>
+    <input name="password" class="{{input_class}}" type="text" placeholder="סיסמה" name="password"><br>
+      <small style="color:red">{{comment}}</small><br>
 
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-{% set input_class = "w3-input" %}
-<h1>התחברות</h1>
-<form action="/checkUserEntryDetails" method="post">
-  <input name="username" class="{{input_class}}" type="text" placeholder="שם משתמש" name="username"><br><br>
-  <input name="password" class="{{input_class}}" type="text" placeholder="סיסמה" name="password"><br>
-    <small style="color:red">{{comment}}</small><br>
+  <input type="submit" class="w3-button w3-block w3-teal" value="היכנס">
 
-<input type="submit" class="w3-button w3-block w3-teal">
-
-<!--  <input type="submit" >-->
-</form>
+  <!--  <input type="submit" >-->
+  </form>
+  </div>
 {% endblock %}
 
 

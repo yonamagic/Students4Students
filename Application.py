@@ -9,6 +9,9 @@ from DataBaseFunctions import DataBaseFunctions
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 
+@app.route('/s')
+def sidebar():
+    return render_template('guestLayoutSidenavOptions.html')
 
 @app.route('/ip')
 def ip():
@@ -76,7 +79,7 @@ def loginPage():
 # @app.route('/ttt')
 # def t():
 #     session['new_messages'] = "ח"
-#     return render_template("registeredLayout.html")
+#     return render_template("registeredLayout1.html")
 
 @app.route('/login', methods=["POST","GET"])
 def login():
@@ -366,6 +369,10 @@ def sendMessage(addressee="", topic="", content="", addressee_comment=""):
     print("comment="+addressee_comment)
     if request.args.get("addressee"):
         addressee=request.args.get("addressee")
+    if request.args.get("topic"):
+        topic=request.args.get("topic")
+    if request.args.get("content"):
+        content=request.args.get("content")
     return render_template('sendMessage.html',
                            addressee_comment=addressee_comment,
                            addressee=addressee,
@@ -492,7 +499,28 @@ def new_post_submitted(forum_name):
 @app.route('/post/<post_id>')
 def view_post(post_id):
     # print(DataBaseFunctions.get_post_object(post_id).topic)
-    return render_template('view_post.html', post=DataBaseFunctions.get_post_object(post_id), post_id=post_id)
+    if DataBaseFunctions.post_is_deleted(post_id):
+        if 'user' in session:
+            # print("USERNAME is ", session['user'])
+            if DataBaseFunctions.is_admin(session['user']):
+                return render_template('view_post.html', post=DataBaseFunctions.get_post_object(post_id),
+                                       post_id=post_id)
+        return redirect('/forum_homepage')
+    else:
+        return render_template('view_post.html', post=DataBaseFunctions.get_post_object(post_id),
+                                                   post_id=post_id)
+@app.route('/report_post/<post_id>')
+def report_post(post_id):
+    return render_template('report_post.html', post_id=post_id)
+
+@app.route('/post_report_done', methods=['POST','GET'])
+def post_report_done():
+    post_id = request.args.get("post_id")
+    content = request.form.get("report_content")
+    forum = DataBaseFunctions.get_forum_name_by_post_id(post_id)
+    DataBaseFunctions.report_post(post_id=post_id, content=content, forum=forum)
+    return redirect('/post/' + post_id)
+
 
 @app.route('/post/write_comment/<post_id>')
 def write_comment(post_id):
@@ -522,12 +550,32 @@ def view_reports():
     return redirect('/homePage')
     #DataBaseFunctions.get_list_of_reported_usernames())
 
+
+
 @app.route("/view_user_reports")
 def view_user_reports():
     if 'user' in session:
         if DataBaseFunctions.is_admin(session['user']):
             username = request.args.get("username")
             return render_template("view_user_reports.html", reports=DataBaseFunctions.get_reports_list(username))
+    return redirect('/homePage')
+
+
+@app.route("/admin_options/view_post_reports")
+def view_post_reports():
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
+            return render_template("view_post_reports.html",
+                                   reports=DataBaseFunctions.reported_posts_as_list_of_dictionaries())
+    return redirect('/homePage')
+    #DataBaseFunctions.get_list_of_reported_usernames())
+
+@app.route('/admin_options/delete_post/<post_id>')
+def delete_post(post_id):
+    if 'user' in session:
+        if DataBaseFunctions.is_admin(session['user']):
+             DataBaseFunctions.delete_post(post_id)
+             return redirect('/admin_options/view_post_reports')
     return redirect('/homePage')
 
 @app.route("/admin_options/send_notification", methods=['POST','GET'])
@@ -593,7 +641,6 @@ def view_all_lessons():
             from_date = str(request.args.get("from_date"))
             until_date = str(request.args.get("until_date"))
             usernames = (str(request.args.get("usernames"))).replace(' ','').split(',')
-            print("usernames = ", usernames)
             if DataBaseFunctions.date_matches_time_format(from_date) and DataBaseFunctions.date_matches_time_format(until_date):
                 if DataBaseFunctions.date_is_after(until_date, from_date) or from_date==until_date:
                     lessons = DataBaseFunctions.get_all_lessons(usernames=usernames, from_date=from_date, until_date=until_date)

@@ -1,0 +1,19 @@
+{%extends "registeredLayout.html" %}
+
+{% block body %}
+
+<h1>פוסטים שדווחו כבלתי הולמים</h1>
+
+{% for report in reports %}
+
+<font size="5"><b>"{{report['content']}}"</b></font> - פורום <a href="/forum/{{report['forum']}}">{{report['forum']}}</a>.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{% if report['deleted'] == 'yes' %}
+    <font color="red">טופל - הפוסט נמחק</font>
+{% endif %}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="/post/{{report['post_ID']}}">צפה בפוסט</a>
+<br><br>
+{% endfor %}
+
+{% endblock %}

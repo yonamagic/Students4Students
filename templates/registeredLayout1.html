@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+    <head>
+        <meta charset="UTF-8">
+
+        שלום, {{session.user}}
+            <button type="submit" class="button button1" onclick="location.href='/logout'"><font color="">התנתק</font></button>
+
+            <button type="submit" class="button button1" onclick="location.href='/homePage'"><font >מסך הבית</font></button>
+            <button class="button button1" onclick="location.href='/my_lessons'">
+            <div class="badge1" data-badge="{{session.lessons}}">השיעורים שלי</div>
+            </button>
+<!--            <button type="submit" class="button button1" onclick="location.href='/my_lessons'"><font color="">השיעורים שלי</font></button>-->
+
+            {% if session.is_admin %}
+                <button type="submit" class="button button1" onclick="location.href='/admin_options'"><font color="">אפשרויות מנהל מערכת</font></button>
+            {% endif %}
+                <button type="submit" class="button button1" onclick="location.href='/profile?username={{session.user}}'"><font color="">פרופיל אישי</font></button>
+            {% if not session.is_admin %}
+                <button type="submit" class="button button1" onclick="location.href='/potential_teachers'"><font color="">מצא מורים</font></button>
+                <button type="submit" class="button button1" onclick="location.href='/potential_students'"><font color="">מצא תלמידים</font></button>
+            {% endif %}
+            <button type="submit" class="button button1" onclick="location.href='/friends_list'"><font color="">רשימת החברים שלי</font></button>
+            <button type="submit" class="button button1"  onclick="location.href='/inbox'"><font color="">
+                <div class="badge1" data-badge="{{session.new_lessons_offers + session.new_messages + session.new_friend_requests}}">Inbox</div>
+            </font></button>
+
+
+            <button type="submit" class="button button1" onclick="location.href='/'"><font color="">פורום</font></button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="text" id="search_username" onclick="deleteTbText()"  placeholder="חפש משתמש ספציפי" >
+            <button  onclick="location.href='/profile?username='+document.getElementById('search_username').value">חפש!</button>
+                        <font color="red">{{search_user_comment}}</font>
+
+
+
+
+        {% block head%}{% endblock %}
+    </head>
+    <body>
+        {% block body%}{% endblock %}
+    </body>
+</html>
+
+<style>
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.button1 {
+  background-color: white;
+  color: black;
+  border: 2px solid #008CBA;
+}
+
+.button1:hover {
+  background-color: #008CBA;
+  color: white;
+}
+
+
+
+
+.badge1 {
+   position:relative;
+}
+.badge1[data-badge]:after {
+   content:attr(data-badge);
+   position:relative;
+   top:-20px;
+   right:-10px;
+   font-size:2em;
+   background:green;
+   color:white;
+   width:18px;height:18px;
+   text-align:center;
+   line-height:18px;
+   border-radius:50%;
+   box-shadow:0 0 1px #333;
+}
+.badge1[data-badge=””]:after {
+content: none;
+}
+</style>

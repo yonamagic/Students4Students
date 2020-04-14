@@ -7,13 +7,107 @@
 
 
 {% block body %}
-<!--<form action="/login">-->
-    <h1>ברוכים הבאים לSyeto!</h1>
-<img src="https://mail.google.com/mail/u/0?ui=2&ik=ae5bb7a53c&attid=0.1&permmsgid=msg-a:r-3548007626695057494&th=17117fccd472a9ca&view=fimg&sz=s0-l75-ft&attbid=ANGjdJ87Vw9TT3Sd7Aqb1F0iXhvVChamqbJqgrXDLs9DxeRZ-t68CuYOueMopyZRnXj6FyjCXB1tY0FmWv6sLnHS5cY3m66FtYVL_jRm6iKqISUd5nXuXGF-q_N0fcU&disp=emb&realattid=ii_k8925r700" alt="הסבר על שלב הפיילוט - חלק א">
-<img src="https://mail.google.com/mail/u/0?ui=2&ik=ae5bb7a53c&attid=0.2&permmsgid=msg-a:r-3548007626695057494&th=17117fccd472a9ca&view=fimg&sz=s0-l75-ft&attbid=ANGjdJ_ijbD0GhL2p3XXT7N-rdE3oiZ9o1OIM54jSl03h-oZKeTFg3IdfRgZNdkUD2xm2BcVoPhRLPqyTV6z4pN1qBLFuZ7yKajvJH3ePNP2u9JD_00n1LVsm2DXz38&disp=emb&realattid=ii_k8922w4r1" alt="הסבר על שלב הפיילוט - חלק ב">
 
-    <!--<button type="submit" class="btn btn-primary">Sign In!</button>-->
-<!--</form>-->
+<div class="main" id="upper_home_page">
+  <a href="#about_section" class="action-button shadow animate blue" style="position: absolute; left: 450px; top: 450px;">מידע</a>
+  <br><br>
+  <a href="/register" class="action-button shadow animate blue" style="position: relative; left: 150px; top: 450px;">הירשם</a>
+  <a href="/loginPage" class="action-button shadow animate blue" style="position: relative; left: 200px; top: 450px;">התחבר</a>
+<!--</div>-->
+</div>
+<br><br><br><br><br>
+
+<div class="bg"></div>
+
+<div class="main" id="about_section">
+    <br><br><br><br><br><br><br><br><br>
+    <h1>מה זה Syeto?</h1>
+    <p>כאן יהיה הסבר על סייטו</p>
+    <h1>מי אנחנו?</h1>
+    <p>חבורה של בני נוער, מי אתה?</p>
+    <a href="#upper_home_page">  חזור למעלה &#8679;&#8679;&#8679; </a>
+</div>
+
+
+<!--Styles-->
+
+<style>
+html {
+  scroll-behavior: smooth;
+}
+
+#upper_home_page {
+  height: 0px;
+  background-color: white;
+}
+
+#about_section {
+  height: 710px;
+  background-color: ;
+}
+</style>
+
+<style>
+body, html {
+  height: 100%;
+  margin: 0;
+}
+
+.bg {
+  /* The image used */
+  background-image: url("https://mail.google.com/mail/u/0?ui=2&ik=ae5bb7a53c&attid=0.1&permmsgid=msg-a:r229609956616722469&th=171739cfcf7771c7&view=fimg&sz=s0-l75-ft&attbid=ANGjdJ82kRdsKXLxeTLSFg9z9WjppRFsmZhCsxNJi9WqSRe9Nsevk-ci8hhKP0xf0beUCHw0QbtDTjZc0GUsFX1vNSrMqkaAlZBCCsYMcBO_-ORQEVN63BlpFHOUpfY&disp=emb&realattid=ii_k8yhdzk90");
+
+  /* Full height */
+  height: 80%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+</style>
+
+  <style>
+    body
+{
+	padding: 0px;
+}
+
+.animate
+{
+	transition: all 0.1s;
+	-webkit-transition: all 0.1s;
+}
+
+.action-button
+{
+	position: var(position);
+	left: var(left);
+    top: var(top);
+	padding: 10px 220px;
+  margin: 0px 10px 10px 0px;
+  float: left;
+	border-radius: 10px;
+	font-family: 'Pacifico', cursive;
+	font-size: 25px;
+	color: #FFF;
+	text-decoration: none;
+}
+
+.blue
+{
+	background-color: #3498DB;
+	border-bottom: 5px solid #2980B9;
+	text-shadow: 0px -2px #2980B9;
+}
+
+.action-button:active
+{
+	transform: translate(0px,5px);
+  -webkit-transform: translate(0px,5px);
+	border-bottom: 1px solid;
+}
+  </style>
 {% endblock %}
 
 

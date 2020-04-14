@@ -1,8 +1,15 @@
 {% extends "registeredLayout.html" %}
 
 {% block body %}
-
-<h1>{{post.topic}}</h1>
+<br><br>
+<font size="6"><b>{{post.topic}}</b></font>
+{% if session.is_admin %}
+<!--    <button onclick="location.href='/report_post/{{post_id}}'">נעל פוסט</button>-->
+    <button onclick="location.href='/admin_options/delete_post/{{post_id}}'">מחק פוסט</button>
+{% else %}
+<button onclick="location.href='/report_post/{{post_id}}'">דיווח על פוסט פוגעני או בלתי הולם</button>
+{% endif %}
+<br><br>
 מאת: {{post.narrator}}<br>
 תאריך: {{post.date}}
 <br><br>
