@@ -11,7 +11,7 @@ app.secret_key = 'secret_key'
 
 @app.route('/s')
 def sidebar():
-    return render_template('guestLayoutSidenavOptions.html')
+    return render_template('guestLayout.html')
 
 @app.route('/ip')
 def ip():
