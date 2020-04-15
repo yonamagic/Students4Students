@@ -24,7 +24,16 @@
     <p>כאן יהיה הסבר על סייטו</p>
     <h1>מי אנחנו?</h1>
     <p>חבורה של בני נוער, מי אתה?</p>
-    <a href="#upper_home_page">  חזור למעלה &#8679;&#8679;&#8679; </a>
+    <button onclick="document.documentElement.scrollTop = 0;">  חזור למעלה &#8679;&#8679;&#8679; </button>
+</div>
+
+<div class="main" id="contact">
+<!--    <br><br>-->
+    <h1>צור קשר</h1>
+    <p>שלחו מייל וכאלה: <a href="mailto:syeto2020@gmail.com">syeto2020@gmail.com</a></p>
+    <p>עקבו אחרינו באינסטגרם: <a href="https://www.instagram.com/syeto_2020?r=nametag">https://www.instagram.com/syeto_2020?r=nametag</a></p>
+    <button onclick="document.documentElement.scrollTop = 0;">  חזור למעלה &#8679;&#8679;&#8679; </button>
+    <br><br><br><br><br><br><br>
 </div>
 
 
@@ -66,47 +75,7 @@ body, html {
 }
 </style>
 
-  <style>
-    body
-{
-	padding: 0px;
-}
 
-.animate
-{
-	transition: all 0.1s;
-	-webkit-transition: all 0.1s;
-}
-
-.action-button
-{
-	position: var(position);
-	left: var(left);
-    top: var(top);
-	padding: 10px 220px;
-  margin: 0px 10px 10px 0px;
-  float: left;
-	border-radius: 10px;
-	font-family: 'Pacifico', cursive;
-	font-size: 25px;
-	color: #FFF;
-	text-decoration: none;
-}
-
-.blue
-{
-	background-color: #3498DB;
-	border-bottom: 5px solid #2980B9;
-	text-shadow: 0px -2px #2980B9;
-}
-
-.action-button:active
-{
-	transform: translate(0px,5px);
-  -webkit-transform: translate(0px,5px);
-	border-bottom: 1px solid;
-}
-  </style>
 {% endblock %}
 
 

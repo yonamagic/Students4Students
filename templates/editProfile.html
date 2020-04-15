@@ -11,16 +11,16 @@
 
     <h2>במה תוכלו לעזור לתלמידים אחרים?</h2>
 {% for subject in subjects %}
-    <font size="5">{{subject[0]}}</font>
+    <font size="5">{{subject[0]}}</font><br>
     {% for space in range(7-subject[0]|length) %}
         &nbsp;
     {% endfor %}
     {% for class in subject[1] %}
-        {% if subject[1].index(class) != 0 %}
+        {# if subject[1].index(class) != 0 #}
             {% for space in range(subject[0]|length+3) %}
                 &nbsp;
             {% endfor %}
-        {% endif %}
+        {# endif #}
         <input type="checkbox"  name="strong_{{subject[0]}}_{{class}}" id="strong_{{subject[0]}}_{{class}}" >{{class}}
         {% for strong_sub in selected_strong_subjects %}
             {% if strong_sub.name == subject[0] %}
@@ -38,16 +38,16 @@
 
 <h2>במה לא יזיק לכם תגבור קטן? :)</h2>
 {% for subject in subjects %}
-    <font size="5">{{subject[0]}}</font>
+    <font size="5">{{subject[0]}}</font><br>
     {% for space in range(7-subject[0]|length) %}
         &nbsp;
     {% endfor %}
     {% for class in subject[1] %}
-        {% if subject[1].index(class) != 0 %}
+        {# if subject[1].index(class) != 0 #}
             {% for space in range(subject[0]|length+3) %}
                 &nbsp;
             {% endfor %}
-        {% endif %}
+        {# endif #}
         <input type="checkbox"  name="weak_{{subject[0]}}_{{class}}" id="weak_{{subject[0]}}_{{class}}">{{class}}
         {% for weak_sub in selected_weak_subjects %}
             {% if weak_sub.name == subject[0] %}

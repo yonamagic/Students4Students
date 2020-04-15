@@ -1,35 +1,215 @@
 {% extends "registeredLayout.html" %}
 
-{% block head %}
-    <title>{{session.user}}</title>
-{% endblock %}
-
 {% block body %}
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
-    <h1><font color="blue">{{session.user}}</font></h1>
+<h1 class="username" style="position: relative; top: -30px; right: 35px;">פרופיל אישי</h1>
 
-    <form action="/editProfile">
-    <button type="submit" class="btn btn-primary"><font color="brown">ערוך פרטים אישיים</font></button>
-    </form>
+<!--action-button shadow animate blue-->
+<!--<button id="strong_subs_btn" class="myBtn" style=" float: right;position: relative; right: 50px; top: 0px;">מקצועות חזקים</button>-->
 
-<h2 align="right"><font color="green">מקצועות שבהם אני מסוגל/ת לתגבר</font></h2>
+<div class="w3-container">
+  <button onclick="document.getElementById('id01').style.display='block'"
+          class="action-button shadow animate blue"
+          style=" float: right;position: relative; right: 50px; top: 0px;">
+      מקצועות חזקים
+  </button>
+
+  <div id="id01" class="w3-modal">
+    <div class="w3-modal-content w3-animate-top w3-card-4">
+      <header class="w3-container w3-teal">
+        <span onclick="document.getElementById('id01').style.display='none'"
+        class="w3-button w3-display-topright">&times;</span>
+        <h2>&nbsp;&nbsp;&nbsp;&nbsp;מקצועות שבהם את/ה מסוגל/ץ לעזור</h2>
+      </header>
+      <div class="w3-container">
 {% for subject in strong_subjects %}
-    <h2 align="right">{{subject.name}} -</h2>
+    <h2>{{subject.name}} -</h2>
     {% for class in subject.classes %}
-         <p align="right">* {{class}}</p>
-<!--          <br>-->
-  {% endfor %}
+        * {{class}}
+        <br>
+    {% endfor %}
 {% endfor %}
+      </div>
+      <footer class="w3-container w3-teal">
+        <p>לתשומת ה-&#9829; שלך: ניתן לערוך אותם על ידי לחיצה על הכפתור למטה :)</p>
+      </footer>
+    </div>
+  </div>
+</div>
 
-<br><br>
 
-<h2><font color="brown">מקצועות שבהם אזדקק לתיגבור</font></h2>
+<br>
+
+<div class="w3-container">
+  <button onclick="document.getElementById('id02').style.display='block'"
+          class="action-button shadow animate blue"
+          style=" float: right;position: relative; right: 50px; top: 0px;">
+      מקצועות חלשים
+  </button>
+
+  <div id="id02" class="w3-modal">
+    <div class="w3-modal-content w3-animate-top w3-card-4">
+      <header class="w3-container w3-teal">
+        <span onclick="document.getElementById('id02').style.display='none'"
+        class="w3-button w3-display-topright">&times;</span>
+          <h2>&nbsp;&nbsp;&nbsp;&nbsp;מקצועות שבהם את/ה זקוק/ה לתגבור</h2>
+      </header>
+      <div class="w3-container">
 {% for subject in weak_subjects %}
     <h2>{{subject.name}} -</h2>
     {% for class in subject.classes %}
         * {{class}}
-           <br><br>
-     {% endfor %}
+        <br>
+    {% endfor %}
 {% endfor %}
+      </div>
+      <footer class="w3-container w3-teal">
+        <p>לתשומת ה-&#9829; שלך: ניתן לערוך אותם על ידי לחיצה על הכפתור למטה :)</p>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<!--<br><br><br><br><br>-->
+<br><br><br><br>
+
+<!--<button class="action-button shadow animate orange" style=" float: right;position: relative; right: 50px; top: 0px; action-button padding: 100px;"></button>-->
+
+<button class="action-button shadow animate orange" style=" float: right;position: relative; right: 70px; top: 0px; action-button padding: 100px;" onclick="location.href='/editProfile'"/>ערוך פרופיל</button>
+
+
+
+<style>
+    body
+{
+	padding: 0px;
+}
+
+.animate
+{
+	transition: all 0.1s;
+	-webkit-transition: all 0.1s;
+}
+
+.action-button
+{
+	position: var(position);
+	left: var(left);
+    top: var(top);
+
+  margin: 0px 10px 10px 0px;
+  float: left;
+	border-radius: 10px;
+	font-family: 'Pacifico', cursive;
+	font-size: 25px;
+	color: #FFF;
+	text-decoration: none;
+}
+
+.blue
+{
+padding: 10px 220px;
+	background-color: #3498DB;
+	border-bottom: 5px solid #2980B9;
+	text-shadow: 0px -2px #2980B9;
+}
+
+.orange
+{
+padding: 10px 230px;
+	background-color: #FF8C00;
+	border-bottom: 5px solid #ff6600;
+	text-shadow: 0px -2px #ff6600;
+}
+
+.action-button:active
+{
+	transform: translate(0px,5px);
+  -webkit-transform: translate(0px,5px);
+	border-bottom: 1px solid;
+}
+  </style>
+
+
+<style>
+    .username{
+        padding-right: 200px;
+        font-size: 50px;
+    }
+</style>
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #888;
+  width: 80%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+/* The Close Button */
+.close {
+  color: white;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-header {
+  padding: 2px 16px;
+  background-color: #5cb85c;
+  color: white;
+}
+
+.modal-body {padding: 2px 16px;}
+
+.modal-footer {
+  padding: 2px 16px;
+  background-color: #5cb85c;
+  color: white;
+}
+</style>
 
 {% endblock %}

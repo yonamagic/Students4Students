@@ -9,9 +9,14 @@ from DataBaseFunctions import DataBaseFunctions
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 
-@app.route('/s')
-def sidebar():
-    return render_template('guestLayout.html')
+@app.route('/u')
+def pro():
+    weak_subjects = DataBaseFunctions.get_weak_subjects("nir_selickter")
+
+    return render_template('poten.html',
+                           subjects=DataBaseFunctions.specific_users_for_all_subjects(weak_subjects, 'teacher'),
+                           teachers_or_students = 'teachers'
+                           )
 
 @app.route('/ip')
 def ip():
@@ -65,9 +70,6 @@ def index():
 
 
 
-@app.route('/about', methods=['GET','POST'])
-def about():
-    return render_template("index2.html")
 
 
 #This is just to make the red comment disappear

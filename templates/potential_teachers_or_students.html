@@ -1,34 +1,214 @@
 {% extends "registeredLayout.html" %}
 
 {% block body %}
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
 {% if teachers_or_students == "teachers" %}
-    <h2>המשתמשים האלו יכולים לעזור לך:</h2>
+    <h2>בחר/י מקצוע שבו תרצה/י שיעור פרטי</h2>
 {% else %}
-    <h2>המשתמשים האלו זקוקים לתיגבור במקצוע שאת/ה חזק/ה בו!</h2>
+    <h2>בחר/י מקצוע שאותו תרצה/י ללמד</h2>
 {% endif %}
+
+
+
 {% for subject in subjects %}
+
+<div class="w3-container">
+  <button onclick="document.getElementById('id_{{subject[0]}}').style.display='block'"
+          class="action-button shadow animate blue"
+          style=" float: right;position: relative; right: 50px; top: 0px;">
+      {{subject[0]}}
+  </button>
+
+    {% if teachers_or_students == 'teachers' %}
+        {% set header = "משתמשים אלו יכולים לעזור לך ב" + subject[0] %}
+        {% set no_mathcing_students_msg = "נראה שאין משתמשים שמסוגלים לעזור לך ב" + subject[0] + " כרגע..."%}
+        {% set modal_body = "יכול/ה לעזור לך בנושאים:" %}
+    {% else %}
+        {% set header = "תוכל/י לעזור למשתמשים האלו ב" + subject[0] %}
+        {% set no_mathcing_students_msg = "נראה שאין משתמשים שזקוקים לעזרה ב" + subject[0] + " כרגע..."%}
+        {% set modal_body = "זקוק/ה לעזרה בנושאים:" %}
+    {% endif %}
+
+  <div id="id_{{subject[0]}}" class="w3-modal">
+    <div class="w3-modal-content w3-animate-top w3-card-4">
+      <header class="w3-container w3-teal">
+        <span onclick="document.getElementById('id_{{subject[0]}}').style.display='none'"
+        class="w3-button w3-display-topright">&times;</span>
+          <h2>&nbsp;&nbsp;&nbsp;&nbsp;{{header}}</h2>
+      </header>
+      <div class="w3-container">
     {% if subject[1] %}
         {{subject[0]}} -
-    {% endif %}
+    {% else %}
+        <p>{{no_mathcing_students_msg}}</p>
+   {% endif %}
     {% for user in subject[1] %}
         {% if subject[1].index(user) != 0 %}
             {% for space in range(6) %}
                 &nbsp;
             {% endfor %}
         {% endif %}
-        <a href="profile?username={{user[0]}}">{{user[0]}}</a>:
+        <div class="wrapper">
+          <a class="fifth before after" href="/profile?username={{user[0]}}">{{user[0]}}</a>
+        </div>
+        {{modal_body}}<br>
+<!--        <a href="profile?username={{user[0]}}">{{user[0]}}</a>:-->
             {% for class in user[1] %}
-                {% if user[1].index(class) != 0 %}
+                {# if user[1].index(class) != 0 #}
                     {% for space in range(16) %}
                         &nbsp;
                     {% endfor %}
-                {% endif %}
+                {# endif #}
                 * {{class}}
                 <br>
             {% endfor %}
+
+
+
 <br>
-    {% endfor %}
-<br><br>
 {% endfor %}
+<br><br>
+
+
+      </div>
+      <footer class="w3-container w3-teal">
+        <p>לתשומת ה-&#9829; שלך: ניתן לערוך אותם על ידי לחיצה על הכפתור למטה :)</p>
+      </footer>
+    </div>
+  </div>
+</div>
+
+
+{% endfor %}
+
+
+
+
+<style>
+       @import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+body{
+    right: 150px;
+}
+h1:before{
+  content: "// ";
+}
+a,a:visited,a:hover,a:active{
+  -webkit-backface-visibility:hidden;
+          backface-visibility:hidden;
+	position:relative;
+  transition:0.5s color ease;
+	text-decoration:none;
+	color:#81b3d2;
+	font-size:2.5em;
+}
+a:hover{
+	color:#d73444;
+}
+a.before:before,a.after:after{
+  content: "";
+  transition:0.5s all ease;
+  -webkit-backface-visibility:hidden;
+          backface-visibility:hidden;
+  position:absolute;
+}
+a.after:after{
+  bottom:-0.25em;
+}
+a.before:before,a.after:after{
+  height:5px;
+  height:0.35rem;
+  width:0;
+  background:#d73444;
+}
+
+a.fifth:before,a.fifth:after{
+  right:0;
+}
+a.before:hover:before,a.after:hover:after{
+  width:100%;
+}
+</style>
+
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #888;
+  width: 80%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+/* The Close Button */
+.close {
+  color: white;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-header {
+  padding: 2px 16px;
+  background-color: #5cb85c;
+  color: white;
+}
+
+.modal-body {padding: 2px 16px;}
+
+.modal-footer {
+  padding: 2px 16px;
+  background-color: #5cb85c;
+  color: white;
+}
+</style>
+
+
+
 {% endblock %}
+
+
+
+

@@ -1,0 +1,96 @@
+{% extends "registeredLayout.html" %}
+
+{% block body %}
+<div class="wrapper">
+  <a class="fifth before after" href="#">שם משתמש</a>
+</div>
+
+{% if teachers_or_students == "teachers" %}
+    <h2>המשתמשים האלו יכולים לעזור לך:</h2>
+{% else %}
+    <h2>המשתמשים האלו זקוקים לתיגבור במקצוע שאת/ה חזק/ה בו!</h2>
+{% endif %}
+{% for subject in subjects %}
+    {% if subject[1] %}
+        {{subject[0]}} -
+    {% endif %}
+    {% for user in subject[1] %}
+        {% if subject[1].index(user) != 0 %}
+            {% for space in range(6) %}
+                &nbsp;
+            {% endfor %}
+        {% endif %}
+<div class="wrapper">
+  <a class="fifth before after" href="#">{{user[0]}}</a>
+</div>
+
+<!--        <a href="profile?username={{user[0]}}">{{user[0]}}</a>:-->
+            {% for class in user[1] %}
+                {% if user[1].index(class) != 0 %}
+                    {% for space in range(16) %}
+                        &nbsp;
+                    {% endfor %}
+                {% endif %}
+                * {{class}}
+                <br>
+            {% endfor %}
+<br>
+    {% endfor %}
+<br><br>
+{% endfor %}
+
+
+
+<style>
+       @import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+body{
+  font-family:'Open Sans', sans-serif;
+  background:#151837;
+  width:90%;
+  margin:0 auto;
+  padding:2em 0 6em;
+}
+h1:before{
+  content: "// ";
+}
+a,a:visited,a:hover,a:active{
+  -webkit-backface-visibility:hidden;
+          backface-visibility:hidden;
+	position:relative;
+  transition:0.5s color ease;
+	text-decoration:none;
+	color:#81b3d2;
+	font-size:2.5em;
+}
+a:hover{
+	color:#d73444;
+}
+a.before:before,a.after:after{
+  content: "";
+  transition:0.5s all ease;
+  -webkit-backface-visibility:hidden;
+          backface-visibility:hidden;
+  position:absolute;
+}
+a.after:after{
+  bottom:-0.25em;
+}
+a.before:before,a.after:after{
+  height:5px;
+  height:0.35rem;
+  width:0;
+  background:#d73444;
+}
+
+a.fifth:before,a.fifth:after{
+  right:0;
+}
+a.before:hover:before,a.after:hover:after{
+  width:100%;
+}
+</style>
+{% endblock %}
+
+
+
