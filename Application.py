@@ -56,6 +56,7 @@ def update_lessons_requests_quantity():
         session['new_messages'] = DataBaseFunctions.number_of_new_messages(session['user'])
         session['new_friend_requests'] = DataBaseFunctions.number_of_friend_requests(session['user'])
         session['lessons'] = DataBaseFunctions.number_of_lessons(session['user'])
+
 @app.route('/', methods=['GET','POST'])
 def index():
 
@@ -606,6 +607,7 @@ def admin_messages():
         if DataBaseFunctions.is_admin(session['user']):
 
             messages = DataBaseFunctions.admins_messages_list()
+            messages.reverse()
             return render_template('admin_messages.html', messages=messages)
     return redirect('/homePage')
 

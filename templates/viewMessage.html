@@ -1,11 +1,54 @@
 {% extends "registeredLayout.html" %}
 
 {% block body %}
-
 <h1>מ: {{sender}}</h1>
 <h1><font color="blue">{{topic}}</font></h1>
 <br>
 <p>{{content}}</p>
-<button type="submit" onclick="location.href='/messages'">חזור לתיבת ההודעות</button>
-<button type="submit" onclick="location.href='/sendMessage?addressee={{sender}}&topic=<Re:>תשובה להודעה: {{topic}}'">השב להודעה זו</button>
+<br><br><br>
+<hr>
+<button type="submit" class="button" style="vertical-align:middle" onclick="location.href='/messages'"><span>חזור לתיבת ההודעות</span></button>
+<button type="submit" class="button" style="vertical-align:middle" onclick="location.href='/sendMessage?addressee={{sender}}&topic=<Re:>תשובה להודעה: {{topic}}'"><span>השב להודעה זו</span></button>
+
+<style>
+.button {
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #f4511e;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 20px;
+  padding: 20px;
+  width: 250px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+</style>
 {% endblock %}

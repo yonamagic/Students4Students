@@ -3,18 +3,66 @@
 {%block body%}
 
 <h1>Inbox</h1>
-<button class="button button1" onclick="location.href='/messages'">
-    <div class="inbox_badge" data-badge="{{session.new_messages}}">תיבת הודעות</div>
+<button type="submit" class="button" onclick="location.href='/messages'">
+    <div class="inbox_badge" data-badge="{{session.new_messages}}"><span>תיבת הודעות</span></div>
 </button>
-<button class="button button1" onclick="location.href='/notifications'">חדשות ממנהלי המערכת</button>
-<button class="button button1" onclick="location.href='/friend_requests'">
-        <div class="inbox_badge" data-badge="{{session.new_friend_requests}}">בקשות חברות</div>
+
+<button class="button" onclick="location.href='/notifications'"><span>חדשות ממנהלי המערכת</span></button>
+
+<button class="button " onclick="location.href='/friend_requests'">
+        <div class="inbox_badge" data-badge="{{session.new_friend_requests}}"><span>בקשות חברות</span></div>
 </button>
-<button class="button button1" onclick="location.href='/view_lessons_offers'">
-    <div class="inbox_badge" data-badge="{{session.new_lessons_offers}}">הצעות שיעורים פרטיים</div>
+
+<button class="button" onclick="location.href='/view_lessons_offers'">
+    <div class="inbox_badge" data-badge="{{session.new_lessons_offers}}"><span>הצעות שיעורים פרטיים</span></div>
 </button>
 
 
+
+
+<style>
+.button {
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #5F9EA0;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 16px;
+  padding: 20px;
+  width: 250px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+</style>
+
+{%endblock%}
 
 
 <style>
@@ -44,5 +92,3 @@
 }
 
 </style>
-
-{%endblock%}

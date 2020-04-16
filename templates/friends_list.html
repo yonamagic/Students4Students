@@ -3,7 +3,58 @@
 {% block body %}
 
 <h1>רשימת החברים שלי</h1>
+<div style="position: fixed; right: 50px;">
 {% for name in users %}
-    <a href="/profile?username={{name}}"><font size="5"><b>{{name}}</b></font></a><br>
+    <a class="fifth before after" href="/profile?username={{name}}">{{name}}</a>
+    <br><br>
+<!--    <a href="/profile?username={{name}}"><font size="5"><b>{{name}}</b></font></a><br>-->
 {% endfor %}
+</div>
+<style>
+       @import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+body{
+    right: 150px;
+}
+h1:before{
+  content: "// ";
+}
+a,a:visited,a:hover,a:active{
+  -webkit-backface-visibility:hidden;
+          backface-visibility:hidden;
+	position:relative;
+  transition:0.5s color ease;
+	text-decoration:none;
+	color:#81b3d2;
+	font-size:2.5em;
+}
+a:hover{
+	color:#d73444;
+}
+a.before:before,a.after:after{
+  content: "";
+  transition:0.5s all ease;
+  -webkit-backface-visibility:hidden;
+          backface-visibility:hidden;
+  position:absolute;
+}
+a.after:after{
+  bottom:-0.25em;
+}
+a.before:before,a.after:after{
+  height:5px;
+  height:0.35rem;
+  width:0;
+  background:#d73444;
+}
+
+a.fifth:before,a.fifth:after{
+  right:0;
+}
+a.before:hover:before,a.after:hover:after{
+  width:100%;
+}
+</style>
+
+
 {% endblock %}

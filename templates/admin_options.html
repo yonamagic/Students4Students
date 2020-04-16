@@ -2,10 +2,85 @@
 
 {%block body%}
 <br><br>
-<button onclick="location.href='/admin_options/admin_messages'">תיבת הודעות</button>
-<button onclick="location.href='/admin_options/send_notification'">שלח חדשות</button>
-<button onclick="location.href='/admin_options/view_reports'">צפה בדיווחים על משתמשים</button>
-<button onclick="location.href='/admin_options/view_post_reports'">צפה בדיווחים על פוסטים</button>
-<button onclick="location.href='/admin_options/view_all_lessons/select_date_range'">צפה בלו"ז השיעורים שנקבעו</button>
+<button class="button" onclick="location.href='/admin_options/admin_messages'"><span>תיבת הודעות</span></button>
+<button class="button" onclick="location.href='/admin_options/send_notification'"><span>שלח חדשות</span></button>
+<button class="button" onclick="location.href='/admin_options/view_reports'"><span>צפה בדיווחים על משתמשים</span></button>
+<button class="button" onclick="location.href='/admin_options/view_post_reports'"><span>צפה בדיווחים על פוסטים</span></button>
+<button class="button" onclick="location.href='/admin_options/view_all_lessons/select_date_range'"><span>צפה בלו"ז השיעורים שנקבעו</span></button>
+
+
+
+
+<style>
+.button {
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #5F9EA0;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 16px;
+  padding: 20px;
+  width: 250px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+</style>
+
 
 {%endblock%}
+
+
+<style>
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.button1 {
+  background-color: white;
+  color: black;
+  border: 2px solid #008CBA;
+}
+
+.button1:hover {
+  background-color: #008CBA;
+  color: white;
+}
+
+</style>

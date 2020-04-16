@@ -1,13 +1,51 @@
 {%extends "registeredLayout.html"%}
 
 {%block body%}
-<br><br>
+<h1>שליחת חדשות</h1>
+<div class="container">
+    <form action="/admin_options/send_notification/notification_sent" method="post">
+            <label for="topic">מה נושא הנוטיפיקציה?</label>
+            <input type="text" id="topic" placeholder="נושא:" name="topic">
+        <br><br>
+            <label for="content">מה תוכן הנוטיפיקציה?</label>
+            <textarea id="content" name="content" placeholder="תוכן:">{{content}}</textarea><br>
+            <input type="submit">
+    </form>
+</div>
 
-<form action="/admin_options/send_notification/notification_sent" method="post">
-    <input type="text" placeholder="topic:" name="topic">
-    <br><br>
-    <textarea rows="4" cols="50" name="content" placeholder="Notification content here:">{{content}}</textarea><br>
-    <input type="submit">
-</form>
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+* {box-sizing: border-box;}
+
+input[type=text], select, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  resize: vertical;
+}
+
+input[type=submit] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+
+.container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+</style>
 
 {%endblock%}

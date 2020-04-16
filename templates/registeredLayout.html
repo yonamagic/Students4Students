@@ -7,15 +7,20 @@
     <a href="/homePage">דף הבית</a>
     <a href="/profile?username={{session.user}}">הפרופיל שלי</a>
     <a href="/logout">התנתק</a>
-    <div class="sideNav_badge" data-badge="{{session.lessons}}">
-    <a href="/my_lessons">השיעורים שלי</a>
-    </div>
-    <a href="/potential_teachers">אני זקוק לתיגבור - מצא לי שיעור!</a>
-    <a href="/potential_students">אני רוצה ללמד - מצא לי שיעור!</a>
+     {% if session.is_admin %}
+        <a href="/admin_options">אפשרויות מנהל מערכת</a>
+    {% else %}
+        <div class="sideNav_badge" data-badge="{{session.lessons}}">
+        <a href="/my_lessons">השיעורים שלי</a>
+        </div>
+        <a href="/potential_teachers">אני זקוק לתיגבור - מצא לי שיעור!</a>
+        <a href="/potential_students">אני רוצה ללמד - מצא לי שיעור!</a>
     <a href="/friends_list">רשימת החברים שלי</a>
     <div class="sideNav_badge" data-badge="{{session.new_lessons_offers + session.new_messages + session.new_friend_requests}}">
         <a href="/inbox">Inbox</a>
     </div>
+    <a href="/sendMessage">שלח הודעה</a>
+    {% endif %}
     <a href="/forum_homepage">פורום</a>
 </div>
 {%endblock%}
