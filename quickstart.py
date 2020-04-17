@@ -44,3 +44,4 @@ def get_Lesson_list(date):
 # THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 # my_file = os.path.join(THIS_FOLDER, 'database.db')
 # print(my_file)
+

@@ -2,12 +2,54 @@ from os import abort
 from flask import Flask, render_template, request, session, redirect, g
 # from flask_socketio import SocketIO
 from Subject import Subject
-
+# from Emailing import Emailing
 from DataBaseFunctions import DataBaseFunctions
 # from User import User
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
+
+
+@app.route('/forgot_password')
+def forgot_password():
+    return render_template('forgot_password.html')
+
+@app.route('/forgot_password_done', methods=['POST'])
+def forgot_password_done():
+    username = request.form.get("username")
+    print(username, DataBaseFunctions.get_email(username))
+    DataBaseFunctions.send_pwd_reset(username=username, email=DataBaseFunctions.get_email(username))
+    return render_template('mid_reload_page.html', msg="נשלחה לחשבון המייל שלך הודעה לשינוי הסיסמה לאתר Syeto. \r\n מיד תועבר/י לדף הבית.", delay="10", url="/")
+
+@app.route('/reset_password/<secret_key>')
+def reset_password(secret_key, error_msg=""):
+    if not DataBaseFunctions.pwd_reset_request_is_active(secret_key):
+        return "sorry' not relevant anymore..."#Continue here with a msg
+    return render_template('reset_password.html', secret_key=secret_key, error_msg=error_msg)
+
+
+@app.route('/password_reset_done/<secret_key>', methods=['POST'])
+def reset_password_done(secret_key):
+    pwd = request.form.get("pwd")
+    pwd_conf = request.form.get("pwd_conf")
+    todo_bien = True
+
+    if pwd != pwd_conf:
+        todo_bien = False
+        error_msg = "יש להזין סיסמות זהות, אנא נסו שוב."
+    if len(pwd) < 7:
+        todo_bien = False
+        error_msg = "יש להזין סיסמה שאורכה גדול משבעה תווים."
+
+    if todo_bien:
+        DataBaseFunctions.reset_password(username=DataBaseFunctions.get_username_by_secret_key(secret_key),
+                                         new_password=pwd)
+        return render_template('mid_reload_page.html', msg="סיסמתך שונתה בהצלחה! \r\n את/ה מועבר/ת לעמוד ההתחברות.", delay="5", url="/loginPage")
+        #כאן תהיה הודעה מתאימה
+
+    else:
+        return reset_password(secret_key=secret_key, error_msg=error_msg)
+
 
 @app.route('/u')
 def pro():
@@ -282,27 +324,29 @@ def profile():
     print("username = ", username)
     if not DataBaseFunctions.user_exists(username):
         return render_template('homePage.html', search_user_comment="שם משתמש לא קיים, נסו להזין אחד אחר.")
-    print((session['user']))
-    if not username or username==session['user']:#if there is no specified username or the specified name is sessin['user']
-        username = session['user']
-        # user = build_User_object(username)
-        return render_template('personal_profile.html',
-                               strong_subjects=DataBaseFunctions.get_strong_subjects(username),
-                               weak_subjects=DataBaseFunctions.get_weak_subjects(username))
-    else:#user exists and it is not session['user']
-        return render_template('user_profile.html',
-                               username=username,
-                               strong_subjects = DataBaseFunctions.get_strong_subjects(username),
-                               weak_subjects = DataBaseFunctions.get_weak_subjects(username),
-                               is_friend = not DataBaseFunctions.is_friend(self_user = session['user'],
-                                                                 username=username,),#It gets the opposite somewhy
-                               friend_request_sent_already = DataBaseFunctions.is_in_friend_requests(self_user=username,
-                                                                                                     username=session['user']),
-                               chance_for_a_lesson=DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
-                                                                                subs2=DataBaseFunctions.get_weak_subjects(username))
-                                                    or  DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_weak_subjects(session['user']),
-                                                                                    subs2=DataBaseFunctions.get_strong_subjects(username)))
 
+    if 'user' in session:
+        if not username or username==session['user']:#if there is no specified username or the specified name is sessin['user']
+            username = session['user']
+            # user = build_User_object(username)
+            return render_template('personal_profile.html',
+                                   strong_subjects=DataBaseFunctions.get_strong_subjects(username),
+                                   weak_subjects=DataBaseFunctions.get_weak_subjects(username))
+        else:#user exists and it is not session['user']
+            return render_template('user_profile.html',
+                                   username=username,
+                                   strong_subjects = DataBaseFunctions.get_strong_subjects(username),
+                                   weak_subjects = DataBaseFunctions.get_weak_subjects(username),
+                                   is_friend = not DataBaseFunctions.is_friend(self_user = session['user'],
+                                                                     username=username,),#It gets the opposite somewhy
+                                   friend_request_sent_already = DataBaseFunctions.is_in_friend_requests(self_user=username,
+                                                                                                         username=session['user']),
+                                   chance_for_a_lesson=DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_strong_subjects(session['user']),
+                                                                                    subs2=DataBaseFunctions.get_weak_subjects(username))
+                                                        or  DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_weak_subjects(session['user']),
+                                                                                        subs2=DataBaseFunctions.get_strong_subjects(username)))
+
+    return redirect('/')
 
 @app.route('/report_user', methods=['POST','GET'])
 def report():
@@ -369,18 +413,22 @@ def messages():
 
 @app.route('/sendMessage', methods=['GET'])
 def sendMessage(addressee="", topic="", content="", addressee_comment=""):
-    print("comment="+addressee_comment)
-    if request.args.get("addressee"):
-        addressee=request.args.get("addressee")
-    if request.args.get("topic"):
-        topic=request.args.get("topic")
-    if request.args.get("content"):
-        content=request.args.get("content")
-    return render_template('sendMessage.html',
-                           addressee_comment=addressee_comment,
-                           addressee=addressee,
-                           topic=topic,
-                           content=content)
+    if 'user' in session:
+        print("comment="+addressee_comment)
+        if request.args.get("addressee"):
+            addressee=request.args.get("addressee")
+        if request.args.get("topic"):
+            topic=request.args.get("topic")
+        if request.args.get("content"):
+            content=request.args.get("content")
+        return render_template('sendMessage.html',
+                               addressee_comment=addressee_comment,
+                               addressee=addressee,
+                               topic=topic,
+                               content=content)
+    else:
+        return redirect('/index')
+
 
 @app.route('/messageSent', methods=['POST', 'GET'])
 def messageSent():

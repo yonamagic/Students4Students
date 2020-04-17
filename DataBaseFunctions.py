@@ -1,5 +1,5 @@
 from _datetime import datetime, timedelta
-
+from Emailing import Emailing
 import sqlite3
 from Subject import Subject
 import os
@@ -83,6 +83,9 @@ class DataBaseFunctions:
         DataBaseFunctions.send_msg("הנהלת Syeto", username, "ברוכים הבאים לסייטו!", "בהצלחה!"
                                                                                     "אנחנו כאן לכל שאלה ובעיה - שלחו הודעה למנהלי המערכת.")
 
+        Emailing.send_email(addressee=email,
+                            subject="ברוכים הבאים למשפחת Syeto!",
+                            html=Emailing.welcome(username=username))
         # for r in com:
         #     print (r)
         # conn.commit()
@@ -1672,3 +1675,91 @@ class DataBaseFunctions:
                 if list(set(less_time_range).intersection(set(origin_time_range))) :
                     return True
         return False
+
+    @staticmethod
+    def generate_pwd_reset_key():
+        import secrets
+        return secrets.token_hex(20)
+
+    @staticmethod
+    def generate_pwd_reset_link(secret_key):
+        return "http://127.0.0.1:5000/reset_password/" + secret_key
+
+    @staticmethod
+    def get_username_by_secret_key(secret_key):
+        conn = sqlite3.connect('database.db')
+        username = conn.execute("select username from password_reset_requests where secret_key=?", (secret_key,))
+        for row in username:
+            return row[0]
+
+    @staticmethod
+    def get_request_time_by_secret_key(secret_key):
+        conn = sqlite3.connect('database.db')
+        req_time = conn.execute("select request_time form password_reset_requests where secret_key=?", (secret_key,))
+        for row in req_time:
+            return row[0]
+
+    @staticmethod
+    def make_pwd_reset_req_not_active(secret_key):
+        conn = sqlite3.connect('database.db')
+        print("Not Active anymore")
+        conn.execute("update password_reset_requests set active='no' where secret_key=?", (secret_key,))
+        conn.commit()
+
+    @staticmethod
+    def create_pwd_rest_request_in_DB(username, secret_key, request_time):
+        conn = sqlite3.connect('database.db')
+        conn.execute("insert into password_reset_requests (username, secret_key, request_time, active)"
+                     " values (?,?,?,'yes')", (username,secret_key,request_time))
+        conn.commit()
+
+    @staticmethod
+    def start_pwd_reset_countdown(secret_key):
+        import time
+        #in minutes
+        countdown = 10
+        time.sleep(countdown*60)
+        conn = sqlite3.connect('database.db')
+        DataBaseFunctions.make_pwd_reset_req_not_active(secret_key)
+
+    @staticmethod
+    def pwd_reset_request_is_active(secret_key):
+        conn = sqlite3.connect('database.db')
+        active = conn.execute("select active from password_reset_requests where secret_key=?", (secret_key,))
+        for row in active:
+            if row[0] == 'yes':
+                return True
+            return False
+
+
+    @staticmethod
+    def get_email(username):
+        conn = sqlite3.connect('database.db')
+        email = conn.execute("select email from users where username=?", (username,))
+        for row in email:
+            return row[0]
+
+    @staticmethod
+    def send_pwd_reset(username, email):
+        conn = sqlite3.connect('database.db')
+
+        secret_key = DataBaseFunctions.generate_pwd_reset_key()
+        current_date = DataBaseFunctions.get_date()[:-2]
+        current_time = DataBaseFunctions.get_time()
+
+        DataBaseFunctions.create_pwd_rest_request_in_DB(username=username,
+                                                        secret_key=secret_key,
+                                                        request_time=current_date + ' ' + current_time)
+
+        Emailing.send_email(addressee=email,
+                            subject="שחזור סיסמה לאתר Syeto",
+                            html=Emailing.forgot_password(username=username, link=DataBaseFunctions.generate_pwd_reset_link(secret_key)))
+
+        DataBaseFunctions.activate_thread(DataBaseFunctions.start_pwd_reset_countdown, args=[secret_key])
+
+
+    @staticmethod
+    def reset_password(username, new_password):
+        conn = sqlite3.connect('database.db')
+        conn.execute("update users set password=? where username=?", (new_password, username))
+        conn.commit()
