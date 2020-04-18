@@ -1,0 +1,30 @@
+{% extends "guestLayout.html" %}
+
+{% block head %}
+<title>Login</title>
+{% endblock %}
+
+
+{% block body %}
+<div style="position: relative;top: 70px;">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  {% set input_class = "w3-input" %}
+  <h1>התחברות</h1><br>
+  <form action="/checkUserEntryDetails" method="post">
+    <input name="username" class="{{input_class}}" type="text" placeholder="שם משתמש" name="username"><br><br>
+    <input name="password" class="{{input_class}}" type="text" placeholder="סיסמה" name="password"><br>
+      <small style="color:red">{{comment}}</small><br>
+
+  <input type="submit" class="w3-button w3-block w3-teal" value="היכנס">
+
+  <!--  <input type="submit" >-->
+  </form>
+  <br>
+    <button onclick="location.href='/forgot_password'" style="position: relative; right: 70px; padding-right: 50px; padding-left: 50px;">שכחתי סיסמה</button>
+  </div>
+
+
+
+{% endblock %}
+
+

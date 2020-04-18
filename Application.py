@@ -9,6 +9,9 @@ from DataBaseFunctions import DataBaseFunctions
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 
+@app.route('/uu')
+def tryout():
+    return render_template('login1.html')
 
 @app.route('/forgot_password')
 def forgot_password():
