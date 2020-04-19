@@ -14,20 +14,21 @@ def tryout():
     return render_template('login1.html')
 
 @app.route('/forgot_password')
-def forgot_password():
-    return render_template('forgot_password.html')
+def forgot_password(error_msg=''):
+    return render_template('forgot_password.html', error_msg=error_msg)
 
 @app.route('/forgot_password_done', methods=['POST'])
 def forgot_password_done():
     username = request.form.get("username")
-    print(username, DataBaseFunctions.get_email(username))
+    if not DataBaseFunctions.user_exists(username):
+        return forgot_password(error_msg="מממ... נראה שלא קיים משתמש שנקרא כך. בדקו אם הזנתם שם משתמש תקין.")
     DataBaseFunctions.send_pwd_reset(username=username, email=DataBaseFunctions.get_email(username))
     return render_template('mid_reload_page.html', msg="נשלחה לחשבון המייל שלך הודעה לשינוי הסיסמה לאתר Syeto. \r\n מיד תועבר/י לדף הבית.", delay="10", url="/")
 
 @app.route('/reset_password/<secret_key>')
 def reset_password(secret_key, error_msg=""):
     if not DataBaseFunctions.pwd_reset_request_is_active(secret_key):
-        return "sorry' not relevant anymore..."#Continue here with a msg
+        return render_template('mid_reload_page.html', msg="נראה שהקישור הזה לא תקין או שאינו תקף יותר. אם שכחת את הסיסמה, ניתן לאפס אותה בדף ההתחברות. אנו מפנים אותך לדף הבית...", delay="8", url="/")#Continue here with a msg
     return render_template('reset_password.html', secret_key=secret_key, error_msg=error_msg)
 
 
