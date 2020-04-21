@@ -1,0 +1,92 @@
+{% extends "registeredLayout.html" %}
+
+{% block body %}
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<font style="font-size: 20px; padding-right: 70px;">מנהל מערכת:</font>
+<h1 class="username">{{username}}</h1>
+
+<br><br><br>
+
+<button class="action-button shadow animate orange" style=" float: right;position: relative; right: 20px; top: 0px; action-button padding: 100px;" onclick="location.href='/sendMessage?addressee={{username}}'"/>שלח הודעה</button>
+<br><br><br><br>
+{% if is_friend %}
+<!--It means that the user is NOT a friend already-->
+    {% if friend_request_sent_already %}
+        <button class="action-button shadow animate orange" style=" float: right;position: relative; right: 20px; top: 0px; action-button padding: 100px;" onclick="location.href='/cancel_friend_request?username={{username}}'"/>בטל את הצעת החברות</button>
+    {% else %}
+        <button class="action-button shadow animate orange" style=" float: right;position: relative; right: 20px; top: 0px; action-button padding: 100px;" onclick="location.href='/send_friend_request?username={{username}}'"/>שלח הצעת חברות</button>
+    {%endif%}
+{% else %}
+<!--It means that the user is INDEED a friend already-->
+    <button class="action-button shadow animate orange" style=" float: right;position: relative; right: 20px; top: 0px; action-button padding: 100px;" onclick="location.href='/remove_from_friends_list?username={{username}}'"/>הסר מרשימת החברים</button>
+{% endif %}
+
+{% if chance_for_a_lesson %}
+    <button class="action-button shadow animate orange" style=" float: right;position: relative; right: 20px; top: 0px; action-button padding: 100px;" onclick="location.href='/teacher_or_students_offer_lesson/{{username}}'"/>שלח הצעת שיעור</button>
+{% endif %}
+
+
+<style>
+    .username{
+        padding-left: 650px;
+        padding-bottom: 20px;
+        font-size: 50px;
+          font-size: 50px;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #0073e6, 0 0 20px #0073e6, 0 0 25px #0073e6, 0 0 30px #0073e6, 0 0 35px #0073e6;
+    }
+</style>
+<style>
+    body
+{
+	padding: 0px;
+}
+
+.animate
+{
+	transition: all 0.1s;
+	-webkit-transition: all 0.1s;
+}
+
+.action-button
+{
+	position: var(position);
+	left: var(left);
+    top: var(top);
+
+  margin: 0px 10px 10px 0px;
+  float: left;
+	border-radius: 10px;
+	font-family: 'Pacifico', cursive;
+	font-size: 25px;
+	color: #FFF;
+	text-decoration: none;
+}
+
+.blue
+{
+padding: 10px 220px;
+	background-color: #3498DB;
+	border-bottom: 5px solid #2980B9;
+	text-shadow: 0px -2px #2980B9;
+}
+
+.orange
+{
+padding: 10px 80px;
+	background-color: #FF8C00;
+	border-bottom: 5px solid #ff6600;
+	text-shadow: 0px -2px #ff6600;
+}
+
+.action-button:active
+{
+	transform: translate(0px,5px);
+  -webkit-transform: translate(0px,5px);
+	border-bottom: 1px solid;
+}
+  </style>
+
+
+{% endblock %}

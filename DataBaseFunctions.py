@@ -1359,6 +1359,11 @@ class DataBaseFunctions:
     def date_is_after(date1, date2):
         return datetime.strptime(date1, '%d/%m/%y') > datetime.strptime(date2, '%d/%m/%y')
 
+    @staticmethod# מחזיר את הפרש הזמנים בדקות
+    def time_difference(time1="09:00", time2="08:00"):
+        diff = (datetime.strptime(time1, '%H:%M') - datetime.strptime(time2, '%H:%M'))
+        return abs(int(diff.seconds/60))
+
     @staticmethod#מחזיר אמת אם התאריך (כstr) תואם לפורמט וההיפך
     def date_matches_time_format(date):
         try:
@@ -1763,3 +1768,60 @@ class DataBaseFunctions:
         conn = sqlite3.connect('database.db')
         conn.execute("update users set password=? where username=?", (new_password, username))
         conn.commit()
+
+
+    # @staticmethod
+    # def get_all_online_users():
+    #     conn = sqlite3.connect('database.db')
+    #     users = []
+    #     command = conn.execute("select * from users")
+    #     for row in command:
+            # if DataBaseFunctions.
+
+    # @staticmethod
+    # def get_currently_online():
+    #     conn = sqlite3.connect('database.db')
+    #     command = conn.execute("select username from currently_online")
+    #     usernames = []
+    #     for row in command:
+    #         usernames.append(row[0])
+    #     return usernames
+    #
+    # @staticmethod
+    # def user_is_online(username):
+    #     return username in DataBaseFunctions.get_currently_online()
+    #
+    # @staticmethod
+    # def add_user_online(username):
+    #     if not DataBaseFunctions.user_is_online(username):
+    #         conn = sqlite3.connect('database.db')
+    #         conn.execute("insert into currently_online (username) values (?)", (username,))
+    #         conn.commit()
+    #
+    # @staticmethod
+    # def make_user_offline(username):
+    #     if DataBaseFunctions.user_is_online(username):
+    #         conn = sqlite3.connect('database.db')
+    #         conn.execute("delete from currently_online where username=?", (username,))
+    #         conn.commit()
+
+
+    @staticmethod
+    def get_all_users_online():
+        todays_date = (str(datetime.now())).split(' ')[0].split('-')
+        todays_date = todays_date[2] + '/' + todays_date[1] + '/' + todays_date[0]
+        current_time = str(datetime.now().hour) + ':' + str(datetime.now().minute)
+        # in minutes
+        accepted_time_difference = 5
+        users = []
+        conn = sqlite3.connect('database.db')
+        command = conn.execute("select username,last_login from users")
+        for row in command:
+            date = row[1].split(' ')[0]
+            time = row[1].split(' ')[1]
+            username = row[0]
+            # print("diff=",DataBaseFunctions.time_difference(current_time, time))
+            # print(DataBaseFunctions.time_difference(current_time, time) <= accepted_time_difference)
+            if date == todays_date and DataBaseFunctions.time_difference(current_time, time) <= accepted_time_difference:
+                users.append(username)
+        return users

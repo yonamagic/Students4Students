@@ -1,6 +1,7 @@
 from os import abort
+
+import werkzeug
 from flask import Flask, render_template, request, session, redirect, g
-# from flask_socketio import SocketIO
 from Subject import Subject
 # from Emailing import Emailing
 from DataBaseFunctions import DataBaseFunctions
@@ -9,9 +10,15 @@ from DataBaseFunctions import DataBaseFunctions
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 
-@app.route('/uu')
-def tryout():
-    return render_template('login1.html')
+
+@app.route('/currently_online')
+def currently_online():
+    if 'user' not in session:
+        return redirect('/')
+    usernames = DataBaseFunctions.get_all_users_online()
+    usernames.remove(session['user'])
+    return render_template('currently_online.html',
+                            currently_online = usernames)
 
 @app.route('/forgot_password')
 def forgot_password(error_msg=''):
@@ -336,7 +343,7 @@ def profile():
             return render_template('personal_profile.html',
                                    strong_subjects=DataBaseFunctions.get_strong_subjects(username),
                                    weak_subjects=DataBaseFunctions.get_weak_subjects(username))
-        else:#user exists and it is not session['user']
+        elif not DataBaseFunctions.is_admin(username):#user exists and it is not session['user']
             return render_template('user_profile.html',
                                    username=username,
                                    strong_subjects = DataBaseFunctions.get_strong_subjects(username),
@@ -349,7 +356,13 @@ def profile():
                                                                                     subs2=DataBaseFunctions.get_weak_subjects(username))
                                                         or  DataBaseFunctions.mix_subjects(subs1=DataBaseFunctions.get_weak_subjects(session['user']),
                                                                                         subs2=DataBaseFunctions.get_strong_subjects(username)))
-
+        else:
+            return render_template('admin_profile.html',
+                                   username=username,
+                                   is_friend = not DataBaseFunctions.is_friend(self_user = session['user'],
+                                                                     username=username,),#It gets the opposite somewhy
+                                   friend_request_sent_already = DataBaseFunctions.is_in_friend_requests(self_user=username,
+                                                                                                         username=session['user']))
     return redirect('/')
 
 @app.route('/report_user', methods=['POST','GET'])
