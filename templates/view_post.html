@@ -1,31 +1,251 @@
 {% extends "registeredLayout.html" %}
 
 {% block body %}
-<br><br>
-<font size="6"><b>{{post.topic}}</b></font>
+
+
+
+<h1 style="padding-right: 30px;"><b>{{post.topic}}</b></h1><br><br>
+
+<!--מחק פוסט (עבור מנהל מערכת) או דיווח על פוסט בלתי הולם-->
 {% if session.is_admin %}
 <!--    <button onclick="location.href='/report_post/{{post_id}}'">נעל פוסט</button>-->
-    <button onclick="location.href='/admin_options/delete_post/{{post_id}}'">מחק פוסט</button>
+    <button class="comment_button" style="position: relative; right: 750px; bottom: 100px; background-color: #a52a2a;" onclick="location.href='/admin_options/delete_post/{{post_id}}'">מחק פוסט</button>
 {% else %}
-<button onclick="location.href='/report_post/{{post_id}}'">דיווח על פוסט פוגעני או בלתי הולם</button>
+   <button class="comment_button" style="position: relative; right: 750px; bottom: 100px; background-color: #a52a2a;" onclick="location.href='#divModal'">דיווח על פוסט פוגעני או בלתי הולם</button>
 {% endif %}
-<br><br>
-מאת: {{post.narrator}}<br>
-תאריך: {{post.date}}
-<br><br>
-<p style="width:500px;height:100px;border:1px solid #000;">{{post.content}}</p>
 
-<br><br><br>
-{% for comment in post.comments %}
-    <div style="width:500px;height:200px;border:1px solid #000;">
-        <h2>מאת: <font color="blue">{{comment.narrator}}</font></h2>
-        תאריך: {{comment.date}}
-        <h3>{{comment.content}}</h3>
+
+<!--טופס דיווח מתחיל כאן-->
+<div id="divModal" class="windowModal">
+    <div>
+        <a href="#close" title="Close" class="close">X</a>
+        <!DOCTYPE html>
+        <html dir="rtl" lang="he">
+
+        <h1>דיווח על פוסט</h1>
+
+        <form action="/post_report_done?post_id={{post_id}}" method="post">
+            <input type="text" name="report_content" placeholder="מהי סיבת הדיווח?" >
+            <input type="submit" value="שלח דיווח"></input>
+        </form>
+        </html>
     </div>
-    <br>
+</div>
+<!--טופס דיווח נגמר כאן-->
+
+
+<!--כתיבת תגובה מתחיל כאן-->
+<form action="/post/comment_sent/{{post_id}}" method="post">
+
+    <textarea class="comment_input" id="content" name="content" placeholder="הוסף תגובה...">{{content}}</textarea>
+
+    <button type="submit" class="comment_button" style="right: 235px; bottom: 0px; background-color: #5F9EA0;"><span>שלח</span></button>
+
+</form>
+
+<br><br>
+<br><br><br><br>
+
+
+
+
+<!--כתיבת תגובה מתסיים כאן-->
+
+
+<!--הפוסט עצמו מתחיל כאן-->
+<div class="msg-bubble" style="right: 100px; bottom: 400px;">
+    <div class="msg-info">
+      <div class="msg-info-name">{{post.narrator}}</div>
+      <div class="msg-info-time">{{post.date}}</div>
+    </div>
+
+    <div class="msg-text">
+      {{post.content}}
+    </div>
+  </div>
+</div>
+
+<!--הפוסט עצמו נגמר כאן-->
+
+<hr>
+
+<!--תגובות מתחילות כאן-->
+
+{% if not post.comments %}
+ <h2 style="position:relative; right: 50px; bottom: 50px;">אין עדיין תגובות לפוסט זה.</h2>
+{% endif %}
+{% for comment in post.comments %}
+    {% if comment.of_admin %}
+        {% set glow = "box-shadow: 0px 0px 10px 5px #0ff;" %}
+        <div style="padding-right: 20px;">תגובת מנהל מערכת:</div> <br><br>
+    {% endif %}
+    <div class="msg-bubble" style="right: 100px;{{glow}}">
+        <div class="msg-info">
+          <div class="msg-info-name">{{comment.narrator}}</div>
+          <div class="msg-info-time">{{comment.date}}</div>
+        </div>
+
+        <div class="msg-text">
+          {{comment.content}}
+        </div>
+      </div>
+    </div>
+
+    <br><br><br><br>
 {% endfor %}
 
-<button type=button onClick="location.href='/post/write_comment/{{post_id}}'">הוסף תגובה</button>
+<!--תגובות מסתיימות כאן-->
 
+
+<style>
+    .windowModal {
+    position: fixed;
+    font-family: Arial, Helvetica, sans-serif;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 99999;
+    opacity:0;
+    -webkit-transition: opacity 400ms ease-in;
+    -moz-transition: opacity 400ms ease-in;
+    transition: opacity 400ms ease-in;
+    pointer-events: none;
+}
+.windowModal:target {
+    opacity:1;
+    pointer-events: auto;
+}
+
+.windowModal > div {
+    width: 400px;
+    position: relative;
+    margin: 10% auto;
+    padding: 5px 20px 13px 20px;
+    border-radius: 10px;
+    background: #fff;
+    background: -moz-linear-gradient(#fff, #999);
+    background: -webkit-linear-gradient(#fff, #999);
+    background: -o-linear-gradient(#fff, #999);
+}
+.close {
+    background: #606061;
+    color: #FFFFFF;
+    line-height: 25px;
+    position: absolute;
+    right: -12px;
+    text-align: center;
+    top: -10px;
+    width: 24px;
+    text-decoration: none;
+    font-weight: bold;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
+    -moz-box-shadow: 1px 1px 3px #000;
+    -webkit-box-shadow: 1px 1px 3px #000;
+    box-shadow: 1px 1px 3px #000;
+}
+
+.close:hover { background: #00d9ff; }
+</style>
+
+<style>
+    .comment_input{
+        position: relative;
+        right: 750px;
+        bottom: 50px;
+        height:150px;
+        width: 500px;
+        font-size: 20px;
+        border-radius: 10px;
+        box-shadow: 5px 5px 5px grey;
+    }
+.comment_button {
+position:relative;
+  display: inline-block;
+  border-radius: 4px;
+
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 16px;
+  padding: 20px;
+  width: 500px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+</style>
+<style>
+
+
+:root {
+  --body-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --msger-bg: #fff;
+  --border: 2px solid #ddd;
+  --left-msg-bg: #ececec;
+  --right-msg-bg: #579ffb;
+}
+
+
+
+.msg {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 10px;
+
+}
+.msg-bubble {
+position: relative;
+
+  max-width: 450px;
+  padding: 15px;
+  border-radius: 15px;
+  background: var(--left-msg-bg);
+
+}
+.msg-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.msg-info-name {
+  margin-right: 10px;
+  font-weight: bold;
+}
+.msg-info-time {
+  font-size: 0.85em;
+}
+
+
+</style>
 
 {% endblock %}

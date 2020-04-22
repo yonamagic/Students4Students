@@ -10,6 +10,12 @@ from DataBaseFunctions import DataBaseFunctions
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 
+@app.route('/uu')
+def uu():
+    post_id = "first_post"
+    print(DataBaseFunctions.get_post_object(post_id).comments)
+    return render_template('uu.html', post=DataBaseFunctions.get_post_object(post_id),
+                                       post_id=post_id)
 
 @app.route('/currently_online')
 def currently_online():
@@ -547,6 +553,8 @@ def forum_homepage():
 
 @app.route('/forum/<forum_name>')
 def specific_forum(forum_name):
+    if not DataBaseFunctions.forum_exists(forum_name):
+        return redirect('/forum_homepage')
     return render_template('specific_forum.html', forum_name=forum_name, posts=DataBaseFunctions.get_forum_posts(forum_name))
 
 @app.route('/forum/<forum_name>/create_post')

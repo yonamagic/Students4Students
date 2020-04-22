@@ -547,12 +547,13 @@ class DataBaseFunctions:
             # print("A",post)
         # print("comments: ", post[5].split(','))
         # print("Hi ",DataBaseFunctions.get_all_comments_list(post[5]))
+        comments = DataBaseFunctions.get_all_comments_list(post[5].split(','))
         return Post(post_ID = post[0],
                     narrator = post[1],
                     topic = post[2],
                     content = post[3],
                     date = post[4],
-                    comments = DataBaseFunctions.get_all_comments_list(post[5].split(',')))
+                    comments = comments)
 
     @staticmethod#returns a list of Post objects by a list of posts IDs
     def get_all_posts_list(posts_IDs):
@@ -585,7 +586,8 @@ class DataBaseFunctions:
         return Comment(id=comment[0],
                        content=comment[1],
                        narrator=comment[2],
-                       date=DataBaseFunctions.get_date())
+                       date=DataBaseFunctions.get_date(),
+                       of_admin=DataBaseFunctions.is_admin(comment[2]))
 
     @staticmethod  # returns a list of Comments objects by a list of comments IDs
     def get_all_comments_list(comments_IDs):
@@ -594,7 +596,7 @@ class DataBaseFunctions:
             comment_object = DataBaseFunctions.get_comment_object(id)
             if comment_object is not None:
                 comments.append(DataBaseFunctions.get_comment_object(id))
-        comments.reverse()
+        # comments.reverse()
         # print("comments are: ", comments)
         return comments
 
@@ -660,6 +662,10 @@ class DataBaseFunctions:
         for row in com:
             names.append(row[0])
         return names
+
+    @staticmethod
+    def forum_exists(forum_name):
+        return forum_name in DataBaseFunctions.get_forum_names()
 
     @staticmethod#adds a new post (id) to the "forums" db and returns its id
     def create_post_in_forums(forum_name, new_post_id):
