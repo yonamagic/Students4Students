@@ -12,10 +12,11 @@ app.secret_key = 'secret_key'
 
 @app.route('/uu')
 def uu():
-    post_id = "first_post"
-    print(DataBaseFunctions.get_post_object(post_id).comments)
-    return render_template('uu.html', post=DataBaseFunctions.get_post_object(post_id),
-                                       post_id=post_id)
+    return render_template('typingChatRoom.html')
+
+@app.route('/check', methods=['POST'])
+def c():
+    return request.form.get("uu")
 
 @app.route('/currently_online')
 def currently_online():
@@ -182,14 +183,16 @@ def register(username="", username_comment="",
              password="", password_comment="",
              confirm_password="", confirm_password_comment="",
              email="", email_comment="",
+             agree_to_terms_checked="", agree_to_terms_message="",
              selected_strong_subjects=[], selected_weak_subjects=[]):
-
-    return render_template('registerr.html',
+    return render_template('reg.html',
                            username=username, password=password, confirm_password=confirm_password, email=email,
                            username_comment=username_comment,
                            password_comment=password_comment,
                            confirm_password_comment=confirm_password_comment,
                            email_comment=email_comment,
+                           agree_to_terms_checked=agree_to_terms_checked,
+                           agree_to_terms_message = agree_to_terms_message,
                            subjects=DataBaseFunctions.subjects_and_classes,
                            selected_strong_subjects=selected_strong_subjects,
                            selected_weak_subjects=selected_weak_subjects)
@@ -208,6 +211,8 @@ def checkRegistration():
         'confirm_password_comment': request.form.get("confirm_password_comment"),
         'email' : request.form.get("email"),
         'email_comment' : "",
+        'agree_to_terms_message' : "",
+        'agree_to_terms_checked' : True,
         'strong_subjects': [],
         'weak_subjects': []
     }
@@ -256,6 +261,10 @@ def checkRegistration():
     if details_dict['confirm_password_comment'] == None:
         details_dict['confirm_password_comment']=""
 
+    if request.form.get("agree_to_terms") == None:
+        todo_bien = False
+        details_dict['agree_to_terms_message'] = "כדי ליצור משתמש, יש להסכים לתנאי השימוש באתר."
+
     if todo_bien==False:#Theres a problem
         return register(username=details_dict['username'],
                         password=details_dict['password'],
@@ -266,7 +275,9 @@ def checkRegistration():
                         username_comment=details_dict['username_comment'],
                         password_comment=details_dict['password_comment'],
                         confirm_password_comment=details_dict['confirm_password_comment'],
-                        email_comment=details_dict['email_comment']
+                        email_comment=details_dict['email_comment'],
+                        agree_to_terms_checked=request.form.get("agree_to_terms"),
+                        agree_to_terms_message = details_dict['agree_to_terms_message']                        
                         )
 #If it came here, everything is good
     DataBaseFunctions.create_user(username=request.form.get("username"),

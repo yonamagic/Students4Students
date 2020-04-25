@@ -83,9 +83,9 @@ class DataBaseFunctions:
         DataBaseFunctions.send_msg("הנהלת Syeto", username, "ברוכים הבאים לסייטו!", "בהצלחה!"
                                                                                     "אנחנו כאן לכל שאלה ובעיה - שלחו הודעה למנהלי המערכת.")
 
-        Emailing.send_email(addressee=email,
-                            subject="ברוכים הבאים למשפחת Syeto!",
-                            html=Emailing.welcome(username=username))
+        # Emailing.send_email(addressee=email,
+        #                     subject="ברוכים הבאים למשפחת Syeto!",
+        #                     html=Emailing.welcome(username=username))
         # for r in com:
         #     print (r)
         # conn.commit()
