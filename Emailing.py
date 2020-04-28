@@ -12,6 +12,21 @@ from email.mime.text import MIMEText
 
 class Emailing:
 
+    # @staticmethod
+    # def lesson_reminder(username, other_user, subject, time):
+    #     return """\
+    #              <html dir="rtl">
+    #                <head></head>
+    #                <body>
+    #                  <p>
+    #                     שלום """+username+""", זוהי תזכורת לשיעור שקבעת עם """+other_user+""" בנושא """+subject+""". <br>
+    #                     להזכירך, השיעור יתקיים היום בשעה """++""" . <br>
+    #                     מאחלים לך שיעור מהנה ומועיל! צוות Syeto.
+    #                  </p>
+    #                </body>
+    #              </html>
+    #              """
+
     @staticmethod
     def welcome(username='yonamagic'):
         return """\
@@ -19,7 +34,9 @@ class Emailing:
             <head></head>
             <body>
               <p>ברוכים הבאים למשפחת Syeto!, """ + username + """<br>
-                 אנחנו רואים שנרשמת לאתר, תתחדש יא איבני!<br>
+                 אנחנו רואים שנרשמת לאתר, ומאחלים לך חווית למידה מעיינת, מהנה וחווייתית.<br>
+                    <br><br>
+                    בהערכה רגבה,<br>צוות Syeto.
               </p>
             </body>
           </html>
@@ -301,6 +318,8 @@ class Emailing:
 </body>
 </html>
         """
+
+
         # return """\
         #   # <html>
         #   #   <head></head>
@@ -356,7 +375,7 @@ class Emailing:
 
         mail.starttls()
 
-        mail.login('syeto2020@gmail.com', 'Syeto2020Syeto')
+        mail.login('syeto2020@gmail.com', 'rzjtuounvucfubns')
         mail.sendmail(me, addressee, msg.as_string())
         mail.quit()
 

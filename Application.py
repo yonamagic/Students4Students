@@ -12,11 +12,17 @@ app.secret_key = 'secret_key'
 
 @app.route('/uu')
 def uu():
-    return render_template('typingChatRoom.html')
+    return render_template('registerr.html')
+
+
 
 @app.route('/check', methods=['POST'])
 def c():
     return request.form.get("uu")
+
+
+
+
 
 @app.route('/currently_online')
 def currently_online():
@@ -185,7 +191,7 @@ def register(username="", username_comment="",
              email="", email_comment="",
              agree_to_terms_checked="", agree_to_terms_message="",
              selected_strong_subjects=[], selected_weak_subjects=[]):
-    return render_template('reg.html',
+    return render_template('register.html',
                            username=username, password=password, confirm_password=confirm_password, email=email,
                            username_comment=username_comment,
                            password_comment=password_comment,
@@ -256,6 +262,9 @@ def checkRegistration():
         todo_bien=False
     if not details_dict['email'].__contains__('@'):
         details_dict['email_comment']="אנא מלאו כתובת מייל תקנית"
+        todo_bien=False
+    if DataBaseFunctions.email_exists_in_DB(details_dict['email']):
+        details_dict['email_comment']="כתובת מייל זו נמצאת בשימוש על ידי משתמש אחר, אנא הזינו כתובת מייל שונה."
         todo_bien=False
 
     if details_dict['confirm_password_comment'] == None:
@@ -921,10 +930,11 @@ def view_one_lesson(lesson_ID):
     lesson = DataBaseFunctions.get_lesson_by_ID(lesson_ID)
     return render_template("view_a_single_lesson.html",
                            lesson=lesson,
-                           todays_date=DataBaseFunctions.get_date()[:-2],
-                           platform_nickname = DataBaseFunctions.get_platform_nickname(
-                               username=DataBaseFunctions.get_other_user_username(lesson=lesson,
-                                                                                  self_username=session['user'])))
+                           todays_date=DataBaseFunctions.get_date()[:-2]
+                           # ,platform_nickname = DataBaseFunctions.get_platform_nickname(
+                           #     username=DataBaseFunctions.get_other_user_username(lesson=lesson,
+                           #                                                        self_username=session['user']))
+                           )
 @app.route('/my_lessons/cancel_lesson/<lesson_ID>')
 def cancel_lesson(lesson_ID):
     DataBaseFunctions.cancel_lesson(lesson_ID)

@@ -1,6 +1,8 @@
 import sqlite3
 from _datetime import datetime, timedelta
 from DataBaseFunctions import DataBaseFunctions
+
+#פעולות שעוסקות ביצירת שיעורים
 #---------------------------------------------------------------------------------------------------------------------
 def create_new_lesson(participants, location, date, time_range, subject, teacher):#Creates a new lesson in DB
     conn = sqlite3.connect('calendar.db')
@@ -27,6 +29,7 @@ def such_date_exists(date, location):
         return row[0]
     return False
 
+#יוצרת date חדש בטבלת הdates
 def create_new_date(date, place):
     conn = sqlite3.connect('calendar.db')
     id = DataBaseFunctions.random_id()
@@ -37,19 +40,19 @@ def create_new_date(date, place):
     conn.commit()
     return id
 
+# יוצרת שיעור חדש בטבלת השיעורים
 def create_lesson_in_lessons_table(ID, location, date, subject, participants, teacher, time_range):#Responsible for lesson creation in lessons table
     conn = sqlite3.connect('calendar.db')
     conn.execute("insert into lessons (ID, place, date, subject, participants, teacher, time_range, active) values (?,?,?,?,?,?,?,'True')",
                  (ID, location, date, subject, participants, teacher, time_range))
     conn.commit()
 
+# יוצרת שיעור חדש בטבלת dates
 def create_lesson_in_dates_table(date_ID, lesson_ID):#Responsible for lesson creation in dates table
     conn = sqlite3.connect('calendar.db')
     lessons_IDs = conn.execute("select lessons_IDs from dates where ID=?", (date_ID,))
     for row in lessons_IDs:
         lessons_IDs=row[0]
-        print(lessons_IDs, "lll")
-    print(lessons_IDs, "lessesID")
     if len(lessons_IDs) > 0:
         lessons_IDs += ',' + lesson_ID
     else:
@@ -57,11 +60,12 @@ def create_lesson_in_dates_table(date_ID, lesson_ID):#Responsible for lesson cre
 
     conn.execute("update dates set lessons_IDs = ? where ID=?", (lessons_IDs,date_ID))
     conn.commit()
-    print(lessons_IDs)
 
 #---------------------------------------------------------------------------------------------------------------------
 
+#פעולות שעוסקות בטיפוס Lesson
 #---------------------------------------------------------------------------------------------------------------------
+# מחזזירה רשימה של כל השיעורים של משתמש מסויים
 def get_lessons_list(username):
     conn = sqlite3.connect('calendar.db')
     command = conn.execute("select ID from lessons")
@@ -86,6 +90,7 @@ def get_lessons_list(username):
     #_________ got a list of those lessons as objects
     return wanted_lessons
 
+#מחזירה עצם Lesson לפי הID
 def get_Lesson_Object(ID):#Returns a Lesson object
     from Lesson import Lesson
     conn = sqlite3.connect('calendar.db')
@@ -100,6 +105,7 @@ def get_Lesson_Object(ID):#Returns a Lesson object
                   time_range=lesson[4])
 
 #---------------------------------------------------------------------------------------------------------------------
+
 
 def get_lesson_id(place, date, participants, time_range):#Returns a lesson ID according to details in params
     conn = sqlite3.connect('calendar.db')
@@ -128,10 +134,14 @@ def cancel_lesson(date, place, participants, time_range):#Cancels a lesson by de
 
 #---------------------------------------------------------------------------------------------------------------------
 
+
+#פעולות העוסקות בתאריכים וזמנים
 #---------------------------------------------------------------------------------------------------------------------
+#מקבלת תאריך מסוג datetime ומחזירה אותו כמחרוזת
 def convert_datetime_to_date(datetime_date):
     date = (str(datetime_date)).split(' ')[0].split('-')
     return date[2] + '/' + date[1] + '/' + date[0][2:]
+
 
 def get_upcoming_dates(num_of_days_ahead=7):#Returns a list of dates ahead of us. param@ includes today.
     dates=[]
@@ -139,57 +149,8 @@ def get_upcoming_dates(num_of_days_ahead=7):#Returns a list of dates ahead of us
         dates.append(convert_datetime_to_date(datetime.now()+timedelta(days=i)))
     return dates
 
-def is_date_available(date="12/03/20", place="בית המתנדב"):
-    conn = sqlite3.connect('calendar.db')
-
-
-
-def get_lessons_time_ranges(date,place):
-    conn = sqlite3.connect('calendar.db')
-    lessons_time_ranges=[]
-    lessons_IDs = conn.execute("select lessons_IDs from dates where place=? and date=?", (place,date))
-    for row in lessons_IDs:
-        lessons_IDs=row[0].split(',')
-
-    for id in lessons_IDs:
-        time_range=conn.execute("select time_range from lessons where ID=?", (id,))
-        for row in time_range:
-            time_range=row[0]
-        lessons_time_ranges.append(time_range)
-
-    return lessons_time_ranges
-
-def get_optional_time_ranges_non_corona(place='בית המתנדב', date='12/03/20'):
-    conn = sqlite3.connect('calendar.db')
-    time_ranges=[]
-    range = conn.execute("select available_time_range from dates where place=? and date=?", (place,date))
-    for row in range:
-        range=row[0]
-    min_hr=range.split('-')[0]
-    max_hr=range.split('-')[1]
-    index=min_hr
-
-    # while (datetime.strptime(index,'%H:%M').hour < datetime.strptime(max_hr,'%H:%M').hour) or \
-    #         ((datetime.strptime(index,'%H:%M').hour == datetime.strptime(max_hr,'%H:%M').hour) and
-    #          (datetime.strptime(index,'%H:%M').minute < datetime.strptime(max_hr,'%H:%M').minute)):
-    while datetime.strptime(index,'%H:%M') < datetime.strptime(max_hr,'%H:%M') and\
-            datetime.strptime(index,'%H:%M') >= datetime.strptime(min_hr,'%H:%M'):
-        new_index = str(datetime.strptime(index,'%H:%M')+timedelta(minutes=60))
-        new_index = new_index[new_index.index(' ')+1:new_index.index(':')+3]
-        if datetime.strptime(new_index,'%H:%M') <= datetime.strptime(max_hr,'%H:%M'):
-            #I mean, I could do it after the loop but is is easier this way
-            time_ranges.append(index + '-' + new_index)
-        # index=new_index#str(datetime.strptime(new_index,'%H:%M')+timedelta(minutes=15))
-        index = new_index
-        index = str(datetime.strptime(index,'%H:%M')+timedelta(minutes=15))
-        index = index[index.index(' ')+1:index.index(':')+3]
-        # print(datetime.strptime(index,'%H:%M').hour)
-        # print(datetime.strptime(max_hr,'%H:%M').hour)
-        # print("_--------------------")
-
-
-def get_times_for_lessons(range='08:00-22:00', jumps_ranges=15):#returns a list of times (as strings)
-                                                                # in a certain range, with a certain jump
+#returns a list of times (as strings) in a certain range, with a certain jump
+def get_times_for_lessons(range='08:00-22:00', jumps_ranges=15):
     times = []
     min_hr = range.split('-')[0]
     max_hr = range.split('-')[1]
@@ -199,14 +160,8 @@ def get_times_for_lessons(range='08:00-22:00', jumps_ranges=15):#returns a list 
             datetime.strptime(index, '%H:%M') >= datetime.strptime(min_hr, '%H:%M'):
         new_index = str(datetime.strptime(index, '%H:%M') + timedelta(minutes=jumps_ranges))
         new_index = new_index[new_index.index(' ') + 1:new_index.index(':') + 3]
-        # index=new_index#str(datetime.strptime(new_index,'%H:%M')+timedelta(minutes=15))
         index = new_index
-        # index = str(datetime.strptime(index, '%H:%M') + timedelta(minutes=15))
         times.append(index)
-    # index = index[index.index(' ') + 1:index.index(':') + 3]
-        # print(datetime.strptime(index,'%H:%M').hour)
-        # print(datetime.strptime(max_hr,'%H:%M').hour)
-        # print("_--------------------")
 
     return times
 
@@ -214,6 +169,7 @@ def get_times_for_lessons(range='08:00-22:00', jumps_ranges=15):#returns a list 
 def is_after(time1, time2):#Returns True if time1 is after time2
     return datetime.strptime(time1, '%H:%M') > datetime.strptime(time2, '%H:%M')
 
+#Returns True if date1 is after date2
 def date_is_after(date1, date2):
     return datetime.strptime(date1, '%d/%m/%y') > datetime.strptime(date2, '%d/%m/%y')
 
