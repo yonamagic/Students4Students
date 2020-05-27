@@ -25,7 +25,7 @@
         <h1>דיווח על פוסט</h1>
 
         <form action="/post_report_done?post_id={{post_id}}" method="post">
-            <input type="text" name="report_content" placeholder="מהי סיבת הדיווח?" >
+            <input type="text" name="report_content" placeholder="מהי סיבת הדיווח?" required="required">
             <input type="submit" value="שלח דיווח"></input>
         </form>
         </html>
@@ -37,7 +37,7 @@
 <!--כתיבת תגובה מתחיל כאן-->
 <form action="/post/comment_sent/{{post_id}}" method="post">
 
-    <textarea class="comment_input" id="content" name="content" placeholder="הוסף תגובה...">{{content}}</textarea>
+    <textarea class="comment_input" id="content" name="content" placeholder="הוסף תגובה..." required="required">{{content}}</textarea>
 
     <button type="submit" class="comment_button" style="right: 235px; bottom: 0px; background-color: #5F9EA0;"><span>שלח</span></button>
 

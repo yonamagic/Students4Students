@@ -4,9 +4,9 @@
 <h1>צור פוסט חדש!</h1>
 <br><br><br><br>
 <form action="/forum/{{forum_name}}/new_post_submitted" method="post">
-    <input class="comment_input" style="height: 50px;" type="text" placeholder="נושא הפוסט:" autocomplete="off" name="topic">
+    <input class="comment_input" style="height: 50px;" type="text" placeholder="נושא הפוסט:" autocomplete="off" name="topic" required="required">
     <br><br>
-    <textarea class="comment_input" type="text" placeholder="תוכן:" name="content"></textarea>
+    <textarea class="comment_input" type="text" placeholder="תוכן:" name="content" required="required"></textarea>
 <!--תכלס זה עיצוב לכפתור שלח-->
 <div class="wrapper">
   <button class="" type="submit">

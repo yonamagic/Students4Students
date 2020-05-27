@@ -5,10 +5,10 @@
 <div class="container">
     <form action="/admin_options/send_notification/notification_sent" method="post">
             <label for="topic">מה נושא הנוטיפיקציה?</label>
-            <input type="text" id="topic" placeholder="נושא:" name="topic">
+            <input type="text" id="topic" placeholder="נושא:" name="topic" required="required">
         <br><br>
             <label for="content">מה תוכן הנוטיפיקציה?</label>
-            <textarea id="content" name="content" placeholder="תוכן:">{{content}}</textarea><br>
+            <textarea id="content" name="content" placeholder="תוכן:" required="required">{{content}}</textarea><br>
             <input type="submit">
     </form>
 </div>

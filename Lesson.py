@@ -5,6 +5,5 @@ class Lesson:
         self.date = date
         self.subject = subject
         self.participants = participants
-        # self.platform_nicknames = platform_nicknames
         self.teacher = teacher
         self.time_range = time_range

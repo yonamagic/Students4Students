@@ -3,6 +3,7 @@
 {% block body %}
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <h1 class="username">{{username}}</h1>
+<h3 style="position: relative; top: -30px; right: 35px;">נולד/ה ב: {{birth_date}}</h3>
 
 <!--action-button shadow animate blue-->
 <!--<button id="strong_subs_btn" class="myBtn" style=" float: right;position: relative; right: 50px; top: 0px;">מקצועות חזקים</button>-->
@@ -89,7 +90,7 @@
         <h1>דווח על המשתמש: {{username}}</h1>
 
         <form action="/report_done?username={{username}}" method="post">
-            <input type="text" name="report_content" placeholder="מהי סיבת הדיווח?">
+            <input type="text" name="report_content" placeholder="מהי סיבת הדיווח?" required="required">
             <input type="submit"></input>
         </form>
         </html>

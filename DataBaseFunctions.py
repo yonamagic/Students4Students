@@ -7,6 +7,7 @@ from Message import Message
 
 class DataBaseFunctions:
 
+
     subjects_and_classes = [
         # [subject, [classes]]
         [ 'מתמטיקה' , ['חמש יחל לכיתה י','חמש יחל לכיתה יא','חמש יחל לכיתה יב','ארבע יחל לכיתה י','ארבע יחל לכיתה יא','ארבע יחל לכיתה יב','שלוש יחל לכיתה י','שלוש יחל לכיתה יא']],
@@ -67,18 +68,19 @@ class DataBaseFunctions:
         return False
 
     @staticmethod # יוצרת משתמש בבסיס הנתונים
-    def create_user(username, password, email, platform_nickname, strong_subjects=[], weak_subjects=[]):
+    def create_user(username, password, birth_date, email, strong_subjects=[], weak_subjects=[]):
         conn = sqlite3.connect('database.db', timeout=2)
         conn.execute("insert into users "
-                     "(username, password, email, platform_nickname, strong_subjects, weak_subjects, inboxID, is_admin, friends_list, friend_requests, notifications_IDs, lessons_offers_IDs) "
-                     "values (?,?,?,?,?,?,?,'no', '' ,'' ,'' ,'')",
+                     "(username, password, birth_date, email, strong_subjects, weak_subjects, inboxID, is_admin, friends_list, friend_requests, notifications_IDs, lessons_offers_IDs, last_login) "
+                     "values (?,?,?,?,?,?,?,'no', '' ,'' ,'' ,'',?)",
                      (username,
                       password,
+                      birth_date,
                       email,
-                      platform_nickname,
                       ','.join(DataBaseFunctions.subjects_names(strong_subjects)),
                       ','.join(DataBaseFunctions.subjects_names(weak_subjects)),
-                      str(os.urandom(24))))
+                      str(os.urandom(24)),
+                     DataBaseFunctions.get_current_time_for_login()))
 
         DataBaseFunctions.create_subs_in_subjects_table(conn=conn,
                                                         subs=strong_subjects,
@@ -100,6 +102,15 @@ class DataBaseFunctions:
         Emailing.send_email(addressee=email,
                             subject="ברוכים הבאים למשפחת Syeto!",
                             html=Emailing.welcome(username=username))
+
+
+    @staticmethod
+    def get_user_birth_date(username):
+        conn = sqlite3.connect('database.db')
+        birth_date = conn.execute("select birth_date from users where username=?", (username,))
+        for row in birth_date:
+            birth_date = row[0]
+        return birth_date
 
     @staticmethod # #returns a list of a user's friends list
     def get_friends_list(username):
@@ -369,7 +380,10 @@ class DataBaseFunctions:
         post = conn.execute("select * from forum_posts where post_ID = ? ", (post_id,))
         for row in post:
             post = row
-        comments = DataBaseFunctions.get_all_comments_list(post[5].split(','))
+        if len(post[5]) == 0:
+            comments=[]
+        else:
+            comments = DataBaseFunctions.get_all_comments_list(post[5].split(','))
         return Post(post_ID = post[0],
                     narrator = post[1],
                     topic = post[2],
@@ -799,7 +813,7 @@ class DataBaseFunctions:
         return dicts
 
 
-    @staticmethod # 
+    @staticmethod #
     #מקבל שם משתמש ומחזיר רשימה של Subject טובים
     def get_strong_subjects(username):
         conn = sqlite3.connect('database.db')
@@ -810,7 +824,7 @@ class DataBaseFunctions:
         return strong_subjects
 
 
-    @staticmethod # 
+    @staticmethod #
     #מקבל שם משתמש ומחזיר רשימה של Subject גרועים
     def get_weak_subjects(username):
         conn = sqlite3.connect('database.db')
@@ -821,7 +835,7 @@ class DataBaseFunctions:
         return weak_subjects
 
 
-    @staticmethod # 
+    @staticmethod #
     #מקבל מקצוע ומחזיר רשימה שכל איבר הוא רשימה המכילה שני אינדקסים: שם משתמש ורשימה נוספת של קלאסים משותפים לדרישה ולמשתמש
     def specific_users_for_one_subject(subject, teacher_or_student):
         conn = sqlite3.connect('database.db')
@@ -848,7 +862,7 @@ class DataBaseFunctions:
             list.append([subject.name, DataBaseFunctions.specific_users_for_one_subject(subject, teacher_or_student)])
         return list
 
-    @staticmethod # 
+    @staticmethod #
     # מקבלת שם של מקצוע ומחזירה רשימה של שמות המשתמשים שמקצוע זה נכלל ברשימת המקצועות החזקים שלהם
     def get_users_in_general(subject, teacher_or_student):
         conn = sqlite3.connect('database.db')
@@ -862,7 +876,7 @@ class DataBaseFunctions:
             users.append(r[0])
         return users
 
-    @staticmethod # 
+    @staticmethod #
     # מקבלת רשימת Subjects ושם של מקצוע. במידה והמקצוע קיים ברשימה, הפעולה תחזיר את המקצוע עצמו ובמידה שלא - תחזיר False.
     def sub_name_exists(subs_list, sub_name):
         for sub in subs_list:
@@ -870,7 +884,7 @@ class DataBaseFunctions:
                 return sub
         return False
 
-    @staticmethod # 
+    @staticmethod #
     # מחזיר רשימה של Subjects שמכילה את הנושאים המשותפים (כולל קלאסים) מבין שתי רשימות נושאים
     def mix_subjects(subs1, subs2):
         ret_subs = []
@@ -902,18 +916,19 @@ class DataBaseFunctions:
         conn.commit()
 
 
-    @staticmethod # 
+    @staticmethod #
     def get_lessons_offers_IDs(username):#returns a list of lessons_offers IDs according to a certain usrname
         conn = sqlite3.connect('database.db', timeout=2)
         IDs = conn.execute("select lessons_offers_IDs from users where username=?", (username,))
         for row in IDs:
             IDs = row[0]
-        if IDs != None:
+        print("IDs=",IDs)
+        try:
             return IDs.split(',')
-        else:
+        except:
             return []
 
-    @staticmethod # 
+    @staticmethod #
     def get_lesson_offer_object(id):#returns a Lesson_offer object
         from Lesson_offer import Lesson_offer
         conn = sqlite3.connect('database.db', timeout=2)
@@ -939,22 +954,14 @@ class DataBaseFunctions:
                 Lessons_offers.append(lesson_offer)
         return Lessons_offers
 
-    @staticmethod # מחזיר את הכינוי
-    def get_platform_nickname(username):
-        conn=sqlite3.connect('database.db')
-        nick = conn.execute("select platform_nickname from users where username=?", (username,))
-        for row in nick:
-            nick = row[0]
-        return nick
 
-
-    @staticmethod # 
+    @staticmethod #
     def delete_lesson_offer_from_lessonsOffers_table(id):
         conn_database = sqlite3.connect('database.db')
         conn_database.execute("delete from lessons_offers where ID=?", (id,))
         conn_database.commit()
 
-    @staticmethod # 
+    @staticmethod #
     def delete_lesson_offer_from_users_table(username, id):
         conn_database = sqlite3.connect('database.db')
         command = conn_database.execute("select lessons_offers_IDs from users where username=?", (username,))
@@ -971,7 +978,7 @@ class DataBaseFunctions:
         conn_database.commit()
 
 
-    @staticmethod # 
+    @staticmethod #
     def accept_lesson_offer(username, id):
         import Calendar_Functions
         conn_database = sqlite3.connect('database.db')
@@ -1007,12 +1014,12 @@ class DataBaseFunctions:
         return lesson_ID
 
 
-    @staticmethod #  # 
+    @staticmethod #  #
     def deny_lesson_offer(username, id):
         # DataBaseFunctions.delete_lesson_offer_from_lessonsOffers_table(id=id)
         DataBaseFunctions.delete_lesson_offer_from_users_table(username=username, id=id)
 
-    @staticmethod #  # 
+    @staticmethod #  #
     def whos_lesson_offer_is_this(offer_id):
         conn = sqlite3.connect('database.db')
         users = conn.execute("select username from users")
@@ -1062,11 +1069,6 @@ class DataBaseFunctions:
             for row in participants:
                 participants=row[0]
             if username in participants:
-                participants = participants.split(',')
-                platform_nicknames = {
-                    participants[0] : DataBaseFunctions.get_platform_nickname(participants[0]),
-                    participants[1]: DataBaseFunctions.get_platform_nickname(participants[1])
-                }
                 lesson =  conn.execute("select * from lessons where ID=?", (id,))
                 for detail in lesson:
                     lesson_is_active = detail[7]
@@ -1078,7 +1080,6 @@ class DataBaseFunctions:
                                           date=detail[2],
                                           subject=detail[3],
                                           participants=detail[4],
-                                          # platform_nicknames=platform_nicknames,
                                           teacher=detail[5],
                                           time_range=detail[6]))
 
@@ -1270,6 +1271,8 @@ class DataBaseFunctions:
     def number_of_lessons_requests(username):
         conn  =sqlite3.connect('database.db')
         reqs = conn.execute("select lessons_offers_IDs from users where username=?", (username,))
+        print("USERNAME = ", username)
+        print("REQS=",reqs)
         for row in reqs:
             reqs = row[0]
         reqs = reqs.split(',')
@@ -1305,12 +1308,17 @@ class DataBaseFunctions:
             reqs.remove('')
         return len(reqs)
 
-    @staticmethod # מעדכן את זמן ההתחברות של משתמש מסויים (בבסיס הנתונים) לזמן הנוכחי
-    def update_last_login(username):
+    @staticmethod
+    def get_current_time_for_login():
         current_date = DataBaseFunctions.get_date()
         current_time = DataBaseFunctions.get_time()
         time = current_date + ' ' + current_time
+        return time
+
+    @staticmethod # מעדכן את זמן ההתחברות של משתמש מסויים (בבסיס הנתונים) לזמן הנוכחי
+    def update_last_login(username):
         conn = sqlite3.connect('database.db')
+        time=DataBaseFunctions.get_current_time_for_login()
         conn.execute("update users set last_login = ? where username = ?", (time,username))
         conn.commit()
 
@@ -1359,7 +1367,7 @@ class DataBaseFunctions:
 
     @staticmethod # מפיק לינק לשחזור הסיסמה
     def generate_pwd_reset_link(secret_key):
-        return "http://127.0.0.1:5000/reset_password/" + secret_key
+        return "http://syeto.pythonanywhere.com/reset_password/" + secret_key
 
     @staticmethod # מחזיר את שם המשתמש המתאים לkey שהתקבל כפרמטר
     def get_username_by_secret_key(secret_key):

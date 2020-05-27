@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
 <h1 class="username" style="position: relative; top: -30px; right: 35px;">פרופיל אישי</h1>
-
+<h3 style="position: relative; top: -30px; right: 35px;">נולדתי ב: {{birth_date}}</h3>
 <!--action-button shadow animate blue-->
 <!--<button id="strong_subs_btn" class="myBtn" style=" float: right;position: relative; right: 50px; top: 0px;">מקצועות חזקים</button>-->
 
@@ -56,6 +56,10 @@
           <h2>&nbsp;&nbsp;&nbsp;&nbsp;מקצועות שבהם את/ה זקוק/ה לתגבור</h2>
       </header>
       <div class="w3-container">
+
+          {% if not weak_subjects %}
+                <h3>אין מקצועות חלשים</h3>
+          {% endif %}
 {% for subject in weak_subjects %}
     <h2>{{subject.name}} -</h2>
     {% for class in subject.classes %}
@@ -77,7 +81,9 @@
 <!--<button class="action-button shadow animate orange" style=" float: right;position: relative; right: 50px; top: 0px; action-button padding: 100px;"></button>-->
 
 <button class="action-button shadow animate orange" style=" float: right;position: relative; right: 70px; top: 0px; action-button padding: 100px;" onclick="location.href='/editProfile'"/>ערוך פרופיל</button>
+<button class="action-button shadow animate orange" style=" float: right;position: relative; right: 70px; top: 0px; action-button padding: 100px;" onclick="location.href='/friends_list'"/>רשימת החברים שלי</button>
 
+<!--    <a href="/friends_list">רשימת החברים שלי</a>-->
 
 
 <style>
@@ -122,6 +128,8 @@ padding: 10px 230px;
 	border-bottom: 5px solid #ff6600;
 	text-shadow: 0px -2px #ff6600;
 }
+
+
 
 .action-button:active
 {

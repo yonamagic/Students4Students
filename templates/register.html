@@ -1,4 +1,4 @@
-{% extends "registeredLayout.html" %}
+{% extends "guestLayout.html" %}
 {% block body %}
 
 
@@ -40,6 +40,24 @@
 
              <small style="color:red">{{email_comment}}</small>
         <input type="text" name="email" id="email" placeholder="כתובת אי-מייל" value="{{email}}">
+
+<!--        <input type="password" name="confirm_password" id="confirm_password" placeholder="אשר סיסמה" value="{{confirm_password}}">-->
+<input type="date" id="start" name="birth_date"
+       value="2020-01-01"
+       min="1980-01-01" max="2020-05-27">
+
+        <style>
+            label {
+    display: block;
+    font: 1rem 'Fira Sans', sans-serif;
+}
+
+input,
+label {
+    margin: .4rem 0;
+}
+
+        </style>
 
         <input type="button" name="next" class="next action-button" value="הבא" />
 

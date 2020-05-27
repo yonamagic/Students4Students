@@ -376,7 +376,10 @@ class Emailing:
         mail.starttls()
 
         mail.login('syeto2020@gmail.com', 'rzjtuounvucfubns')
-        mail.sendmail(me, addressee, msg.as_string())
+        try:
+            mail.sendmail(me, addressee, msg.as_string())
+        except:
+            pass
         mail.quit()
 
 # Emailing.send_email("jhonbenartzi123@gmail.com", "Welcome ya habibi!", Emailing.welcome())

@@ -10,17 +10,17 @@ from DataBaseFunctions import DataBaseFunctions
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 
-@app.route('/uu')
+
+@app.route('/uu', methods=['GET','POST'])
 def uu():
-    return render_template('registerr.html')
+    return render_template('uu.html')
 
-
-
-@app.route('/check', methods=['POST'])
-def c():
-    return request.form.get("uu")
-
-
+@app.route('/uu_done', methods=['GET','POST'])
+def uu_done():
+    birth_date = str(request.form.get("birth_date"))
+    birth_date = birth_date.split('-')
+    birth_date = str(birth_date[2] +'/' + birth_date[1] + '/' + birth_date[0])
+    return str(birth_date)
 
 
 
@@ -75,20 +75,6 @@ def reset_password_done(secret_key):
         return reset_password(secret_key=secret_key, error_msg=error_msg)
 
 
-@app.route('/u')
-def pro():
-    weak_subjects = DataBaseFunctions.get_weak_subjects("nir_selickter")
-
-    return render_template('poten.html',
-                           subjects=DataBaseFunctions.specific_users_for_all_subjects(weak_subjects, 'teacher'),
-                           teachers_or_students = 'teachers'
-                           )
-
-@app.route('/ip')
-def ip():
-    return request.remote_addr
-
-
 #Just so I can determine the "Details incorrect" message
 class staticVar:
     comment=""
@@ -104,6 +90,7 @@ def connected():
 # עושה זאת גם אם נקבעו שיעורים אחרים בזמנים חופפים
 @app.before_request
 def update_lessons_offers():
+    # del session['user']
     if 'user' in session:
         DataBaseFunctions.update_lessons_offers_that_have_passed(session['user'])
         DataBaseFunctions.update_lessons_offers_that_are_no_longer_relevant(session['user'])
@@ -125,13 +112,9 @@ def update_lessons_requests_quantity():
 
 @app.route('/', methods=['GET','POST'])
 def index():
-
-    # DataBaseFunctions.update_new_lessons_requests(session)
-    # return session['user']
-    # print(str(session['user']))
     staticVar.comment=""
     if connected():
-        return render_template('homePage.html', user=session['user'])
+        return render_template('homePage.html')
     return render_template("index.html")
 
 
@@ -223,6 +206,10 @@ def checkRegistration():
         'weak_subjects': []
     }
 
+    birth_date = str(request.form.get("birth_date"))
+    birth_date = birth_date.split('-')
+    birth_date = str(birth_date[2] +'/' + birth_date[1] + '/' + birth_date[0])
+
     strong_subjects=[]
     for subject in DataBaseFunctions.subjects_and_classes:
         subject_name=subject[0]
@@ -263,9 +250,9 @@ def checkRegistration():
     if not details_dict['email'].__contains__('@'):
         details_dict['email_comment']="אנא מלאו כתובת מייל תקנית"
         todo_bien=False
-    if DataBaseFunctions.email_exists_in_DB(details_dict['email']):
-        details_dict['email_comment']="כתובת מייל זו נמצאת בשימוש על ידי משתמש אחר, אנא הזינו כתובת מייל שונה."
-        todo_bien=False
+    # if DataBaseFunctions.email_exists_in_DB(details_dict['email']):
+    #     details_dict['email_comment']="כתובת מייל זו נמצאת בשימוש על ידי משתמש אחר, אנא הזינו כתובת מייל שונה."
+    #     todo_bien=False
 
     if details_dict['confirm_password_comment'] == None:
         details_dict['confirm_password_comment']=""
@@ -292,7 +279,7 @@ def checkRegistration():
     DataBaseFunctions.create_user(username=request.form.get("username"),
                                   password=request.form.get("password"),
                                   email=request.form.get("email"),
-                                  platform_nickname="",
+                                  birth_date=birth_date,
                                   strong_subjects=strong_subjects,
                                   weak_subjects=weak_subjects)
     session['user'] = details_dict['username']
@@ -365,15 +352,18 @@ def profile():
     if 'user' in session:
         if not username or username==session['user']:#if there is no specified username or the specified name is sessin['user']
             username = session['user']
+            print( DataBaseFunctions.get_user_birth_date(username))
             # user = build_User_object(username)
             return render_template('personal_profile.html',
                                    strong_subjects=DataBaseFunctions.get_strong_subjects(username),
-                                   weak_subjects=DataBaseFunctions.get_weak_subjects(username))
+                                   weak_subjects=DataBaseFunctions.get_weak_subjects(username),
+                                   birth_date = DataBaseFunctions.get_user_birth_date(username))
         elif not DataBaseFunctions.is_admin(username):#user exists and it is not session['user']
             return render_template('user_profile.html',
                                    username=username,
                                    strong_subjects = DataBaseFunctions.get_strong_subjects(username),
                                    weak_subjects = DataBaseFunctions.get_weak_subjects(username),
+                                   birth_date=DataBaseFunctions.get_user_birth_date(username),
                                    is_friend = not DataBaseFunctions.is_friend(self_user = session['user'],
                                                                      username=username,),#It gets the opposite somewhy
                                    friend_request_sent_already = DataBaseFunctions.is_in_friend_requests(self_user=username,
@@ -917,7 +907,6 @@ def view_a_single_lesson_offer(offer_id):
     offer = DataBaseFunctions.get_lesson_offer_object(offer_id)
     return render_template('view_a_single_lesson_offer.html',
                            offer=offer)#,
-                           # platform_nickname=DataBaseFunctions.get_platform_nickname(offer.from_user))
 
 @app.route('/my_lessons')
 def my_lessons():
@@ -931,9 +920,6 @@ def view_one_lesson(lesson_ID):
     return render_template("view_a_single_lesson.html",
                            lesson=lesson,
                            todays_date=DataBaseFunctions.get_date()[:-2]
-                           # ,platform_nickname = DataBaseFunctions.get_platform_nickname(
-                           #     username=DataBaseFunctions.get_other_user_username(lesson=lesson,
-                           #                                                        self_username=session['user']))
                            )
 @app.route('/my_lessons/cancel_lesson/<lesson_ID>')
 def cancel_lesson(lesson_ID):
