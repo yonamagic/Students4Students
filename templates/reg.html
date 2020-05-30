@@ -8,7 +8,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css'>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js'></script>
+<link href='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'>
 <div style="background-color:grey;">
 
 <!-- multistep form -->
@@ -30,16 +33,16 @@
 		<h3 class="fs-subtitle">על שם המשתמש להיות ארוך מארבעה תווים <br> על הסיסמה להיות אורכה משבעה תווים</h3>
 <!--		<input type="number" name="quantity" min="30" max="50" placeholder="Age?">-->
              <small style="color:red">{{username_comment}}</small>
-        <input type="text"  name="username" id="username" placeholder="שם משתמש" value="{{username}}">
+        <input type="text"  name="username" id="username" placeholder="שם משתמש" value="{{username}}" autocomplete="off">
 
             <small style="color:red">{{password_comment}}</small>
-        <input type="password" name="password" id="password" placeholder="סיסמה" value="{{password}}">
+        <input type="password" name="password" id="password" placeholder="סיסמה" value="{{password}}" autocomplete="off">
 
             <small style="color:red">{{confirm_password_comment}}</small>
-        <input type="password" name="confirm_password" id="confirm_password" placeholder="אשר סיסמה" value="{{confirm_password}}">
+        <input type="password" name="confirm_password" id="confirm_password" placeholder="אשר סיסמה" value="{{confirm_password}}" autocomplete="off">
 
              <small style="color:red">{{email_comment}}</small>
-        <input type="text" name="email" id="email" placeholder="כתובת אי-מייל" value="{{email}}">
+        <input type="text" name="email" id="email" placeholder="כתובת אי-מייל" value="{{email}}" autocomplete="off">
 
         <input type="button" name="next" class="next action-button" value="הבא" />
 
@@ -249,10 +252,8 @@ label:hover {
 
     <fieldset>
         <h1>רק עוד אישור אחד קטן...</h1>
-
-        <input type="checkbox" id="agree_to_terms" name="agree_to_terms" value="{{agree_to_terms_checked}}" style="opacity: 0;">
-
-        <label for="agree_to_terms"
+        <br>
+                <label for="agree_to_terms"
                id="agree_to_terms_label"
         onclick="var currentColor = this.style.color;
                 if (currentColor=='green') {this.style.color='black';}
@@ -269,7 +270,46 @@ label:hover {
                 document.getElementById('agree_to_terms_label').style.color='green';
                 document.getElementById('agree_to_terms_label').style.borderColor='green';
             }
+            else {
+                document.getElementById('agree_to_terms_label').style.color='red';
+                document.getElementById('agree_to_terms_label').style.borderColor='red';
+            }
         </script>
+
+
+        <br>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <div class="container">
+          <!-- Trigger the modal with a button -->
+          <a type="button" data-toggle="modal" data-target="#myModal">תנאי השימוש באתר</a>
+
+          <!-- Modal -->
+          <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title">תנאי השימוש באתר</h4>
+                </div>
+                <div class="modal-body">
+                  <p>פה ייכתבו תנאי השימוש באתר.</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">סגור</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+
+        <input type="checkbox" id="agree_to_terms" name="agree_to_terms" value="{{agree_to_terms_checked}}" style="opacity: 0;">
 
 
 		<input type="submit"  class="next action-button" value="הירשם!" />
@@ -431,7 +471,6 @@ height: 100px;
 <script>
     /*
 Orginal Page: http://thecodeplayer.com/walkthrough/jquery-multi-step-form-with-progress-bar
-
 */
 //jQuery time
 var current_fs, next_fs, previous_fs; //fieldsets

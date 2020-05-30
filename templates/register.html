@@ -30,34 +30,16 @@
 		<h3 class="fs-subtitle">על שם המשתמש להיות ארוך מארבעה תווים <br> על הסיסמה להיות אורכה משבעה תווים</h3>
 <!--		<input type="number" name="quantity" min="30" max="50" placeholder="Age?">-->
              <small style="color:red">{{username_comment}}</small>
-        <input type="text"  name="username" id="username" placeholder="שם משתמש" value="{{username}}">
+        <input type="text"  name="username" id="username" placeholder="שם משתמש" value="{{username}}" autocomplete="off">
 
             <small style="color:red">{{password_comment}}</small>
-        <input type="password" name="password" id="password" placeholder="סיסמה" value="{{password}}">
+        <input type="password" name="password" id="password" placeholder="סיסמה" value="{{password}}" autocomplete="off">
 
             <small style="color:red">{{confirm_password_comment}}</small>
-        <input type="password" name="confirm_password" id="confirm_password" placeholder="אשר סיסמה" value="{{confirm_password}}">
+        <input type="password" name="confirm_password" id="confirm_password" placeholder="אשר סיסמה" value="{{confirm_password}}" autocomplete="off">
 
              <small style="color:red">{{email_comment}}</small>
-        <input type="text" name="email" id="email" placeholder="כתובת אי-מייל" value="{{email}}">
-
-<!--        <input type="password" name="confirm_password" id="confirm_password" placeholder="אשר סיסמה" value="{{confirm_password}}">-->
-<input type="date" id="start" name="birth_date"
-       value="2020-01-01"
-       min="1980-01-01" max="2020-05-27">
-
-        <style>
-            label {
-    display: block;
-    font: 1rem 'Fira Sans', sans-serif;
-}
-
-input,
-label {
-    margin: .4rem 0;
-}
-
-        </style>
+        <input type="text" name="email" id="email" placeholder="כתובת אי-מייל" value="{{email}}" autocomplete="off">
 
         <input type="button" name="next" class="next action-button" value="הבא" />
 
@@ -486,7 +468,6 @@ height: 100px;
 <script>
     /*
 Orginal Page: http://thecodeplayer.com/walkthrough/jquery-multi-step-form-with-progress-bar
-
 */
 //jQuery time
 var current_fs, next_fs, previous_fs; //fieldsets

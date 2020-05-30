@@ -110,12 +110,21 @@ def update_lessons_requests_quantity():
         session['new_friend_requests'] = DataBaseFunctions.number_of_friend_requests(session['user'])
         session['lessons'] = DataBaseFunctions.number_of_lessons(session['user'])
 
+@app.before_request
+def delete_hp_note_if_nessaccery():
+    if connected():
+        current_url = request.url_rule
+        print("Current", type(current_url))
+        DataBaseFunctions.delete_hp_note_if_nessaccery(username=session['user'], current_url=current_url)
+
 @app.route('/', methods=['GET','POST'])
 def index():
     staticVar.comment=""
     if connected():
-        return render_template('homePage.html')
-    return render_template("index.html")
+        notes = DataBaseFunctions.get_user_home_page_notes(session['user'])
+        notes.reverse()
+        return render_template('homePage.html', home_page_notes = notes)
+    return render_template('index.html')
 
 
 
@@ -174,7 +183,7 @@ def register(username="", username_comment="",
              email="", email_comment="",
              agree_to_terms_checked="", agree_to_terms_message="",
              selected_strong_subjects=[], selected_weak_subjects=[]):
-    return render_template('register.html',
+    return render_template('reg.html',
                            username=username, password=password, confirm_password=confirm_password, email=email,
                            username_comment=username_comment,
                            password_comment=password_comment,
@@ -205,10 +214,6 @@ def checkRegistration():
         'strong_subjects': [],
         'weak_subjects': []
     }
-
-    birth_date = str(request.form.get("birth_date"))
-    birth_date = birth_date.split('-')
-    birth_date = str(birth_date[2] +'/' + birth_date[1] + '/' + birth_date[0])
 
     strong_subjects=[]
     for subject in DataBaseFunctions.subjects_and_classes:
@@ -279,7 +284,6 @@ def checkRegistration():
     DataBaseFunctions.create_user(username=request.form.get("username"),
                                   password=request.form.get("password"),
                                   email=request.form.get("email"),
-                                  birth_date=birth_date,
                                   strong_subjects=strong_subjects,
                                   weak_subjects=weak_subjects)
     session['user'] = details_dict['username']
@@ -331,14 +335,13 @@ def profileEditingDone():
 
 @app.route('/homePage', methods=['POST','GET'])
 def homePage():
-    if connected():
-        # session['new_lessons_requests'] = 0
-
-        if DataBaseFunctions.is_admin(session['user']):
-            session['is_admin'] = True
-        else:
-            session['is_admin'] = False
-        return render_template('/homePage.html')
+    # if connected():
+    #     # session['new_lessons_requests'] = 0
+    #     if DataBaseFunctions.is_admin(session['user']):
+    #         session['is_admin'] = True
+    #     else:
+    #         session['is_admin'] = False
+    #     return render_template('/homePage.html')
     return redirect('/')
 
 
@@ -347,23 +350,21 @@ def profile():
     username = request.args.get("username")# Just for now
     print("username = ", username)
     if not DataBaseFunctions.user_exists(username):
-        return render_template('homePage.html', search_user_comment="שם משתמש לא קיים, נסו להזין אחד אחר.")
+        return redirect('/')
+        # return render_template('homePage.html', search_user_comment="שם משתמש לא קיים, נסו להזין אחד אחר.")
 
     if 'user' in session:
         if not username or username==session['user']:#if there is no specified username or the specified name is sessin['user']
             username = session['user']
-            print( DataBaseFunctions.get_user_birth_date(username))
             # user = build_User_object(username)
             return render_template('personal_profile.html',
                                    strong_subjects=DataBaseFunctions.get_strong_subjects(username),
-                                   weak_subjects=DataBaseFunctions.get_weak_subjects(username),
-                                   birth_date = DataBaseFunctions.get_user_birth_date(username))
+                                   weak_subjects=DataBaseFunctions.get_weak_subjects(username))
         elif not DataBaseFunctions.is_admin(username):#user exists and it is not session['user']
             return render_template('user_profile.html',
                                    username=username,
                                    strong_subjects = DataBaseFunctions.get_strong_subjects(username),
                                    weak_subjects = DataBaseFunctions.get_weak_subjects(username),
-                                   birth_date=DataBaseFunctions.get_user_birth_date(username),
                                    is_friend = not DataBaseFunctions.is_friend(self_user = session['user'],
                                                                      username=username,),#It gets the opposite somewhy
                                    friend_request_sent_already = DataBaseFunctions.is_in_friend_requests(self_user=username,

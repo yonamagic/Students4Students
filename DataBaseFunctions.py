@@ -68,14 +68,13 @@ class DataBaseFunctions:
         return False
 
     @staticmethod # יוצרת משתמש בבסיס הנתונים
-    def create_user(username, password, birth_date, email, strong_subjects=[], weak_subjects=[]):
+    def create_user(username, password, email, strong_subjects=[], weak_subjects=[]):
         conn = sqlite3.connect('database.db', timeout=2)
         conn.execute("insert into users "
-                     "(username, password, birth_date, email, strong_subjects, weak_subjects, inboxID, is_admin, friends_list, friend_requests, notifications_IDs, lessons_offers_IDs, last_login) "
-                     "values (?,?,?,?,?,?,?,'no', '' ,'' ,'' ,'',?)",
+                     "(username, password, email, home_page_notes_IDs, strong_subjects, weak_subjects, inboxID, is_admin, friends_list, friend_requests, notifications_IDs, lessons_offers_IDs, last_login) "
+                     "values (?,?,?,'',?,?,?,'no', '' ,'' ,'' ,'',?)",
                      (username,
                       password,
-                      birth_date,
                       email,
                       ','.join(DataBaseFunctions.subjects_names(strong_subjects)),
                       ','.join(DataBaseFunctions.subjects_names(weak_subjects)),
@@ -104,13 +103,6 @@ class DataBaseFunctions:
                             html=Emailing.welcome(username=username))
 
 
-    @staticmethod
-    def get_user_birth_date(username):
-        conn = sqlite3.connect('database.db')
-        birth_date = conn.execute("select birth_date from users where username=?", (username,))
-        for row in birth_date:
-            birth_date = row[0]
-        return birth_date
 
     @staticmethod # #returns a list of a user's friends list
     def get_friends_list(username):
@@ -348,6 +340,7 @@ class DataBaseFunctions:
                      "WHERE inboxID = ?", (new_msgs_IDs, inboxID))
 
         conn.commit()
+        DataBaseFunctions.send_home_page_note(addressee=addressee, topic='קיבלת הודעה חדשה מ'+sender, link='/messages')
 
 
     @staticmethod # מחזירה את שם המשתמש של המשתמש שההודעה בעלת הID שהתקבל כפרמטר נמצאת בתיבתו
@@ -541,16 +534,12 @@ class DataBaseFunctions:
         DataBaseFunctions.create_notification_in_notifications_table(note_id=id,
                                                                     topic=topic,
                                                                     content=content)
+        for user in DataBaseFunctions.get_all_users():
+            DataBaseFunctions.send_home_page_note(addressee=user, topic='קיבלת התראה חדשה ממנהלי המערכת', link='/notifications')
 
 
 
-    @staticmethod # #sends a notification toa single user
-    def send_notification_to_a_single_user(topic, content):
-        id = DataBaseFunctions.random_id()
-        DataBaseFunctions.create_notification_in_users_table_for_a_single_user(note_id=id)
-        DataBaseFunctions.create_notification_in_notifications_table(note_id=id,
-                                                                    topic=topic,
-                                                                    content=content)
+
 
     @staticmethod # #Returns a list of all usernames
     def get_all_users():
@@ -1466,3 +1455,80 @@ class DataBaseFunctions:
             if date == todays_date and DataBaseFunctions.time_difference(current_time, time) <= accepted_time_difference:
                 users.append(username)
         return users
+
+    @staticmethod
+    def get_home_page_note(ID):
+        conn = sqlite3.connect('database.db')
+        note = conn.execute("SELECT * from home_page_notes where ID=?", (ID,))
+        for row in note:
+            return {
+                'ID' : row[0],
+                'topic' : row[1],
+                'link' : row[2]
+            }
+
+    @staticmethod
+    def get_user_home_page_notes_IDs(username):
+        conn = sqlite3.connect('database.db')
+        notes_IDs = conn.execute("select home_page_notes_IDs from users where username=?", (username,))
+        for row in notes_IDs:
+            notes_IDs = row[0]
+        if len(str(notes_IDs)) == 0:
+            return []
+        else:
+            return notes_IDs.split(',')
+
+
+    @staticmethod
+    def get_user_home_page_notes(username):
+        notes = []
+        for note_ID in DataBaseFunctions.get_user_home_page_notes_IDs(username):
+            notes.append(DataBaseFunctions.get_home_page_note(note_ID))
+        return notes
+
+    @staticmethod
+    def add_home_page_note_users_table(username, ID):
+        conn = sqlite3.connect('database.db')
+        current_IDs = conn.execute("select home_page_notes_IDs from users where username=?" ,(username,))
+        for row in current_IDs:
+            current_IDs=row[0]
+        if len(current_IDs) == 0:
+            new_IDs = ID
+        else:
+            new_IDs = current_IDs + ',' + ID
+        conn.execute("UPDATE users set home_page_notes_IDs=? where username=?", (new_IDs, username))
+        conn.commit()
+
+    @staticmethod
+    def add_home_page_note_notes_table(ID, topic, link):
+        conn = sqlite3.connect('database.db')
+        conn.execute("INSERT INTO home_page_notes (ID, topic, link) VALUES (?,?,?)", (ID, topic, link))
+        conn.commit()
+
+    @staticmethod
+    def send_home_page_note(addressee, topic, link):
+        # conn = sqlite3.connect('database.db')
+        note_ID = DataBaseFunctions.random_id()
+        DataBaseFunctions.add_home_page_note_users_table(username=addressee, ID=note_ID)
+        DataBaseFunctions.add_home_page_note_notes_table(ID=note_ID, topic=topic, link=link)
+
+    @staticmethod
+    def delete_hp_note_if_nessaccery(username, current_url):
+        conn = sqlite3.connect('database.db')
+        print(DataBaseFunctions.get_user_home_page_notes(username))
+        for hp_note in DataBaseFunctions.get_user_home_page_notes(username):
+            if str(current_url) == str(hp_note['link']):
+                print("Equals")
+                DataBaseFunctions.delete_hp_note(username=username, ID=hp_note['ID'])
+
+    @staticmethod
+    def delete_hp_note(username, ID):
+        conn = sqlite3.connect('database.db')
+        current_IDs = conn.execute("select home_page_notes_IDs from users where username=?", (username,))
+        for row in current_IDs:
+            current_IDs=row[0]
+        current_IDs = current_IDs.split(',')
+        current_IDs.remove(ID)
+        current_IDs = ','.join(current_IDs)
+        conn.execute("UPDATE users set home_page_notes_IDs=? where username=?", (current_IDs, username))
+        conn.commit()
